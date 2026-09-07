@@ -36,10 +36,10 @@
             <form id="loginForm" class="auth-form">
                 <h2>Welcome Back</h2>
                 <div class="input-group">
-                    <input type="tel" id="loginNumber" placeholder="10 Digit Number" pattern="[0-9]{10}" maxlength="10" required>
+                    <input type="tel" id="loginNumber" placeholder="Enter your mobile number" pattern="[0-9]{10}" maxlength="10" required>
                 </div>
                 <div class="input-group">
-                    <input type="password" id="loginPassword" placeholder="6 Digit Password" minlength="6" required>
+                    <input type="password" id="loginPassword" placeholder="Password (content 6 digit)" minlength="6" required>
                 </div>
                 <button type="submit" id="loginBtn" class="auth-btn">Log In</button>
                 <p class="switch-form">New user? <span id="showRegister">Sign in (Register)</span></p>
@@ -52,10 +52,10 @@
                     <input type="text" id="regName" placeholder="Full Name" required>
                 </div>
                 <div class="input-group">
-                    <input type="tel" id="regNumber" placeholder="10 Digit Number" pattern="[0-9]{10}" maxlength="10" required>
+                    <input type="tel" id="regNumber" placeholder="Enter your mobile number" pattern="[0-9]{10}" maxlength="10" required>
                 </div>
                 <div class="input-group">
-                    <input type="password" id="regPassword" placeholder="6 Digit Password" minlength="6" required>
+                    <input type="password" id="regPassword" placeholder="Password (content 6 digit)" minlength="6" required>
                 </div>
                 <button type="submit" id="regBtn" class="auth-btn">Register</button>
                 <p class="switch-form">Already have an account? <span id="showLogin">Log In</span></p>
@@ -98,7 +98,7 @@
             useEffect(() => {
                 const handleGameStart = (e) => {
                     const userData = e.detail;
-                    if(userData && userData.wallet) {
+                    if(userData && userData.wallet !== undefined) {
                         setWallet(userData.wallet);
                     }
                 };
@@ -224,7 +224,6 @@
                 <div className="max-w-md mx-auto bg-slate-900 min-h-screen shadow-2xl relative flex flex-col">
                     <Navbar />
                     <div className="p-4 flex-1 overflow-y-auto hide-scrollbar">
-                        {/* GAME UI KEEPS WORKING EXACTLY AS BEFORE */}
                         {view === 'lobby' && (
                             <div className="space-y-6 mt-4">
                                 <div className="bg-slate-800 p-6 rounded-xl text-center shadow-lg border border-slate-700">
@@ -240,7 +239,6 @@
                                 </div>
                             </div>
                         )}
-                        {/* GAME, WALLET, AND HISTORY VIEWS */}
                         {view === 'game' && (
                             <div className="flex flex-col h-full space-y-4">
                                 <div className="flex justify-between items-center bg-slate-800 p-3 rounded-lg border border-slate-700">
