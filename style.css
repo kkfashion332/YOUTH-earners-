@@ -34,8 +34,8 @@ body.intro-running { overflow: hidden; }
 .auth-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at center, rgba(220,174,69,0.1), var(--black) 70%); padding: 20px; }
 .form-container { background: var(--dark); border: 1px solid rgba(220,174,69,0.25); border-radius: 20px; padding: 40px 30px; width: 100%; max-width: 400px; box-shadow: 0 0 25px rgba(220,174,69,0.05); text-align: center; }
 
-/* Chamak hata di aur size badha diya (width: 160px) */
-.auth-logo { width: 160px; margin: 0 auto 20px; mix-blend-mode: screen; }
+/* Size aur badha diya (width: 220px) */
+.auth-logo { width: 220px; margin: 0 auto 20px; mix-blend-mode: screen; }
 
 .auth-form h2 { color: var(--gold-light); margin-bottom: 25px; font-size: 24px; font-weight: bold; }
 .input-group { margin-bottom: 15px; }
