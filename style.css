@@ -1,7 +1,7 @@
 /* GLOBAL CSS */
 :root { 
-    --black: #0f172a; 
-    --dark: #1e293b;
+    --black: #000000; /* Pure Black kar diya main background ke liye */
+    --dark: #000000;  /* Pure Black kar diya form ke dabbe ke liye */
     --gold: #dcae45; 
     --gold-light: #ffe29a; 
     --text: #f8fafc; 
@@ -32,13 +32,18 @@ body.intro-running { overflow: hidden; }
 
 /* ---------------- AUTHENTICATION UI ---------------- */
 .auth-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at center, rgba(220,174,69,0.1), var(--black) 70%); padding: 20px; }
-.form-container { background: var(--dark); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 40px 30px; width: 100%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; }
-.auth-logo { width: 100px; margin: 0 auto 20px; filter: drop-shadow(0 0 10px rgba(220,174,69,0.5)); }
+
+/* Dabbe ko black karke usme ek VIP gold outline daal di hai */
+.form-container { background: var(--dark); border: 1px solid rgba(220,174,69,0.25); border-radius: 20px; padding: 40px 30px; width: 100%; max-width: 400px; box-shadow: 0 0 25px rgba(220,174,69,0.05); text-align: center; }
+
+/* Logo par screen blend mode lagaya hai taaki extra kala background hide ho jaye */
+.auth-logo { width: 100px; margin: 0 auto 20px; filter: drop-shadow(0 0 10px rgba(220,174,69,0.5)); mix-blend-mode: screen; }
+
 .auth-form h2 { color: var(--gold-light); margin-bottom: 25px; font-size: 24px; font-weight: bold; }
 .input-group { margin-bottom: 15px; }
-.input-group input { width: 100%; padding: 14px 20px; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(220,174,69,0.3); color: white; font-size: 16px; outline: none; transition: border 0.3s; }
-.input-group input:focus { border: 1px solid var(--gold); }
-.auth-btn { width: 100%; padding: 15px; border-radius: 10px; background: var(--gold); color: var(--black); font-size: 16px; font-weight: bold; border: none; cursor: pointer; transition: transform 0.2s; margin-top: 10px; }
+.input-group input { width: 100%; padding: 14px 20px; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(220,174,69,0.3); color: white; font-size: 16px; outline: none; transition: border 0.3s; }
+.input-group input:focus { border: 1px solid var(--gold); background: rgba(255,255,255,0.1); }
+.auth-btn { width: 100%; padding: 15px; border-radius: 10px; background: var(--gold); color: #000; font-size: 16px; font-weight: bold; border: none; cursor: pointer; transition: transform 0.2s; margin-top: 10px; }
 .auth-btn:hover { background: var(--gold-light); transform: translateY(-2px); }
 .switch-form { margin-top: 20px; font-size: 14px; color: #94a3b8; }
 .switch-form span { color: var(--gold); cursor: pointer; font-weight: bold; text-decoration: underline; }
