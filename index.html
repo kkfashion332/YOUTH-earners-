@@ -38,9 +38,6 @@
 
         .intro-title { letter-spacing:.32em; text-transform:uppercase; font-size:clamp(11px,3vw,15px); color:var(--gold-light); opacity:0; animation:fadeUp .9s ease 1.25s forwards; }
 
-        .intro-button { position:absolute; right:max(16px,env(safe-area-inset-right)); bottom:max(20px,env(safe-area-inset-bottom)); min-height:44px; padding:0 16px; border:1px solid rgba(220,174,69,.7); border-radius:6px; background:rgba(0,0,0,.82); color:var(--gold-light); font-size:13px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent; }
-        .intro-button:hover, .intro-button:focus-visible { background:var(--gold); color:var(--black); outline:none; }
-
         #website { min-height:100vh; opacity:0; transition:opacity 700ms ease; }
         #website.show { opacity:1; }
 
@@ -74,7 +71,6 @@
             <div class="intro-line"></div>
             <p class="intro-title">Youth Earner's</p>
         </div>
-        <button id="skipButton" class="intro-button" type="button">Skip</button>
     </div>
     <!-- INTRO END -->
 
@@ -87,7 +83,6 @@
     <script>
         const intro = document.getElementById("logoIntro");
         const website = document.getElementById("website");
-        const skipButton = document.getElementById("skipButton");
         let closed = false;
 
         function openWebsite() {
@@ -99,8 +94,7 @@
             setTimeout(() => intro.remove(), 1000);
         }
         
-        skipButton.addEventListener("click", openWebsite);
-        setTimeout(openWebsite, 4500); // intro 4.5 sec chalega
+        setTimeout(openWebsite, 4500); // intro 4.5 sec chalega aur fir automatic game open hoga
     </script>
 
     <!-- Game Logic Script -->
