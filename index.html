@@ -2,20 +2,227 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secret Bidder - Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Youth Earner's - Secret Bidder Pro</title>
+    
+    <!-- Game Scripts -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    
     <style>
+        /* Game Styles */
         body { background-color: #0f172a; color: white; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
+
+        /* Animation Styles */
+        :root {
+          --black: #000000;
+          --gold: #dcae45;
+          --gold-light: #ffe29a;
+          --text: #fff5da;
+        }
+
+        * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+        }
+
+        html, body {
+          width: 100%;
+          min-height: 100%;
+          font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body.intro-running {
+          overflow: hidden;
+        }
+
+        /* Full-screen intro */
+        #logoIntro {
+          position: fixed;
+          inset: 0;
+          z-index: 99999;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+          background: var(--black);
+          opacity: 1;
+          visibility: visible;
+          transition: opacity 900ms ease, visibility 900ms ease;
+        }
+
+        #logoIntro::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          background: radial-gradient(ellipse at center, rgba(220, 174, 69, 0.1) 0%, rgba(0, 0, 0, 0) 60%);
+        }
+
+        #logoIntro.hide {
+          opacity: 0;
+          visibility: hidden;
+          pointer-events: none;
+        }
+
+        #introVideo {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          background: var(--black);
+        }
+
+        /* Intro controls */
+        .intro-controls {
+          position: absolute;
+          right: max(18px, env(safe-area-inset-right));
+          bottom: max(22px, env(safe-area-inset-bottom));
+          z-index: 3;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .intro-button {
+          min-height: 44px;
+          padding: 0 16px;
+          border: 1px solid rgba(220, 174, 69, 0.7);
+          border-radius: 6px;
+          background: rgba(0, 0, 0, 0.82);
+          color: var(--gold-light);
+          font-size: 13px;
+          font-weight: 700;
+          cursor: pointer;
+          -webkit-tap-highlight-color: transparent;
+        }
+
+        .intro-button:hover,
+        .intro-button:focus-visible {
+          background: var(--gold);
+          color: var(--black);
+          outline: none;
+        }
+
+        /* Actual website/Game container */
+        #website {
+          min-height: 100vh;
+          opacity: 0;
+          transition: opacity 700ms ease;
+        }
+
+        #website.show {
+          opacity: 1;
+        }
+
+        @media (max-width: 600px) {
+          .intro-controls {
+            right: 12px;
+            bottom: max(14px, env(safe-area-inset-bottom));
+          }
+          .intro-button {
+            min-height: 42px;
+            padding: 0 13px;
+            font-size: 12px;
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          #logoIntro, #website { transition: none; }
+        }
     </style>
 </head>
-<body>
-    <div id="root"></div>
+<body class="intro-running">
 
+    <!-- INTRO START -->
+    <div id="logoIntro" aria-label="Youth Earner's logo introduction">
+        <video id="introVideo" autoplay muted playsinline preload="auto">
+            <source src="assets/youth-earners-intro.mp4" type="video/mp4" />
+            Your browser does not support video playback.
+        </video>
+
+        <div class="intro-controls">
+            <button id="soundButton" class="intro-button" type="button" aria-label="Turn intro sound on">
+                🔇 Sound On
+            </button>
+            <button id="skipButton" class="intro-button" type="button">
+                Skip
+            </button>
+        </div>
+    </div>
+    <!-- INTRO END -->
+
+    <!-- GAME CONTAINER -->
+    <div id="website">
+        <div id="root"></div>
+    </div>
+
+    <!-- Intro Logic Script -->
+    <script>
+        const intro = document.getElementById("logoIntro");
+        const video = document.getElementById("introVideo");
+        const website = document.getElementById("website");
+        const soundButton = document.getElementById("soundButton");
+        const skipButton = document.getElementById("skipButton");
+
+        let introClosed = false;
+
+        function openWebsite() {
+            if (introClosed) return;
+
+            introClosed = true;
+            intro.classList.add("hide");
+            website.classList.add("show");
+            document.body.classList.remove("intro-running");
+
+            window.setTimeout(() => {
+                video.pause();
+                intro.remove();
+            }, 1000);
+        }
+
+        async function startIntro() {
+            try {
+                video.muted = true;
+                await video.play();
+            } catch (error) {
+                console.log("Autoplay was blocked:", error);
+            }
+        }
+
+        soundButton.addEventListener("click", async () => {
+            video.muted = false;
+            video.volume = 1;
+
+            try {
+                await video.play();
+                soundButton.textContent = "🔊 Sound On";
+                soundButton.setAttribute("aria-label", "Intro sound is on");
+            } catch (error) {
+                console.log("Sound playback was blocked:", error);
+            }
+        });
+
+        skipButton.addEventListener("click", openWebsite);
+        video.addEventListener("ended", openWebsite);
+
+        video.addEventListener("error", () => {
+            console.log("Intro video could not be loaded.");
+            openWebsite();
+        });
+
+        /* Safety: game opens even if the video gets stuck */
+        window.setTimeout(openWebsite, 12000);
+
+        startIntro();
+    </script>
+
+    <!-- Game Logic Script (Unchanged) -->
     <script type="text/babel">
         const { useState, useEffect } = React;
 
@@ -34,7 +241,7 @@
             const [botWins, setBotWins] = useState(0);
             const [bidInput, setBidInput] = useState('');
             const [timeLeft, setTimeLeft] = useState(15);
-            const [roundResult, setRoundResult] = useState(null); // Shows who won the round
+            const [roundResult, setRoundResult] = useState(null);
 
             // Betting Tiers
             const betTiers = [5, 10, 15, 20];
@@ -67,13 +274,12 @@
                 setTransactions([{ type, amount, date: new Date().toLocaleString() }, ...transactions]);
             };
 
-            // Timer Logic
             useEffect(() => {
                 let timer;
                 if (view === 'game' && !roundResult && timeLeft > 0) {
                     timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
                 } else if (timeLeft === 0 && !roundResult) {
-                    handleBidSubmit(true); // Auto-submit on timeout
+                    handleBidSubmit(true);
                 }
                 return () => clearInterval(timer);
             }, [timeLeft, view, roundResult]);
@@ -83,12 +289,11 @@
                 if (isNaN(pBid) || pBid < 0) pBid = 0;
                 if (pBid > playerTokens) pBid = playerTokens;
 
-                // Bot Logic: Random bid based on tokens left and round
                 let bBid = 0;
                 if (round === 3) {
-                    bBid = botTokens; // All-in on last round
+                    bBid = botTokens;
                 } else {
-                    const maxBotBid = Math.min(botTokens, pBid + 50); // Dynamic bot strategy
+                    const maxBotBid = Math.min(botTokens, pBid + 50);
                     bBid = Math.floor(Math.random() * maxBotBid);
                 }
 
@@ -106,7 +311,6 @@
 
                 setRoundResult({ pBid, bBid, winner });
 
-                // Move to next round or end game after a delay
                 setTimeout(() => {
                     if (round < 3) {
                         setRound(prev => prev + 1);
@@ -128,7 +332,7 @@
 
                 if (finalPlayerWins > finalBotWins || (finalPlayerWins === finalBotWins && playerTokens > botTokens)) {
                     matchStatus = "You Won!";
-                    winnings = currentBet * 1.8; // 20% platform fee simulation
+                    winnings = currentBet * 1.8;
                     setWallet(prev => prev + winnings);
                     addTransaction('GAME_WIN', winnings);
                 } else if (finalBotWins > finalPlayerWins) {
@@ -146,7 +350,6 @@
                 setView('lobby');
             };
 
-            // Components
             const Navbar = () => (
                 <div className="flex justify-between items-center bg-slate-800 p-4 shadow-md rounded-b-xl">
                     <h1 className="text-xl font-bold text-emerald-400">BidMaster Pro</h1>
@@ -162,7 +365,6 @@
                     <Navbar />
 
                     <div className="p-4 flex-1 overflow-y-auto hide-scrollbar">
-                        {/* LOBBY VIEW */}
                         {view === 'lobby' && (
                             <div className="space-y-6">
                                 <div className="bg-slate-800 p-6 rounded-xl text-center shadow-lg border border-slate-700">
@@ -187,7 +389,6 @@
                             </div>
                         )}
 
-                        {/* GAME VIEW */}
                         {view === 'game' && (
                             <div className="flex flex-col h-full space-y-4">
                                 <div className="flex justify-between items-center bg-slate-800 p-3 rounded-lg border border-slate-700">
@@ -209,7 +410,6 @@
                                     </div>
                                 </div>
 
-                                {/* Bidding Area */}
                                 {!roundResult ? (
                                     <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 flex-1 flex flex-col justify-center">
                                         <label className="text-center text-slate-300 mb-4 block">Enter your secret bid</label>
@@ -248,7 +448,6 @@
                             </div>
                         )}
 
-                        {/* WALLET VIEW */}
                         {view === 'wallet' && (
                             <div className="space-y-4">
                                 <button onClick={() => setView('lobby')} className="text-slate-400 mb-4">&larr; Back to Lobby</button>
@@ -277,7 +476,6 @@
                             </div>
                         )}
 
-                        {/* HISTORY VIEW */}
                         {view === 'history' && (
                             <div className="space-y-4">
                                 <button onClick={() => setView('lobby')} className="text-slate-400 mb-4">&larr; Back to Lobby</button>
