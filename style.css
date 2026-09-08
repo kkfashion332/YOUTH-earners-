@@ -12,11 +12,20 @@ html, body { width: 100%; min-height: 100%; background: var(--black); color: var
 .hide-scrollbar::-webkit-scrollbar { display: none; }
 .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* Premium Radiant Background (Like Image) */
+/* Premium Radiant Background */
 .bg-premium-dark {
     background: radial-gradient(ellipse at top, rgba(220, 174, 69, 0.15) 0%, transparent 60%),
                 radial-gradient(circle at bottom, rgba(220, 174, 69, 0.1) 0%, #000000 60%);
     background-color: var(--black);
+}
+
+/* --- NEW: CURVED HEADER WALA STYLE --- */
+.curved-header {
+    background: linear-gradient(180deg, #050505 0%, #111 100%);
+    border-bottom-left-radius: 35px;
+    border-bottom-right-radius: 35px;
+    border-bottom: 2px solid rgba(220, 174, 69, 0.6);
+    box-shadow: 0 4px 20px rgba(220,174,69,0.15);
 }
 
 body.intro-running { overflow: hidden; }
@@ -50,7 +59,6 @@ body.intro-running { overflow: hidden; }
 
 #website { min-height: 100vh; opacity: 1; transition: opacity 700ms ease; }
 
-/* Image Style Gold Cards */
 .gold-card { 
     background: linear-gradient(180deg, #111, #050505); 
     border: 1px solid rgba(220,174,69,0.4); 
@@ -59,7 +67,6 @@ body.intro-running { overflow: hidden; }
 }
 .gold-card:hover { border-color: #dcae45; box-shadow: 0 0 25px rgba(220,174,69,0.3); }
 
-/* Play Now Golden Button */
 .btn-play-gold { 
     background: linear-gradient(90deg, #dcae45, #ffe29a, #dcae45); 
     background-size: 200% auto;
@@ -71,7 +78,6 @@ body.intro-running { overflow: hidden; }
 .btn-play-gold:hover { background-position: right center; }
 .btn-play-gold:active { transform: scale(0.95); }
 
-/* Text Gradient */
 .text-gold-gradient {
     background: linear-gradient(90deg, #ffe29a, #dcae45);
     -webkit-background-clip: text;
