@@ -305,24 +305,34 @@
             return (
                 <div className="max-w-md mx-auto bg-transparent min-h-screen relative pb-24">
                     
-                    {/* NEW HEADER (Logo + Text side-by-side) */}
-                    <div className="flex justify-between items-center px-4 pt-5 pb-3">
-                        <div className="flex items-center gap-3">
-                            <img src="youth-earners-logo.png" style={{mixBlendMode:'screen'}} className="h-12 w-auto object-contain" alt="Logo" />
-                            <div className="flex flex-col mt-1">
-                                <span className="font-black text-white text-[20px] tracking-wide uppercase leading-none">Youth Earners</span>
-                                <span className="text-[9px] text-gray-400 tracking-[0.25em] mt-1 font-semibold uppercase">Play &bull; Earn &bull; Grow</span>
+                    {/* MZ FASHION STYLE CURVED HEADER */}
+                    <div className="curved-header flex justify-between items-center px-4 pt-4 pb-4 relative z-10">
+                        {/* Left Logo - Circle Style */}
+                        <div className="w-12 h-12 flex items-center justify-center bg-black rounded-full border border-[#dcae45] shadow-[0_0_10px_rgba(220,174,69,0.4)] overflow-hidden shrink-0">
+                            <img src="youth-earners-logo.png" style={{mixBlendMode:'screen'}} className="h-9 w-9 object-contain" alt="Logo" />
+                        </div>
+                        
+                        {/* Center Bold Text */}
+                        <div className="flex flex-col items-center justify-center flex-1 mx-2">
+                            <span className="font-black text-white text-xl tracking-widest uppercase mb-1 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">YOUTH EARNERS</span>
+                            <div className="flex items-center gap-2">
+                                <div className="h-[1px] w-5 bg-[#dcae45]"></div>
+                                <span className="text-[7.5px] text-[#dcae45] tracking-[0.2em] font-bold uppercase">PLAY • EARN • GROW</span>
+                                <div className="h-[1px] w-5 bg-[#dcae45]"></div>
                             </div>
                         </div>
-                        <div onClick={()=>setActiveTab('wallet')} className="bg-black/50 cursor-pointer border border-[#dcae45] px-3 py-1.5 rounded-xl text-sm font-bold text-[#ffe29a] flex items-center gap-2 shadow-[0_0_10px_rgba(220,174,69,0.3)] backdrop-blur-sm">
-                            <i className="fa-solid fa-wallet text-[#dcae45]"></i> ₹{wallet.toFixed(2)}
+
+                        {/* Right Wallet Icon */}
+                        <div onClick={()=>setActiveTab('wallet')} className="cursor-pointer flex flex-col items-end justify-center shrink-0">
+                            <i className="fa-solid fa-wallet text-2xl text-[#dcae45] drop-shadow-[0_0_5px_rgba(220,174,69,0.5)]"></i>
+                            <span className="font-bold text-[10px] text-[#ffe29a] mt-1">₹{wallet.toFixed(2)}</span>
                         </div>
                     </div>
 
-                    <div className="p-4">
+                    <div className="p-4 pt-6">
                         {activeTab === 'home' && (
                             <div className="space-y-6">
-                                {/* NEW PREMIUM BANNER */}
+                                {/* PREMIUM BANNER */}
                                 <div className="w-full rounded-2xl bg-gradient-to-br from-[#111] via-[#1a1508] to-[#000] border border-[#dcae45]/40 p-6 flex flex-col justify-center items-start shadow-[0_4px_25px_rgba(220,174,69,0.2)] relative overflow-hidden">
                                     <div className="absolute right-0 top-0 w-32 h-32 bg-[#dcae45] opacity-20 blur-3xl rounded-full"></div>
                                     <i className="fa-solid fa-trophy text-8xl text-[#dcae45]/10 absolute -right-2 -bottom-2 transform rotate-12"></i>
@@ -345,24 +355,21 @@
                                         <i className="fa-solid fa-users text-[#dcae45]"></i> Play with Real Players
                                     </h3>
                                     
-                                    {/* 2-COLUMN GRID STRUCTURE (Just like the image) */}
+                                    {/* 2-COLUMN GRID STRUCTURE */}
                                     <div className="grid grid-cols-2 gap-4">
                                         {playTiers.map(tier => (
                                             <div key={tier.entry} className="gold-card rounded-2xl p-4 flex flex-col items-center text-center relative overflow-hidden">
                                                 
-                                                {/* Logo inside dark box at top */}
                                                 <div className="bg-black border border-[#dcae45]/30 rounded-lg px-4 py-1.5 mb-3 shadow-[0_0_10px_rgba(0,0,0,0.8)]">
                                                     <img src="youth-earners-logo.png" style={{mixBlendMode:'screen'}} className="h-6 w-auto opacity-90" alt="game-icon" />
                                                 </div>
                                                 
                                                 <div className="text-xs text-gray-400 mb-1">Entry: <span className="font-bold text-white text-base">₹{tier.entry}</span></div>
                                                 
-                                                {/* WIN Amount in Gold */}
                                                 <div className="text-[22px] text-[#ffe29a] font-black mb-5 drop-shadow-[0_0_10px_rgba(220,174,69,0.5)] tracking-wide">
                                                     WIN: ₹{tier.win}
                                                 </div>
                                                 
-                                                {/* Golden Play Now Button */}
                                                 <button onClick={() => setConfirmPopup(tier)} className="w-full btn-play-gold py-2.5 rounded-full font-black text-[13px] tracking-wide flex items-center justify-center gap-2">
                                                     <i className="fa-solid fa-play"></i> Play Now
                                                 </button>
