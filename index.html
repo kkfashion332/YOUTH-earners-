@@ -55,15 +55,25 @@
             
             const [userProfile, setUserProfile] = useState({ name: 'Player', number: '9999999999', avatar: 'youth-earners-logo.png' });
             const [wallet, setWallet] = useState(0);
+            const [withdrawable, setWithdrawable] = useState(0);
             
-            // Pop-up and Matchmaking States
             const [confirmPopup, setConfirmPopup] = useState(null); 
+            const [showWinPopup, setShowWinPopup] = useState(null);
+            
             const [isMatchmaking, setIsMatchmaking] = useState(false);
             const [matchTime, setMatchTime] = useState(20);
             const [matchFound, setMatchFound] = useState(false);
             const [opponent, setOpponent] = useState({ name: 'Searching...', img: 'youth-earners-logo.png' });
             
-            // REALTIME FIREBASE STATES
+            // Payment Modals
+            const [depositModal, setDepositModal] = useState(false);
+            const [withdrawModal, setWithdrawModal] = useState(false);
+            const [utrInput, setUtrInput] = useState('');
+            const [depositAmount, setDepositAmount] = useState('');
+            const [withdrawType, setWithdrawType] = useState('upi');
+            const [withdrawId, setWithdrawId] = useState('');
+            const [withdrawAmount, setWithdrawAmount] = useState('');
+
             const [roomId, setRoomId] = useState(null);
             const [playerRole, setPlayerRole] = useState(null); 
             const [roomData, setRoomData] = useState(null);
@@ -74,10 +84,18 @@
             const playTiers = [{ entry: 5, win: 9 }, { entry: 10, win: 18 }, { entry: 15, win: 27 }, { entry: 20, win: 36 }];
 
             useEffect(() => {
+                // LocalStorage se Profile Photo Load karo
+                const savedAvatar = localStorage.getItem('userAvatar');
+                
                 const handleGameStart = (e) => {
                     const data = e.detail;
                     if(data) {
-                        setUserProfile(prev => ({ ...prev, name: data.name || 'Player', number: data.number || 'N/A' }));
+                        setUserProfile(prev => ({ 
+                            ...prev, 
+                            name: data.name || 'Player', 
+                            number: data.number || 'N/A',
+                            avatar: savedAvatar ? savedAvatar : 'youth-earners-logo.png'
+                        }));
                         if(data.wallet !== undefined) setWallet(data.wallet);
                     }
                 };
@@ -85,7 +103,21 @@
                 return () => window.removeEventListener('gameStart', handleGameStart);
             }, []);
 
-            // ---- FIREBASE MATCHMAKING LOGIC (Unchanged) ----
+            // ---- LOCAL STORAGE IMAGE UPLOAD ----
+            const handleImageUpload = (e) => { 
+                const file = e.target.files[0]; 
+                if (file) { 
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        const base64String = reader.result;
+                        localStorage.setItem('userAvatar', base64String); // Save to phone storage
+                        setUserProfile(prev => ({ ...prev, avatar: base64String }));
+                    };
+                    reader.readAsDataURL(file);
+                } 
+            };
+
+            // ---- FIREBASE MATCHMAKING LOGIC ----
             const confirmPlay = async () => {
                 if (wallet < confirmPopup.entry) {
                     alert("Low Balance! Please deposit money to play.");
@@ -117,7 +149,15 @@
                 } catch(e) { alert("Error connecting to server!"); setIsMatchmaking(false); }
             };
 
-            // ---- REALTIME LISTENER FOR ROOM (Unchanged) ----
+            const cancelMatchmaking = async () => {
+                setIsMatchmaking(false);
+                if(playerRole === 1 && roomId) { 
+                    await window.fs.deleteDoc(window.fs.doc(window.db, "rooms", roomId)); 
+                }
+                setRoomId(null);
+            };
+
+            // ---- REALTIME LISTENER FOR ROOM ----
             useEffect(() => {
                 if (!roomId) return;
                 const unsub = window.fs.onSnapshot(window.fs.doc(window.db, "rooms", roomId), async (doc) => {
@@ -148,12 +188,13 @@
                         if(isWinner === true) {
                             let winnings = data.tier * 1.8;
                             setWallet(prev => prev + winnings);
-                            alert(`You Won! Winnings: ₹${winnings}`);
+                            setWithdrawable(prev => prev + winnings);
+                            setShowWinPopup(winnings); // WinZO style popup
                         } else if(isWinner === 'draw') {
                             setWallet(prev => prev + data.tier);
                             alert("Match Draw! Entry fee refunded.");
                         } else {
-                            alert("You Lost! Better luck next time.");
+                            // Do nothing, money already deducted
                         }
                     }
 
@@ -215,9 +256,31 @@
                 });
             };
 
-            const handleImageUpload = (e) => { const file = e.target.files[0]; if (file) { setUserProfile(prev => ({ ...prev, avatar: URL.createObjectURL(file) })); } };
-            const handleDeposit = () => { const a = prompt("Enter deposit amount (₹):"); if(a > 0) setWallet(prev => prev + parseFloat(a)); };
-            const handleWithdraw = () => { const a = prompt(`Withdraw (Max ₹${wallet}):`); if(a > 0 && a <= wallet) setWallet(prev => prev - parseFloat(a)); };
+            // ---- FIREBASE WALLET SUBMITS ----
+            const submitDepositRequest = async () => {
+                if(!utrInput || !depositAmount) return alert("Fill all details!");
+                try {
+                    await window.fs.addDoc(window.fs.collection(window.db, "deposits"), {
+                        uid: window.auth.currentUser.uid, name: userProfile.name, utr: utrInput, amount: depositAmount, status: 'pending', date: new Date()
+                    });
+                    alert("Deposit proof sent to Admin! Wallet will be updated soon.");
+                    setDepositModal(false); setUtrInput(''); setDepositAmount('');
+                } catch(e) { alert("Error submitting request!"); }
+            };
+
+            const submitWithdrawRequest = async () => {
+                if(!withdrawId || !withdrawAmount) return alert("Fill all details!");
+                if(withdrawAmount > withdrawable) return alert("You don't have enough Winning Balance!");
+                try {
+                    await window.fs.addDoc(window.fs.collection(window.db, "withdrawals"), {
+                        uid: window.auth.currentUser.uid, name: userProfile.name, type: withdrawType, id: withdrawId, amount: withdrawAmount, status: 'pending', date: new Date()
+                    });
+                    setWithdrawable(prev => prev - withdrawAmount);
+                    setWallet(prev => prev - withdrawAmount);
+                    alert("Withdrawal request sent successfully!");
+                    setWithdrawModal(false); setWithdrawId(''); setWithdrawAmount('');
+                } catch(e) { alert("Error submitting request!"); }
+            };
 
 
             // ---------------- MATCHMAKING & IN-GAME UI ---------------- //
@@ -225,7 +288,7 @@
                 return (
                     <div className="fixed inset-0 z-[100] bg-[#050505] text-white flex flex-col items-center pt-20 px-6">
                         <div className="absolute top-10 w-full text-center">
-                            <h2 className="text-[#ffe29a] text-xl font-bold tracking-widest">{matchFound ? "MATCH FOUND!" : "SEARCHING FOR PLAYERS..."}</h2>
+                            <h2 className="text-[#ffe29a] text-xl font-bold tracking-widest uppercase">{matchFound ? "MATCH FOUND!" : "SEARCHING FOR PLAYERS..."}</h2>
                             {!matchFound && <p className="text-gray-400 text-sm mt-2">Timeout in: {matchTime}s</p>}
                         </div>
                         <div className="flex w-full justify-between items-center mt-24">
@@ -243,6 +306,12 @@
                                 <span className="font-bold mt-4 text-lg">{opponent.name}</span>
                             </div>
                         </div>
+                        
+                        {!matchFound && (
+                            <button onClick={cancelMatchmaking} className="absolute bottom-20 px-8 py-3 rounded-full border-2 border-red-500 text-red-500 font-bold hover:bg-red-500 hover:text-white transition-colors">
+                                Cancel Search
+                            </button>
+                        )}
                     </div>
                 );
             }
@@ -305,42 +374,32 @@
             return (
                 <div className="max-w-md mx-auto bg-transparent min-h-screen relative pb-24">
                     
-                    {/* MZ FASHION STYLE CURVED HEADER */}
-                    <div className="curved-header flex justify-between items-center px-4 pt-4 pb-4 relative z-10">
-                        {/* Left Logo - Circle Style */}
-                        <div className="w-12 h-12 flex items-center justify-center bg-black rounded-full border border-[#dcae45] shadow-[0_0_10px_rgba(220,174,69,0.4)] overflow-hidden shrink-0">
-                            <img src="youth-earners-logo.png" style={{mixBlendMode:'screen'}} className="h-9 w-9 object-contain" alt="Logo" />
+                    {/* MZ FASHION STYLE CURVED HEADER (No Wallet) */}
+                    <div className="curved-header flex flex-col items-center justify-center pt-6 pb-5 relative z-10">
+                        <div className="absolute left-6 top-6 w-14 h-14 flex items-center justify-center bg-black rounded-full border border-[#dcae45] shadow-[0_0_15px_rgba(220,174,69,0.4)] overflow-hidden shrink-0">
+                            <img src="youth-earners-logo.png" style={{mixBlendMode:'screen'}} className="h-12 w-12 object-contain" alt="Logo" />
                         </div>
                         
-                        {/* Center Bold Text */}
-                        <div className="flex flex-col items-center justify-center flex-1 mx-2">
-                            <span className="font-black text-white text-xl tracking-widest uppercase mb-1 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">YOUTH EARNERS</span>
-                            <div className="flex items-center gap-2">
-                                <div className="h-[1px] w-5 bg-[#dcae45]"></div>
-                                <span className="text-[7.5px] text-[#dcae45] tracking-[0.2em] font-bold uppercase">PLAY • EARN • GROW</span>
-                                <div className="h-[1px] w-5 bg-[#dcae45]"></div>
-                            </div>
-                        </div>
-
-                        {/* Right Wallet Icon */}
-                        <div onClick={()=>setActiveTab('wallet')} className="cursor-pointer flex flex-col items-end justify-center shrink-0">
-                            <i className="fa-solid fa-wallet text-2xl text-[#dcae45] drop-shadow-[0_0_5px_rgba(220,174,69,0.5)]"></i>
-                            <span className="font-bold text-[10px] text-[#ffe29a] mt-1">₹{wallet.toFixed(2)}</span>
+                        <span className="font-black text-white text-2xl tracking-widest uppercase mb-1 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] ml-14">YOUTH EARNERS</span>
+                        <div className="flex items-center gap-2 ml-14 mt-1">
+                            <div className="h-[1px] w-6 bg-[#dcae45]"></div>
+                            <span className="text-[9px] text-[#dcae45] tracking-[0.2em] font-bold uppercase">PLAY • EARN • GROW</span>
+                            <div className="h-[1px] w-6 bg-[#dcae45]"></div>
                         </div>
                     </div>
 
                     <div className="p-4 pt-6">
                         {activeTab === 'home' && (
                             <div className="space-y-6">
-                                {/* PREMIUM BANNER */}
-                                <div className="w-full rounded-2xl bg-gradient-to-br from-[#111] via-[#1a1508] to-[#000] border border-[#dcae45]/40 p-6 flex flex-col justify-center items-start shadow-[0_4px_25px_rgba(220,174,69,0.2)] relative overflow-hidden">
-                                    <div className="absolute right-0 top-0 w-32 h-32 bg-[#dcae45] opacity-20 blur-3xl rounded-full"></div>
-                                    <i className="fa-solid fa-trophy text-8xl text-[#dcae45]/10 absolute -right-2 -bottom-2 transform rotate-12"></i>
-                                    <div className="relative z-10 w-full">
-                                        <h3 className="font-black text-3xl mb-1 text-white">Youth <span className="text-gold-gradient">Earner's</span></h3>
-                                        <p className="text-sm font-bold text-gray-300 tracking-wide mb-6">Play & Win Real Cash!</p>
+                                {/* LARGER PREMIUM BANNER */}
+                                <div className="w-full h-56 rounded-3xl bg-gradient-to-br from-[#111] via-[#1a1508] to-[#000] border border-[#dcae45]/40 p-6 flex flex-col justify-center items-start shadow-[0_4px_25px_rgba(220,174,69,0.2)] relative overflow-hidden">
+                                    <div className="absolute right-0 top-0 w-40 h-40 bg-[#dcae45] opacity-20 blur-3xl rounded-full"></div>
+                                    <i className="fa-solid fa-trophy text-9xl text-[#dcae45]/10 absolute -right-4 -bottom-4 transform rotate-12"></i>
+                                    <div className="relative z-10 w-full mt-4">
+                                        <h3 className="font-black text-4xl mb-2 text-white">Youth <span className="text-gold-gradient">Earner's</span></h3>
+                                        <p className="text-base font-bold text-gray-300 tracking-wide mb-8">Play & Win Real Cash!</p>
                                         
-                                        <div className="flex items-center gap-3 text-[11px] font-bold text-[#ffe29a] tracking-wider uppercase border-t border-[#dcae45]/20 pt-3 w-[90%]">
+                                        <div className="flex items-center gap-3 text-xs font-bold text-[#ffe29a] tracking-wider uppercase border-t border-[#dcae45]/20 pt-4 w-[90%]">
                                             <span><i className="fa-solid fa-shield-halved text-[#dcae45]"></i> Safe</span>
                                             <span className="text-gray-600">|</span>
                                             <span><i className="fa-solid fa-bolt text-[#dcae45]"></i> Fast</span>
@@ -355,24 +414,15 @@
                                         <i className="fa-solid fa-users text-[#dcae45]"></i> Play with Real Players
                                     </h3>
                                     
-                                    {/* 2-COLUMN GRID STRUCTURE */}
                                     <div className="grid grid-cols-2 gap-4">
                                         {playTiers.map(tier => (
                                             <div key={tier.entry} className="gold-card rounded-2xl p-4 flex flex-col items-center text-center relative overflow-hidden">
-                                                
                                                 <div className="bg-black border border-[#dcae45]/30 rounded-lg px-4 py-1.5 mb-3 shadow-[0_0_10px_rgba(0,0,0,0.8)]">
                                                     <img src="youth-earners-logo.png" style={{mixBlendMode:'screen'}} className="h-6 w-auto opacity-90" alt="game-icon" />
                                                 </div>
-                                                
                                                 <div className="text-xs text-gray-400 mb-1">Entry: <span className="font-bold text-white text-base">₹{tier.entry}</span></div>
-                                                
-                                                <div className="text-[22px] text-[#ffe29a] font-black mb-5 drop-shadow-[0_0_10px_rgba(220,174,69,0.5)] tracking-wide">
-                                                    WIN: ₹{tier.win}
-                                                </div>
-                                                
-                                                <button onClick={() => setConfirmPopup(tier)} className="w-full btn-play-gold py-2.5 rounded-full font-black text-[13px] tracking-wide flex items-center justify-center gap-2">
-                                                    <i className="fa-solid fa-play"></i> Play Now
-                                                </button>
+                                                <div className="text-[22px] text-[#ffe29a] font-black mb-5 drop-shadow-[0_0_10px_rgba(220,174,69,0.5)] tracking-wide">WIN: ₹{tier.win}</div>
+                                                <button onClick={() => setConfirmPopup(tier)} className="w-full btn-play-gold py-2.5 rounded-full font-black text-[13px] tracking-wide flex items-center justify-center gap-2"><i className="fa-solid fa-play"></i> Play Now</button>
                                             </div>
                                         ))}
                                     </div>
@@ -380,57 +430,142 @@
                             </div>
                         )}
 
-                        {/* WALLET, PROFILE, ETC REMAIN THE SAME */}
+                        {/* NEW WALLET SECTION */}
                         {activeTab === 'wallet' && (
                             <div className="space-y-6 pt-2">
-                                <h2 className="text-2xl font-bold text-[#dcae45] text-center"><i className="fa-solid fa-vault"></i> My Wallet</h2>
-                                <div className="bg-gradient-to-br from-[#1a1a1a] to-[#000] p-6 rounded-2xl border border-[#dcae45]/40 shadow-[0_10px_30px_rgba(220,174,69,0.15)] relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#dcae45] opacity-10 rounded-full blur-3xl"></div>
+                                <h2 className="text-2xl font-bold text-[#dcae45] text-center mb-6"><i className="fa-solid fa-vault"></i> My Wallet</h2>
+                                
+                                {/* Total Balance Card */}
+                                <div className="bg-gradient-to-br from-[#1a1a1a] to-[#000] p-6 rounded-3xl border border-[#dcae45]/40 shadow-[0_10px_30px_rgba(220,174,69,0.15)] relative overflow-hidden">
                                     <div className="text-gray-400 text-sm font-semibold">Total Balance</div>
-                                    <div className="text-5xl font-black text-white my-3 tracking-wide drop-shadow-md">₹{wallet.toFixed(2)}</div>
-                                    <div className="flex gap-4 mt-8">
-                                        <button onClick={handleDeposit} className="flex-1 btn-play-gold py-3 rounded-xl font-bold text-lg shadow-lg"><i className="fa-solid fa-arrow-down"></i> Deposit</button>
-                                        <button onClick={handleWithdraw} className="flex-1 bg-[#111] border border-gray-600 hover:border-[#dcae45] transition-colors py-3 rounded-xl font-bold text-lg text-[#ffe29a]"><i className="fa-solid fa-arrow-up"></i> Withdraw</button>
+                                    <div className="text-5xl font-black text-white my-2 tracking-wide">₹{wallet.toFixed(2)}</div>
+                                </div>
+
+                                {/* Winning/Withdrawable Card */}
+                                <div className="bg-[#111] p-5 rounded-2xl border border-gray-800 flex justify-between items-center shadow-lg">
+                                    <div>
+                                        <div className="text-gray-400 text-xs font-semibold mb-1">Winning Balance (Withdrawable)</div>
+                                        <div className="text-2xl font-black text-[#10b981]">₹{withdrawable.toFixed(2)}</div>
                                     </div>
+                                    <i className="fa-solid fa-money-bill-wave text-3xl text-gray-700"></i>
+                                </div>
+
+                                <div className="flex gap-4 mt-8">
+                                    <button onClick={() => setDepositModal(true)} className="flex-1 btn-play-gold py-4 rounded-2xl font-bold text-lg shadow-[0_0_15px_rgba(220,174,69,0.4)]"><i className="fa-solid fa-plus-circle"></i> Add Money</button>
+                                    <button onClick={() => setWithdrawModal(true)} className="flex-1 bg-transparent border-2 border-[#dcae45] py-4 rounded-2xl font-bold text-lg text-[#ffe29a] hover:bg-[#111] transition-colors"><i className="fa-solid fa-building-columns"></i> Withdraw</button>
                                 </div>
                             </div>
                         )}
+
                         {activeTab === 'profile' && (
                             <div className="space-y-6 text-center pt-8">
                                 <div className="relative inline-block">
-                                    <img src={userProfile.avatar} alt="Profile" className="w-28 h-28 rounded-full object-cover border-4 border-[#dcae45] p-1 mx-auto bg-black shadow-[0_0_20px_rgba(220,174,69,0.3)]" />
-                                    <button onClick={() => fileInputRef.current.click()} className="absolute bottom-1 right-1 bg-[#dcae45] text-black w-8 h-8 flex items-center justify-center rounded-full border-2 border-black shadow-lg"><i className="fa-solid fa-camera"></i></button>
+                                    <img src={userProfile.avatar} alt="Profile" className="w-32 h-32 rounded-full object-cover border-4 border-[#dcae45] p-1 mx-auto bg-black shadow-[0_0_20px_rgba(220,174,69,0.3)]" />
+                                    <button onClick={() => fileInputRef.current.click()} className="absolute bottom-1 right-1 bg-[#dcae45] text-black w-10 h-10 flex items-center justify-center rounded-full border-2 border-black shadow-lg"><i className="fa-solid fa-camera text-lg"></i></button>
                                     <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
                                 </div>
-                                <div>
+                                <div className="mt-4">
                                     <input type="text" value={userProfile.name} onChange={(e) => setUserProfile({...userProfile, name: e.target.value})} className="bg-transparent text-white text-3xl font-bold text-center border-b border-gray-800 focus:border-[#dcae45] focus:outline-none pb-2 w-64" />
-                                    <p className="text-[#dcae45] mt-2 tracking-widest font-bold"><i className="fa-solid fa-phone text-xs"></i> +91 {userProfile.number}</p>
+                                    <p className="text-[#dcae45] mt-2 tracking-widest font-bold text-lg"><i className="fa-solid fa-phone text-sm"></i> +91 {userProfile.number}</p>
                                 </div>
                             </div>
                         )}
                     </div>
 
-                    {/* CONFIRMATION POPUP */}
+                    {/* FULL SCREEN CONFIRMATION MODAL */}
                     {confirmPopup && (
-                        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[70] backdrop-blur-sm px-4 pop-in">
-                            <div className="bg-[#111] border border-[#dcae45] w-full max-w-sm rounded-2xl p-6 text-center shadow-[0_0_30px_rgba(220,174,69,0.3)]">
-                                <div className="w-16 h-16 bg-gradient-to-tr from-[#dcae45] to-[#ffe29a] rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg text-black">
-                                    <i className="fa-solid fa-coins text-3xl"></i>
+                        <div className="fixed inset-0 bg-black z-[80] flex flex-col items-center justify-center p-6 pop-in">
+                            <div className="w-full max-w-sm flex flex-col gap-8">
+                                <div className="mx-auto w-24 h-24 bg-gradient-to-tr from-[#dcae45] to-[#ffe29a] rounded-full flex items-center justify-center text-black text-5xl shadow-[0_0_30px_rgba(220,174,69,0.6)]">
+                                    <i className="fa-solid fa-coins"></i>
                                 </div>
-                                <h2 className="text-2xl font-bold text-white mb-2">Confirm Match</h2>
-                                <div className="bg-[#050505] rounded-xl p-4 my-4 flex justify-between items-center border border-gray-800">
-                                    <div className="text-left"><div className="text-gray-400 text-xs">Entry Amount</div><div className="text-white font-bold text-lg">₹{confirmPopup.entry}</div></div>
-                                    <div className="text-right"><div className="text-gray-400 text-xs">Winning Amount</div><div className="text-[#ffe29a] font-bold text-xl drop-shadow-[0_0_5px_rgba(220,174,69,0.8)]">₹{confirmPopup.win}</div></div>
+                                <h2 className="text-3xl font-black text-center text-white tracking-widest uppercase">Confirm Match</h2>
+                                
+                                <div className="bg-[#111] border border-[#dcae45] rounded-3xl p-8 flex flex-col gap-6 text-center shadow-[0_0_20px_rgba(220,174,69,0.2)]">
+                                    <div>
+                                        <div className="text-gray-400 text-sm mb-1 uppercase tracking-wider">Entry Amount</div>
+                                        <div className="text-white font-black text-4xl">₹{confirmPopup.entry}</div>
+                                    </div>
+                                    <hr className="border-gray-800" />
+                                    <div>
+                                        <div className="text-gray-400 text-sm mb-1 uppercase tracking-wider">Winning Amount</div>
+                                        <div className="text-[#ffe29a] font-black text-5xl drop-shadow-[0_0_10px_rgba(220,174,69,0.8)]">₹{confirmPopup.win}</div>
+                                    </div>
                                 </div>
-                                <div className="flex gap-3 mt-6">
-                                    <button onClick={() => setConfirmPopup(null)} className="flex-1 bg-transparent border border-gray-600 text-gray-300 py-3 rounded-xl font-bold hover:bg-gray-800">Cancel</button>
-                                    <button onClick={confirmPlay} className="flex-1 btn-play-gold py-3 rounded-xl font-bold tracking-wide text-black">Play Now</button>
+                                
+                                <div className="flex gap-4 w-full mt-4">
+                                    <button onClick={() => setConfirmPopup(null)} className="flex-1 bg-transparent border-2 border-gray-600 text-gray-300 py-4 rounded-2xl font-bold text-lg hover:bg-gray-800 transition">Cancel</button>
+                                    <button onClick={confirmPlay} className="flex-1 btn-play-gold py-4 rounded-2xl font-black text-lg text-black uppercase tracking-wide">Play Now</button>
                                 </div>
                             </div>
                         </div>
                     )}
 
-                    {/* BOTTOM NAVIGATION WITH GOLD GLOW */}
+                    {/* ADD MONEY MODAL */}
+                    {depositModal && (
+                        <div className="fixed inset-0 bg-black/90 z-[90] flex items-center justify-center p-4 backdrop-blur-sm pop-in">
+                            <div className="bg-[#111] border border-[#dcae45] w-full max-w-sm rounded-3xl p-6 shadow-[0_0_30px_rgba(220,174,69,0.2)]">
+                                <h3 className="text-xl font-bold text-[#ffe29a] mb-4 text-center">Deposit Money</h3>
+                                <div className="bg-white p-2 rounded-xl w-40 h-40 mx-auto mb-4">
+                                    {/* Dummy QR image, you can replace URL later */}
+                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=youthearners@ybl&pn=YouthEarners" className="w-full h-full" alt="QR Code" />
+                                </div>
+                                <div className="text-center mb-6">
+                                    <p className="text-gray-400 text-xs mb-1">Scan QR or Pay to UPI ID</p>
+                                    <div className="flex items-center justify-center gap-2 text-white font-bold bg-black py-2 rounded-lg border border-gray-700">
+                                        youthearners@ybl <i className="fa-solid fa-copy text-[#dcae45] cursor-pointer" onClick={() => alert('Copied!')}></i>
+                                    </div>
+                                </div>
+                                <div className="space-y-3 mb-6">
+                                    <input type="number" placeholder="Enter Amount Paid (₹)" value={depositAmount} onChange={e=>setDepositAmount(e.target.value)} className="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none" />
+                                    <input type="text" placeholder="12-Digit UTR / Ref Number" value={utrInput} onChange={e=>setUtrInput(e.target.value)} className="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none" />
+                                </div>
+                                <div className="flex gap-3">
+                                    <button onClick={() => setDepositModal(false)} className="flex-1 border border-gray-600 py-3 rounded-xl font-bold text-gray-400">Cancel</button>
+                                    <button onClick={submitDepositRequest} className="flex-1 btn-play-gold py-3 rounded-xl font-bold">Submit Proof</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* WITHDRAW MODAL */}
+                    {withdrawModal && (
+                        <div className="fixed inset-0 bg-black/90 z-[90] flex items-center justify-center p-4 backdrop-blur-sm pop-in">
+                            <div className="bg-[#111] border border-[#dcae45] w-full max-w-sm rounded-3xl p-6 shadow-[0_0_30px_rgba(220,174,69,0.2)]">
+                                <h3 className="text-xl font-bold text-[#ffe29a] mb-2 text-center">Withdraw Money</h3>
+                                <p className="text-center text-gray-400 text-sm mb-6">Available: <span className="text-[#10b981] font-bold">₹{withdrawable.toFixed(2)}</span></p>
+                                
+                                <div className="flex gap-2 mb-4 bg-black p-1 rounded-xl border border-gray-800">
+                                    <button onClick={() => setWithdrawType('upi')} className={`flex-1 py-2 rounded-lg font-bold text-sm ${withdrawType==='upi'?'bg-[#dcae45] text-black':'text-gray-400'}`}>UPI ID</button>
+                                    <button onClick={() => setWithdrawType('number')} className={`flex-1 py-2 rounded-lg font-bold text-sm ${withdrawType==='number'?'bg-[#dcae45] text-black':'text-gray-400'}`}>Mobile No.</button>
+                                </div>
+                                
+                                <div className="space-y-3 mb-6">
+                                    <input type="text" placeholder={withdrawType==='upi'?"Enter UPI ID":"Enter Mobile Number"} value={withdrawId} onChange={e=>setWithdrawId(e.target.value)} className="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none" />
+                                    <input type="number" placeholder="Enter Amount to Withdraw" value={withdrawAmount} onChange={e=>setWithdrawAmount(e.target.value)} className="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none" />
+                                </div>
+                                <div className="flex gap-3">
+                                    <button onClick={() => setWithdrawModal(false)} className="flex-1 border border-gray-600 py-3 rounded-xl font-bold text-gray-400">Cancel</button>
+                                    <button onClick={submitWithdrawRequest} className="flex-1 btn-play-gold py-3 rounded-xl font-bold">Withdraw</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* VICTORY POPUP (WinZO Style) */}
+                    {showWinPopup !== null && (
+                        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/90 backdrop-blur-md victory-anim px-4">
+                            <div className="bg-gradient-to-b from-[#1a1508] to-[#000] border-2 border-[#dcae45] p-8 rounded-3xl text-center shadow-[0_0_50px_rgba(220,174,69,0.5)] w-full max-w-sm">
+                                <i className="fa-solid fa-trophy text-8xl text-[#dcae45] mb-6 drop-shadow-[0_0_20px_#ffe29a]"></i>
+                                <h2 className="text-4xl font-black text-white mb-2 tracking-widest uppercase">YOU WIN!</h2>
+                                <p className="text-gray-400 mb-6 font-bold">Amount added to Winning Wallet</p>
+                                <div className="text-6xl font-black text-[#10b981] drop-shadow-[0_0_15px_#10b981] mb-10">+₹{showWinPopup}</div>
+                                <button onClick={() => setShowWinPopup(null)} className="btn-play-gold w-full py-4 rounded-full font-black text-black text-xl uppercase tracking-wider">Awesome!</button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* BOTTOM NAVIGATION */}
                     <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-[#050505] border-t border-[#dcae45]/30 flex justify-between items-center h-[70px] px-6 z-50 rounded-t-3xl shadow-[0_-10px_25px_rgba(0,0,0,0.9)] backdrop-blur-md">
                         <button onClick={()=>setActiveTab('home')} className={`flex flex-col items-center gap-1 w-10 ${activeTab==='home'?'text-[#ffe29a] drop-shadow-[0_0_8px_rgba(220,174,69,0.8)]':'text-gray-500'}`}><i className="fa-solid fa-house text-xl"></i><span className="text-[10px] font-bold">Home</span></button>
                         <button onClick={()=>setActiveTab('profile')} className={`flex flex-col items-center gap-1 w-10 ${activeTab==='profile'?'text-[#ffe29a] drop-shadow-[0_0_8px_rgba(220,174,69,0.8)]':'text-gray-500'}`}><i className="fa-solid fa-user text-xl"></i><span className="text-[10px] font-bold">Profile</span></button>
