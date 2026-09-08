@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs, addDoc, updateDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA4pTWtUMbZFhrMORZibUhV7gpPRy6DreY",
@@ -14,6 +14,11 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+
+// REACT KO FIREBASE DENE KE LIYE
+window.db = db;
+window.auth = auth;
+window.fs = { doc, setDoc, getDoc, collection, query, where, getDocs, addDoc, updateDoc, onSnapshot, deleteDoc };
 
 const intro = document.getElementById("logoIntro");
 const authContainer = document.getElementById("authContainer");
