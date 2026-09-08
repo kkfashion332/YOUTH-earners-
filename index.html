@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Youth Earner's - Pro</title>
     <link rel="stylesheet" href="style.css">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -62,17 +65,14 @@
         const { useState, useEffect, useRef } = React;
 
         function App() {
-            const [activeTab, setActiveTab] = useState('home'); // home, about, wallet, support, profile
-            const [isPlaying, setIsPlaying] = useState(false); // Game view toggle
+            const [activeTab, setActiveTab] = useState('home'); 
+            const [isPlaying, setIsPlaying] = useState(false); 
             
-            // User Data
             const [userProfile, setUserProfile] = useState({ name: 'Player', number: '9999999999', avatar: 'youth-earners-logo.png' });
             const [wallet, setWallet] = useState(50);
             
-            // Matchmaking simulation state
             const [matchingTier, setMatchingTier] = useState(null);
 
-            // Game States (Secret Bidder)
             const [round, setRound] = useState(1);
             const [playerTokens, setPlayerTokens] = useState(500);
             const [botTokens, setBotTokens] = useState(500);
@@ -104,15 +104,13 @@
                 return () => window.removeEventListener('gameStart', handleGameStart);
             }, []);
 
-            // Matchmaking Function
             const startMatchmaking = (betAmount) => {
                 if (wallet < betAmount) {
-                    alert("Low Balance! Please add money to wallet.");
+                    alert("Low Balance! Please add money to your wallet to play.");
                     setActiveTab('wallet');
                     return;
                 }
                 setMatchingTier(betAmount);
-                // Simulate waiting for a player, then starting game
                 setTimeout(() => {
                     setMatchingTier(null);
                     setWallet(prev => prev - betAmount);
@@ -128,15 +126,31 @@
                 setTimeLeft(15); setRoundResult(null);
             };
 
-            // Image Upload Handler
             const handleImageUpload = (e) => {
                 const file = e.target.files[0];
-                if (file) {
-                    setUserProfile(prev => ({ ...prev, avatar: URL.createObjectURL(file) }));
+                if (file) { setUserProfile(prev => ({ ...prev, avatar: URL.createObjectURL(file) })); }
+            };
+
+            // Wallet Functions
+            const handleDeposit = () => {
+                const amount = prompt("Enter deposit amount (₹):");
+                if(amount && !isNaN(amount) && amount > 0) {
+                    setWallet(prev => prev + parseFloat(amount));
+                    alert(`₹${amount} deposited successfully!`);
                 }
             };
 
-            // Game Timer Logic
+            const handleWithdraw = () => {
+                const amount = prompt(`Enter withdrawal amount (Max ₹${wallet}):`);
+                if(amount && !isNaN(amount) && amount > 0 && amount <= wallet) {
+                    setWallet(prev => prev - parseFloat(amount));
+                    alert(`₹${amount} withdrawn successfully! Money will reflect in your account shortly.`);
+                } else if(amount > wallet) {
+                    alert("Insufficient balance!");
+                }
+            };
+
+            // Game Engine
             useEffect(() => {
                 let timer;
                 if (isPlaying && !roundResult && timeLeft > 0) {
@@ -151,10 +165,9 @@
                 let pBid = isTimeout ? 0 : parseInt(bidInput);
                 if (isNaN(pBid) || pBid < 0) pBid = 0;
                 if (pBid > playerTokens) pBid = playerTokens;
-
                 let bBid = round === 3 ? botTokens : Math.floor(Math.random() * Math.min(botTokens, pBid + 50));
-                setPlayerTokens(prev => prev - pBid);
-                setBotTokens(prev => prev - bBid);
+                
+                setPlayerTokens(prev => prev - pBid); setBotTokens(prev => prev - bBid);
 
                 let winner = "DRAW";
                 if (pBid > bBid) { winner = "PLAYER"; setPlayerWins(prev => prev + 1); } 
@@ -164,11 +177,8 @@
 
                 setTimeout(() => {
                     if (round < 3) {
-                        setRound(prev => prev + 1);
-                        setBidInput(''); setTimeLeft(15); setRoundResult(null);
-                    } else {
-                        endGame(pBid, bBid, winner);
-                    }
+                        setRound(prev => prev + 1); setBidInput(''); setTimeLeft(15); setRoundResult(null);
+                    } else { endGame(pBid, bBid, winner); }
                 }, 3000);
             };
 
@@ -179,52 +189,48 @@
                 let winnings = 0;
 
                 if (finalPlayerWins > finalBotWins || (finalPlayerWins === finalBotWins && playerTokens > botTokens)) {
-                    matchStatus = "You Won!";
-                    winnings = currentBet * 1.8;
-                    setWallet(prev => prev + winnings);
-                } else if (finalBotWins > finalPlayerWins) {
-                    matchStatus = "You Lost!";
-                }
+                    matchStatus = "You Won!"; winnings = currentBet * 1.8; setWallet(prev => prev + winnings);
+                } else if (finalBotWins > finalPlayerWins) { matchStatus = "You Lost!"; }
+                
                 alert(`Match Over! ${matchStatus} (Winnings: ₹${winnings})`);
                 setIsPlaying(false);
             };
 
             // ---------------- COMPONENT VIEWS ---------------- //
-
             if (isPlaying) {
                 return (
-                    <div className="max-w-md mx-auto bg-black min-h-screen text-white p-4 flex flex-col">
+                    <div className="max-w-md mx-auto bg-black min-h-screen text-white p-4 flex flex-col relative pb-28">
                         <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-xl font-bold text-[#dcae45]">Game Running</h2>
+                            <h2 className="text-xl font-bold text-[#dcae45]"><i className="fa-solid fa-gamepad"></i> Game Running</h2>
                             <span className={`font-bold ${timeLeft <= 5 ? 'text-red-500' : 'text-emerald-400'}`}>00:{timeLeft < 10 ? '0'+timeLeft : timeLeft}</span>
                         </div>
-                        <div className="flex justify-between items-center bg-gray-900 p-4 rounded-xl border border-gray-700 shadow-inner">
+                        <div className="flex justify-between items-center bg-dark-premium p-4 rounded-xl">
                             <div className="text-center w-1/3">
-                                <div className="text-xs text-slate-400 uppercase">You</div>
+                                <div className="text-xs text-gray-400 uppercase">You</div>
                                 <div className="text-2xl font-bold text-emerald-400">{playerTokens}</div>
                             </div>
-                            <div className="text-xl font-black text-slate-600 w-1/3 text-center">R{round}/3</div>
+                            <div className="text-xl font-black text-[#dcae45] w-1/3 text-center">R{round}/3</div>
                             <div className="text-center w-1/3">
-                                <div className="text-xs text-slate-400 uppercase">Opponent</div>
+                                <div className="text-xs text-gray-400 uppercase">Opponent</div>
                                 <div className="text-2xl font-bold text-rose-400">{botTokens}</div>
                             </div>
                         </div>
                         
                         {!roundResult ? (
                             <div className="mt-8">
-                                <input type="number" value={bidInput} onChange={(e) => setBidInput(e.target.value)} className="w-full bg-gray-800 border-2 border-gray-600 rounded-xl text-center text-4xl py-4 focus:outline-none focus:border-emerald-500 font-bold" placeholder="Enter Bid" />
+                                <input type="number" value={bidInput} onChange={(e) => setBidInput(e.target.value)} className="w-full bg-[#111] border-2 border-[#dcae45] rounded-xl text-center text-4xl py-4 focus:outline-none focus:border-emerald-500 font-bold shadow-[0_0_15px_rgba(220,174,69,0.2)]" placeholder="Enter Bid" />
                                 <div className="flex gap-2 mt-4">
-                                    <button onClick={() => setBidInput(Math.floor(playerTokens/2))} className="flex-1 bg-gray-700 py-2 rounded-lg font-bold">1/2</button>
-                                    <button onClick={() => setBidInput(playerTokens)} className="flex-1 bg-gray-700 py-2 rounded-lg font-bold">Max</button>
+                                    <button onClick={() => setBidInput(Math.floor(playerTokens/2))} className="flex-1 bg-[#222] border border-[#dcae45]/50 py-2 rounded-lg font-bold">1/2</button>
+                                    <button onClick={() => setBidInput(playerTokens)} className="flex-1 bg-[#222] border border-[#dcae45]/50 py-2 rounded-lg font-bold">Max</button>
                                 </div>
-                                <button onClick={() => handleBidSubmit(false)} className="w-full mt-6 btn-green-glow py-4 rounded-xl font-bold text-lg">Lock Bid</button>
+                                <button onClick={() => handleBidSubmit(false)} className="w-full mt-8 btn-gold-glow py-4 rounded-xl text-lg uppercase tracking-widest">Lock Bid</button>
                             </div>
                         ) : (
                             <div className="mt-8 text-center animate-pulse">
                                 <h3 className="text-xl font-bold mb-4">Round Result</h3>
                                 <div className="flex justify-between text-2xl font-black mb-4">
                                     <span className="text-emerald-400">{roundResult.pBid}</span>
-                                    <span className="text-slate-500">vs</span>
+                                    <span className="text-gray-500">vs</span>
                                     <span className="text-rose-400">{roundResult.bBid}</span>
                                 </div>
                                 <div className="text-lg text-[#ffe29a]">{roundResult.winner === 'DRAW' ? 'Tied!' : `${roundResult.winner} WON`}</div>
@@ -235,13 +241,13 @@
             }
 
             return (
-                <div className="max-w-md mx-auto bg-black min-h-screen relative pb-24 shadow-2xl">
+                <div className="max-w-md mx-auto bg-black min-h-screen relative pb-28 shadow-2xl">
                     
-                    {/* Header (Visible on Home & Profile) */}
-                    <div className="flex justify-between items-center p-4">
-                        <img src="youth-earners-logo.png" style={{mixBlendMode:'screen'}} className="h-10 w-auto" alt="Logo" />
-                        <div className="bg-gray-800 border border-[#dcae45] px-3 py-1 rounded-full text-sm font-bold text-[#ffe29a]">
-                            ₹{wallet.toFixed(2)}
+                    {/* Header: Logo size increased (h-16) */}
+                    <div className="flex justify-between items-center px-4 pt-6 pb-2 border-b border-[#dcae45]/20">
+                        <img src="youth-earners-logo.png" style={{mixBlendMode:'screen'}} className="h-16 w-auto object-contain" alt="Logo" />
+                        <div onClick={()=>setActiveTab('wallet')} className="bg-[#111] cursor-pointer border border-[#dcae45] px-4 py-1.5 rounded-full text-sm font-bold text-[#ffe29a] flex items-center gap-2 shadow-[0_0_10px_rgba(220,174,69,0.3)]">
+                            <i className="fa-solid fa-wallet"></i> ₹{wallet.toFixed(2)}
                         </div>
                     </div>
 
@@ -250,37 +256,44 @@
                         {activeTab === 'home' && (
                             <div className="space-y-6">
                                 {/* Banner */}
-                                <div className="w-full h-32 rounded-xl bg-gradient-to-r from-[#dcae45] to-[#7c5b16] p-4 flex items-center justify-between shadow-lg shadow-yellow-900/20">
+                                <div className="w-full h-32 rounded-xl bg-gradient-to-r from-[#dcae45] to-[#8b6510] p-5 flex items-center justify-between shadow-[0_4px_15px_rgba(220,174,69,0.3)]">
                                     <div className="text-black">
-                                        <h3 className="font-black text-xl">Youth Earner's</h3>
-                                        <p className="text-sm font-bold opacity-80">Play & Win Real Cash!</p>
+                                        <h3 className="font-black text-2xl mb-1">Youth Earner's</h3>
+                                        <p className="text-sm font-bold opacity-90">Play & Win Real Cash!</p>
                                     </div>
+                                    <i className="fa-solid fa-trophy text-5xl text-black/20"></i>
                                 </div>
 
                                 {/* Practice VS Bot */}
-                                <div className="bg-gray-900 p-4 rounded-xl border border-gray-800 flex items-center justify-between">
+                                <div className="bg-dark-premium p-4 rounded-xl flex items-center justify-between">
                                     <div>
                                         <h4 className="font-bold text-[#ffe29a]">Practice vs Bot</h4>
                                         <p className="text-xs text-gray-400">Free to play, train your skills</p>
                                     </div>
-                                    <button onClick={() => { setCurrentBet(0); resetGameState(); setIsPlaying(true); }} className="btn-green-glow px-6 py-2 rounded-lg font-bold text-sm">Play</button>
+                                    <button onClick={() => { setCurrentBet(0); resetGameState(); setIsPlaying(true); }} className="btn-green-glow px-6 py-2 rounded-lg font-bold text-sm shadow-[0_0_10px_rgba(16,185,129,0.5)]">Play</button>
                                 </div>
 
-                                {/* Real Player Games (Horizontal Scroll) */}
+                                {/* Real Player Games (Vertical layout, Horizontal Cards) */}
                                 <div>
-                                    <h3 className="font-bold mb-3 text-gray-300">Play with Real Players</h3>
-                                    <div className="flex gap-4 overflow-x-auto hide-scrollbar pb-4">
+                                    <h3 className="font-bold mb-4 text-[#ffe29a] flex items-center gap-2"><i className="fa-solid fa-users"></i> Play with Real Players</h3>
+                                    <div className="flex flex-col gap-3">
                                         {playTiers.map(tier => (
-                                            <div key={tier.entry} className="min-w-[140px] bg-gray-900 border border-gray-700 rounded-xl p-4 text-center shrink-0">
-                                                <div className="text-xs text-gray-400 mb-1">Entry Fee</div>
-                                                <div className="font-bold text-lg text-white mb-2">₹{tier.entry}</div>
-                                                <div className="text-xs text-emerald-400 font-bold mb-4">WIN ₹{tier.win}</div>
+                                            <div key={tier.entry} className="flex items-center justify-between bg-dark-premium rounded-xl p-3">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-12 h-12 rounded-full bg-[#dcae45]/10 border border-[#dcae45]/30 flex items-center justify-center text-[#dcae45]">
+                                                        <i className="fa-solid fa-coins text-xl"></i>
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-xs text-gray-400 mb-0.5">Entry: <span className="font-bold text-white text-sm">₹{tier.entry}</span></div>
+                                                        <div className="text-xs text-emerald-400 font-bold">WIN: ₹{tier.win}</div>
+                                                    </div>
+                                                </div>
                                                 <button 
                                                     onClick={() => startMatchmaking(tier.entry)} 
                                                     disabled={matchingTier === tier.entry}
-                                                    className={`w-full py-2 rounded-lg font-bold text-sm ${matchingTier === tier.entry ? 'bg-gray-600 text-white matching-text' : 'btn-green-glow'}`}
+                                                    className={`px-5 py-2 rounded-lg font-bold text-sm ${matchingTier === tier.entry ? 'bg-gray-700 text-gray-400 matching-text' : 'btn-green-glow shadow-[0_0_10px_rgba(16,185,129,0.3)]'}`}
                                                 >
-                                                    {matchingTier === tier.entry ? 'Matching...' : 'Play'}
+                                                    {matchingTier === tier.entry ? 'Wait...' : 'Play Now'}
                                                 </button>
                                             </div>
                                         ))}
@@ -291,19 +304,19 @@
 
                         {/* ---------------- WALLET TAB ---------------- */}
                         {activeTab === 'wallet' && (
-                            <div className="space-y-4">
-                                <h2 className="text-2xl font-bold text-[#dcae45] text-center mb-6">My Wallet</h2>
-                                <div className="bg-gray-900 p-6 rounded-xl text-center border border-gray-800">
+                            <div className="space-y-6 pt-2">
+                                <h2 className="text-2xl font-bold text-[#dcae45] text-center"><i className="fa-solid fa-vault"></i> My Wallet</h2>
+                                <div className="bg-dark-premium p-6 rounded-xl text-center">
                                     <div className="text-gray-400 text-sm">Total Balance</div>
-                                    <div className="text-4xl font-bold text-white my-2">₹{wallet.toFixed(2)}</div>
-                                    <div className="flex gap-4 mt-6">
-                                        <button className="flex-1 bg-emerald-600 py-2 rounded-lg font-bold">Deposit</button>
-                                        <button className="flex-1 bg-gray-700 py-2 rounded-lg font-bold border border-gray-600">Withdraw</button>
+                                    <div className="text-5xl font-bold text-white my-3 tracking-wide">₹{wallet.toFixed(2)}</div>
+                                    <div className="flex gap-4 mt-8">
+                                        <button onClick={handleDeposit} className="flex-1 btn-green-glow py-3 rounded-xl font-bold text-lg"><i className="fa-solid fa-arrow-down"></i> Deposit</button>
+                                        <button onClick={handleWithdraw} className="flex-1 bg-[#111] border border-gray-600 hover:border-[#dcae45] transition-colors py-3 rounded-xl font-bold text-lg text-white"><i className="fa-solid fa-arrow-up"></i> Withdraw</button>
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-2 gap-4 mt-4">
-                                    <button className="bg-gray-900 border border-gray-800 py-3 rounded-lg text-sm text-gray-300">Deposit History</button>
-                                    <button className="bg-gray-900 border border-gray-800 py-3 rounded-lg text-sm text-gray-300">Withdrawal History</button>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <button className="bg-dark-premium py-4 rounded-xl text-sm font-bold text-gray-300 hover:text-[#dcae45]"><i className="fa-solid fa-clock-rotate-left mb-2 text-xl block"></i> Deposit History</button>
+                                    <button className="bg-dark-premium py-4 rounded-xl text-sm font-bold text-gray-300 hover:text-[#dcae45]"><i className="fa-solid fa-file-invoice-dollar mb-2 text-xl block"></i> Withdraw History</button>
                                 </div>
                             </div>
                         )}
@@ -312,8 +325,8 @@
                         {activeTab === 'profile' && (
                             <div className="space-y-6 text-center pt-8">
                                 <div className="relative inline-block">
-                                    <img src={userProfile.avatar} alt="Profile" className="w-24 h-24 rounded-full object-cover border-2 border-[#dcae45] p-1 mx-auto" />
-                                    <button onClick={() => fileInputRef.current.click()} className="absolute bottom-0 right-0 bg-[#dcae45] text-black text-xs font-bold px-2 py-1 rounded-full border-2 border-black">Edit</button>
+                                    <img src={userProfile.avatar} alt="Profile" className="w-28 h-28 rounded-full object-cover border-4 border-[#dcae45] p-1 mx-auto bg-black" />
+                                    <button onClick={() => fileInputRef.current.click()} className="absolute bottom-1 right-1 bg-[#dcae45] text-black w-8 h-8 flex items-center justify-center rounded-full border-2 border-black shadow-lg"><i className="fa-solid fa-pen"></i></button>
                                     <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
                                 </div>
                                 
@@ -322,56 +335,84 @@
                                         type="text" 
                                         value={userProfile.name} 
                                         onChange={(e) => setUserProfile({...userProfile, name: e.target.value})}
-                                        className="bg-transparent text-white text-2xl font-bold text-center border-b border-gray-700 focus:border-[#dcae45] focus:outline-none pb-1 w-48"
+                                        className="bg-transparent text-white text-3xl font-bold text-center border-b border-gray-800 focus:border-[#dcae45] focus:outline-none pb-2 w-64"
                                     />
-                                    <p className="text-gray-400 mt-2 tracking-widest">{userProfile.number}</p>
+                                    <p className="text-[#dcae45] mt-2 tracking-widest font-bold"><i className="fa-solid fa-phone text-xs"></i> +91 {userProfile.number}</p>
                                 </div>
 
-                                <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 text-left mt-8 space-y-4">
-                                    <div className="border-b border-gray-800 pb-3 text-gray-300">Security Settings</div>
-                                    <div className="border-b border-gray-800 pb-3 text-gray-300">Help & Support</div>
-                                    <div className="text-red-400 font-bold">Logout</div>
+                                <div className="bg-dark-premium rounded-xl p-2 text-left mt-8">
+                                    <div className="border-b border-gray-800 p-4 text-gray-300 flex justify-between items-center cursor-pointer hover:bg-white/5 rounded-t-lg"><span className="font-bold"><i className="fa-solid fa-shield-halved w-6 text-center text-[#dcae45]"></i> Security</span> <i className="fa-solid fa-chevron-right text-xs"></i></div>
+                                    <div className="border-b border-gray-800 p-4 text-gray-300 flex justify-between items-center cursor-pointer hover:bg-white/5"><span className="font-bold"><i className="fa-solid fa-circle-info w-6 text-center text-[#dcae45]"></i> Rules</span> <i className="fa-solid fa-chevron-right text-xs"></i></div>
+                                    <div className="p-4 text-red-500 font-bold flex justify-between items-center cursor-pointer hover:bg-white/5 rounded-b-lg"><span><i className="fa-solid fa-right-from-bracket w-6 text-center"></i> Logout</span></div>
                                 </div>
                             </div>
                         )}
 
                         {/* ---------------- ABOUT TAB ---------------- */}
                         {activeTab === 'about' && (
-                            <div className="bg-gray-900 border border-gray-800 p-6 rounded-xl mt-4">
-                                <h2 className="text-xl font-bold text-[#dcae45] mb-4">About Youth Earner's</h2>
-                                <p className="text-gray-400 text-sm leading-relaxed mb-4">
-                                    Welcome to Youth Earner's, India's premier skill-based gaming platform. We believe in empowering the youth by providing a safe, secure, and competitive environment to test your bidding strategies and win real rewards.
+                            <div className="bg-dark-premium p-6 rounded-xl mt-4">
+                                <h2 className="text-2xl font-bold text-[#ffe29a] mb-4 text-center">About Youth Earner's</h2>
+                                <img src="youth-earners-logo.png" className="w-32 mx-auto mb-6" style={{mixBlendMode:'screen'}} alt="logo" />
+                                <p className="text-gray-300 text-sm leading-relaxed mb-4 text-justify">
+                                    Welcome to <span className="text-[#dcae45] font-bold">Youth Earner's</span>, India's most premium and secure skill-based gaming platform. We believe in empowering the youth by providing a safe environment to test your strategies and win real rewards.
                                 </p>
-                                <p className="text-gray-400 text-sm leading-relaxed">
-                                    100% Secure. Instant Withdrawals. 24/7 Support.
-                                </p>
+                                <div className="bg-[#111] border border-[#dcae45]/30 p-4 rounded-lg text-center mt-6">
+                                    <div className="text-[#10b981] font-bold text-lg mb-1"><i className="fa-solid fa-shield-check"></i> 100% Secure</div>
+                                    <div className="text-gray-400 text-xs">Instant Withdrawals & 24/7 Support.</div>
+                                </div>
                             </div>
                         )}
 
-                        {/* ---------------- SUPPORT TAB ---------------- */}
+                        {/* ---------------- SUPPORT TAB (Horizontal) ---------------- */}
                         {activeTab === 'support' && (
-                            <div className="text-center pt-10">
-                                <h2 className="text-2xl font-bold text-white mb-2">Need Help?</h2>
-                                <p className="text-gray-400 mb-8 text-sm">Our support team is available 24/7</p>
-                                <button className="bg-[#25D366] text-white font-bold py-3 px-8 rounded-full shadow-lg shadow-green-900/50 flex items-center justify-center gap-2 mx-auto">
-                                    <span>Chat on WhatsApp</span>
-                                </button>
-                                <p className="text-gray-500 text-xs mt-6">Email: support@youthearners.com</p>
+                            <div className="text-center pt-8">
+                                <h2 className="text-3xl font-bold text-[#ffe29a] mb-2"><i className="fa-solid fa-headset"></i> Need Help?</h2>
+                                <p className="text-gray-400 mb-10 text-sm">Our premium support team is available 24/7</p>
+                                
+                                <div className="flex gap-4 justify-center px-2">
+                                    <button className="flex-1 bg-[#25D366] text-white py-4 rounded-xl font-bold flex flex-col justify-center items-center gap-2 shadow-[0_0_15px_rgba(37,211,102,0.3)] hover:scale-105 transition-transform">
+                                        <i className="fa-brands fa-whatsapp text-3xl"></i>
+                                        <span>WhatsApp</span>
+                                    </button>
+                                    <button className="flex-1 bg-gradient-to-tr from-[#f09433] via-[#e6683c] to-[#bc1888] text-white py-4 rounded-xl font-bold flex flex-col justify-center items-center gap-2 shadow-[0_0_15px_rgba(188,24,136,0.3)] hover:scale-105 transition-transform">
+                                        <i className="fa-brands fa-instagram text-3xl"></i>
+                                        <span>Instagram</span>
+                                    </button>
+                                </div>
+                                
+                                <p className="text-gray-500 text-xs mt-10">Email: support@youthearners.com</p>
                             </div>
                         )}
                     </div>
 
-                    {/* BOTTOM NAVIGATION BAR */}
-                    <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-gray-900 border-t border-gray-800 flex justify-around items-center py-3 px-2 z-50">
-                        {['home', 'about', 'wallet', 'support', 'profile'].map(tab => (
-                            <button 
-                                key={tab} 
-                                onClick={() => setActiveTab(tab)}
-                                className={`flex flex-col items-center p-2 rounded-lg transition-colors ${activeTab === tab ? 'text-[#dcae45]' : 'text-gray-500 hover:text-gray-300'}`}
-                            >
-                                <div className={`text-xs font-bold capitalize ${activeTab === tab ? 'scale-110' : ''}`}>{tab}</div>
+                    {/* BOTTOM NAVIGATION BAR WITH ELEVATED WALLET */}
+                    <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-[#050505] border-t border-[#dcae45]/30 flex justify-between items-end pb-3 pt-3 px-6 z-50 rounded-t-3xl shadow-[0_-10px_20px_rgba(0,0,0,0.9)]">
+                        <button onClick={()=>setActiveTab('home')} className={`flex flex-col items-center gap-1.5 w-12 ${activeTab==='home'?'text-[#dcae45]':'text-gray-600 hover:text-gray-400'}`}>
+                            <i className={`fa-solid fa-house text-xl ${activeTab==='home'?'drop-shadow-[0_0_8px_rgba(220,174,69,0.8)]':''}`}></i>
+                            <span className="text-[10px] font-bold">Home</span>
+                        </button>
+                        
+                        <button onClick={()=>setActiveTab('about')} className={`flex flex-col items-center gap-1.5 w-12 ${activeTab==='about'?'text-[#dcae45]':'text-gray-600 hover:text-gray-400'}`}>
+                            <i className={`fa-solid fa-circle-info text-xl ${activeTab==='about'?'drop-shadow-[0_0_8px_rgba(220,174,69,0.8)]':''}`}></i>
+                            <span className="text-[10px] font-bold">About</span>
+                        </button>
+                        
+                        {/* Elevated Wallet Button in Center */}
+                        <div className="relative -top-7">
+                            <button onClick={()=>setActiveTab('wallet')} className={`w-16 h-16 rounded-full flex items-center justify-center border-4 border-[#050505] shadow-[0_0_20px_rgba(220,174,69,0.4)] transition-all ${activeTab==='wallet'?'bg-gradient-to-b from-[#ffe29a] to-[#dcae45] text-black scale-110':'bg-[#111] text-[#dcae45]'}`}>
+                                <i className="fa-solid fa-wallet text-2xl"></i>
                             </button>
-                        ))}
+                        </div>
+                        
+                        <button onClick={()=>setActiveTab('support')} className={`flex flex-col items-center gap-1.5 w-12 ${activeTab==='support'?'text-[#dcae45]':'text-gray-600 hover:text-gray-400'}`}>
+                            <i className={`fa-solid fa-headset text-xl ${activeTab==='support'?'drop-shadow-[0_0_8px_rgba(220,174,69,0.8)]':''}`}></i>
+                            <span className="text-[10px] font-bold">Support</span>
+                        </button>
+                        
+                        <button onClick={()=>setActiveTab('profile')} className={`flex flex-col items-center gap-1.5 w-12 ${activeTab==='profile'?'text-[#dcae45]':'text-gray-600 hover:text-gray-400'}`}>
+                            <i className={`fa-solid fa-user text-xl ${activeTab==='profile'?'drop-shadow-[0_0_8px_rgba(220,174,69,0.8)]':''}`}></i>
+                            <span className="text-[10px] font-bold">Profile</span>
+                        </button>
                     </div>
 
                 </div>
