@@ -16,9 +16,7 @@
 
     <div id="logoIntro" aria-label="Youth Earner's logo introduction">
         <div class="intro-stage">
-            <div class="logo-wrap">
-                <img class="intro-logo" src="youth-earners-logo.png" alt="Youth Earner's" />
-            </div>
+            <div class="logo-wrap"><img class="intro-logo" src="youth-earners-logo.png" alt="Youth Earner's" /></div>
             <div class="intro-line"></div>
             <p class="intro-title">Youth Earner's</p>
         </div>
@@ -45,9 +43,7 @@
         </div>
     </div>
 
-    <main id="website" class="hidden">
-        <div id="root"></div>
-    </main>
+    <main id="website" class="hidden"><div id="root"></div></main>
 
     <script type="module" src="app.js"></script>
     <script type="text/babel">
@@ -58,42 +54,24 @@
             const [isPlaying, setIsPlaying] = useState(false); 
             
             const [userProfile, setUserProfile] = useState({ name: 'Player', number: '9999999999', avatar: 'youth-earners-logo.png' });
-            const [wallet, setWallet] = useState(50);
+            const [wallet, setWallet] = useState(0);
             
             // Pop-up and Matchmaking States
             const [confirmPopup, setConfirmPopup] = useState(null); 
             const [isMatchmaking, setIsMatchmaking] = useState(false);
             const [matchTime, setMatchTime] = useState(20);
-            const [opponent, setOpponent] = useState({ name: 'Searching...', img: 'youth-earners-logo.png' });
             const [matchFound, setMatchFound] = useState(false);
-
-            // Game Engine States
-            const [round, setRound] = useState(1);
-            const [playerTokens, setPlayerTokens] = useState(500);
-            const [botTokens, setBotTokens] = useState(500);
-            const [playerWins, setPlayerWins] = useState(0);
-            const [botWins, setBotWins] = useState(0);
-            const [bidInput, setBidInput] = useState('');
-            const [timeLeft, setTimeLeft] = useState(15);
-            const [roundResult, setRoundResult] = useState(null);
+            const [opponent, setOpponent] = useState({ name: 'Searching...', img: 'youth-earners-logo.png' });
+            
+            // REALTIME FIREBASE STATES
+            const [roomId, setRoomId] = useState(null);
+            const [playerRole, setPlayerRole] = useState(null); // 1 = Creator, 2 = Joiner
+            const [roomData, setRoomData] = useState(null);
             const [currentBet, setCurrentBet] = useState(0);
+            const [bidInput, setBidInput] = useState('');
             
             const fileInputRef = useRef(null);
-
-            const playTiers = [
-                { entry: 5, win: 9 },
-                { entry: 10, win: 18 },
-                { entry: 15, win: 27 },
-                { entry: 20, win: 36 }
-            ];
-
-            const DUMMY_OPPONENTS = [
-                { name: 'Rahul_Pro', img: 'https://i.pravatar.cc/150?u=1' },
-                { name: 'Vikash007', img: 'https://i.pravatar.cc/150?u=2' },
-                { name: 'PriyaGamer', img: 'https://i.pravatar.cc/150?u=3' },
-                { name: 'Raja_Bhai', img: 'https://i.pravatar.cc/150?u=4' },
-                { name: 'KillerXx', img: 'https://i.pravatar.cc/150?u=5' }
-            ];
+            const playTiers = [{ entry: 5, win: 9 }, { entry: 10, win: 18 }, { entry: 15, win: 27 }, { entry: 20, win: 36 }];
 
             useEffect(() => {
                 const handleGameStart = (e) => {
@@ -107,172 +85,173 @@
                 return () => window.removeEventListener('gameStart', handleGameStart);
             }, []);
 
-            // Handle Profile Image Upload
-            const handleImageUpload = (e) => {
-                const file = e.target.files[0];
-                if (file) { setUserProfile(prev => ({ ...prev, avatar: URL.createObjectURL(file) })); }
-            };
-
-            // Wallet Logic
-            const handleDeposit = () => {
-                const amount = prompt("Enter deposit amount (₹):");
-                if(amount && !isNaN(amount) && amount > 0) {
-                    setWallet(prev => prev + parseFloat(amount));
-                    alert(`₹${amount} deposited successfully!`);
-                }
-            };
-            const handleWithdraw = () => {
-                const amount = prompt(`Enter withdrawal amount (Max ₹${wallet}):`);
-                if(amount && !isNaN(amount) && amount > 0 && amount <= wallet) {
-                    setWallet(prev => prev - parseFloat(amount));
-                    alert(`₹${amount} withdrawn successfully! Money will reflect in your account shortly.`);
-                } else if(amount > wallet) { alert("Insufficient balance!"); }
-            };
-
-            // ---- MATCHMAKING LOGIC ----
-            const openConfirmation = (tier) => {
-                setConfirmPopup(tier);
-            };
-
-            const confirmPlay = () => {
+            // ---- FIREBASE MATCHMAKING LOGIC ----
+            const confirmPlay = async () => {
                 if (wallet < confirmPopup.entry) {
                     alert("Low Balance! Please deposit money to play.");
-                    setConfirmPopup(null);
-                    setActiveTab('wallet');
-                    return;
+                    setConfirmPopup(null); setActiveTab('wallet'); return;
                 }
-                const selectedTier = confirmPopup;
+                const tier = confirmPopup;
                 setConfirmPopup(null);
-                setMatchFound(false);
-                setMatchTime(20);
-                setIsMatchmaking(true);
-                setCurrentBet(selectedTier.entry);
+                setMatchFound(false); setMatchTime(20); setIsMatchmaking(true); setCurrentBet(tier.entry);
+
+                try {
+                    // Check if open room exists
+                    const q = window.fs.query(window.fs.collection(window.db, "rooms"), window.fs.where("tier", "==", tier.entry), window.fs.where("status", "==", "waiting"));
+                    const querySnapshot = await window.fs.getDocs(q);
+
+                    if (!querySnapshot.empty) {
+                        // JOIN EXISTING ROOM
+                        const roomDoc = querySnapshot.docs[0];
+                        await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomDoc.id), {
+                            status: 'playing',
+                            p2: { uid: window.auth.currentUser.uid, name: userProfile.name, img: userProfile.avatar }
+                        });
+                        setRoomId(roomDoc.id); setPlayerRole(2);
+                    } else {
+                        // CREATE NEW ROOM
+                        const docRef = await window.fs.addDoc(window.fs.collection(window.db, "rooms"), {
+                            tier: tier.entry, status: 'waiting',
+                            p1: { uid: window.auth.currentUser.uid, name: userProfile.name, img: userProfile.avatar },
+                            p1Bid: null, p2Bid: null, round: 1, p1Tokens: 500, p2Tokens: 500, p1Wins: 0, p2Wins: 0, lastResult: null
+                        });
+                        setRoomId(docRef.id); setPlayerRole(1);
+                    }
+                } catch(e) { alert("Error connecting to server!"); setIsMatchmaking(false); }
             };
 
+            // ---- REALTIME LISTENER FOR ROOM ----
             useEffect(() => {
-                let profileInterval, countdown;
-                if (isMatchmaking) {
-                    // Start 20s countdown
-                    countdown = setInterval(() => {
+                if (!roomId) return;
+                const unsub = window.fs.onSnapshot(window.fs.doc(window.db, "rooms", roomId), async (doc) => {
+                    const data = doc.data();
+                    if(!data) return;
+                    setRoomData(data);
+
+                    // If Match found (Status changed to playing)
+                    if(data.status === 'playing' && !matchFound) {
+                        setMatchFound(true);
+                        setOpponent(playerRole === 1 ? data.p2 : data.p1);
+                        setTimeout(() => {
+                            setWallet(prev => prev - data.tier); // Deduct wallet when game actually starts
+                            setIsMatchmaking(false); setIsPlaying(true); setBidInput('');
+                        }, 3000);
+                    }
+
+                    // Game Over Check
+                    if(data.status === 'finished') {
+                        setIsPlaying(false); setRoomId(null);
+                        let isWinner = false;
+                        if(data.p1Wins > data.p2Wins || (data.p1Wins === data.p2Wins && data.p1Tokens > data.p2Tokens)) {
+                            isWinner = playerRole === 1;
+                        } else if(data.p2Wins > data.p1Wins || (data.p2Wins === data.p1Wins && data.p2Tokens > data.p1Tokens)) {
+                            isWinner = playerRole === 2;
+                        } else {
+                            // Perfect Draw
+                            isWinner = 'draw';
+                        }
+                        
+                        if(isWinner === true) {
+                            let winnings = data.tier * 1.8;
+                            setWallet(prev => prev + winnings);
+                            alert(`You Won! Winnings: ₹${winnings}`);
+                        } else if(isWinner === 'draw') {
+                            setWallet(prev => prev + data.tier);
+                            alert("Match Draw! Entry fee refunded.");
+                        } else {
+                            alert("You Lost! Better luck next time.");
+                        }
+                    }
+
+                    // Process Round Logic (Only Player 1 executes this to avoid double update)
+                    if(data.status === 'playing' && data.p1Bid !== null && data.p2Bid !== null && !data.lastResult) {
+                        if(playerRole === 1) {
+                            let p1T = data.p1Tokens - data.p1Bid; let p2T = data.p2Tokens - data.p2Bid;
+                            let p1W = data.p1Wins; let p2W = data.p2Wins;
+                            let winner = "DRAW";
+                            if(data.p1Bid > data.p2Bid) { winner = data.p1.name; p1W++; }
+                            else if(data.p2Bid > data.p1Bid) { winner = data.p2.name; p2W++; }
+                            
+                            let nextRound = data.round + 1;
+                            await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomId), {
+                                p1Tokens: p1T, p2Tokens: p2T, p1Wins: p1W, p2Wins: p2W,
+                                lastResult: { p1Bid: data.p1Bid, p2Bid: data.p2Bid, winner }
+                            });
+
+                            setTimeout(async () => {
+                                if(nextRound > 3) {
+                                    await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomId), { status: 'finished' });
+                                } else {
+                                    await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomId), { p1Bid: null, p2Bid: null, round: nextRound, lastResult: null });
+                                }
+                            }, 3500);
+                        }
+                    }
+                });
+                return () => unsub();
+            }, [roomId, matchFound, playerRole]);
+
+            // Timeout Logic (If no player joins in 20s)
+            useEffect(() => {
+                let timer;
+                if (isMatchmaking && !matchFound) {
+                    timer = setInterval(async () => {
                         setMatchTime(prev => {
-                            if(prev <= 1) { clearInterval(countdown); return 0; }
+                            if(prev <= 1) {
+                                clearInterval(timer);
+                                setIsMatchmaking(false);
+                                alert("No real player found right now. Try again!");
+                                // Delete room if I am creator
+                                if(playerRole === 1 && roomId) { window.fs.deleteDoc(window.fs.doc(window.db, "rooms", roomId)); }
+                                setRoomId(null);
+                                return 0;
+                            }
                             return prev - 1;
                         });
                     }, 1000);
-
-                    // Rapidly change opponent profile for animation
-                    profileInterval = setInterval(() => {
-                        if(!matchFound) {
-                            const randomOpp = DUMMY_OPPONENTS[Math.floor(Math.random() * DUMMY_OPPONENTS.length)];
-                            setOpponent(randomOpp);
-                        }
-                    }, 300);
-
-                    // Stop finding after random 3 to 6 seconds and LOCK the match
-                    const lockMatchTime = Math.floor(Math.random() * 3000) + 3000;
-                    setTimeout(() => {
-                        clearInterval(profileInterval);
-                        setMatchFound(true);
-                        // Deduct wallet here when match is actually found
-                        setWallet(prev => prev - currentBet);
-                        
-                        // Wait 2 seconds showing "Match Found", then enter game
-                        setTimeout(() => {
-                            setIsMatchmaking(false);
-                            resetGameState();
-                            setIsPlaying(true);
-                        }, 2000);
-
-                    }, lockMatchTime);
-                }
-                return () => { clearInterval(profileInterval); clearInterval(countdown); };
-            }, [isMatchmaking, matchFound]);
-
-            // ---- GAME LOGIC ----
-            const resetGameState = () => {
-                setRound(1); setPlayerTokens(500); setBotTokens(500);
-                setPlayerWins(0); setBotWins(0); setBidInput('');
-                setTimeLeft(15); setRoundResult(null);
-            };
-
-            useEffect(() => {
-                let timer;
-                if (isPlaying && !roundResult && timeLeft > 0) {
-                    timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
-                } else if (timeLeft === 0 && !roundResult) {
-                    handleBidSubmit(true);
                 }
                 return () => clearInterval(timer);
-            }, [timeLeft, isPlaying, roundResult]);
+            }, [isMatchmaking, matchFound, roomId, playerRole]);
 
-            const handleBidSubmit = (isTimeout = false) => {
-                let pBid = isTimeout ? 0 : parseInt(bidInput);
-                if (isNaN(pBid) || pBid < 0) pBid = 0;
-                if (pBid > playerTokens) pBid = playerTokens;
-                let bBid = round === 3 ? botTokens : Math.floor(Math.random() * Math.min(botTokens, pBid + 50));
+
+            const submitBid = async () => {
+                if(!roomId || !roomData) return;
+                let myTokens = playerRole === 1 ? roomData.p1Tokens : roomData.p2Tokens;
+                let b = parseInt(bidInput);
+                if(isNaN(b) || b < 0) b = 0; if(b > myTokens) b = myTokens;
                 
-                setPlayerTokens(prev => prev - pBid); setBotTokens(prev => prev - bBid);
-                let winner = "DRAW";
-                if (pBid > bBid) { winner = "PLAYER"; setPlayerWins(prev => prev + 1); } 
-                else if (bBid > pBid) { winner = "BOT"; setBotWins(prev => prev + 1); }
-
-                setRoundResult({ pBid, bBid, winner });
-
-                setTimeout(() => {
-                    if (round < 3) {
-                        setRound(prev => prev + 1); setBidInput(''); setTimeLeft(15); setRoundResult(null);
-                    } else { endGame(pBid, bBid, winner); }
-                }, 3000);
+                await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomId), {
+                    [playerRole === 1 ? 'p1Bid' : 'p2Bid']: b
+                });
             };
 
-            const endGame = (lastPBid, lastBBid, lastRoundWinner) => {
-                let finalPlayerWins = playerWins + (lastRoundWinner === "PLAYER" ? 1 : 0);
-                let finalBotWins = botWins + (lastRoundWinner === "BOT" ? 1 : 0);
-                let matchStatus = "Draw";
-                let winnings = 0;
+            const handleImageUpload = (e) => { const file = e.target.files[0]; if (file) { setUserProfile(prev => ({ ...prev, avatar: URL.createObjectURL(file) })); } };
+            const handleDeposit = () => { const a = prompt("Enter deposit amount (₹):"); if(a > 0) setWallet(prev => prev + parseFloat(a)); };
+            const handleWithdraw = () => { const a = prompt(`Withdraw (Max ₹${wallet}):`); if(a > 0 && a <= wallet) setWallet(prev => prev - parseFloat(a)); };
 
-                if (finalPlayerWins > finalBotWins || (finalPlayerWins === finalBotWins && playerTokens > botTokens)) {
-                    matchStatus = "You Won!"; winnings = currentBet * 1.8; setWallet(prev => prev + winnings);
-                } else if (finalBotWins > finalPlayerWins) { matchStatus = "You Lost!"; }
-                
-                alert(`Match Over! ${matchStatus} (Winnings: ₹${winnings})`);
-                setIsPlaying(false);
-            };
-
-            // ---------------- COMPONENT VIEWS ---------------- //
-
-            // 1. FULL SCREEN MATCHMAKING UI
+            // ---------------- MATCHMAKING UI ---------------- //
             if (isMatchmaking) {
                 return (
                     <div className="fixed inset-0 z-[100] bg-[#050505] text-white flex flex-col items-center pt-20 px-6">
                         <div className="absolute top-10 w-full text-center">
-                            <h2 className="text-[#ffe29a] text-xl font-bold tracking-widest">{matchFound ? "MATCH FOUND!" : "SEARCHING..."}</h2>
-                            <p className="text-gray-400 text-sm mt-2">Timeout in: {matchTime}s</p>
+                            <h2 className="text-[#ffe29a] text-xl font-bold tracking-widest">{matchFound ? "MATCH FOUND!" : "SEARCHING FOR PLAYERS..."}</h2>
+                            {!matchFound && <p className="text-gray-400 text-sm mt-2">Timeout in: {matchTime}s</p>}
                         </div>
-                        
                         <div className="flex w-full justify-between items-center mt-24">
-                            {/* Player 1 (You) */}
                             <div className="flex flex-col items-center">
                                 <div className="w-24 h-24 rounded-full border-4 border-[#10b981] p-1 shadow-[0_0_20px_rgba(16,185,129,0.5)] bg-black">
                                     <img src={userProfile.avatar} className="w-full h-full rounded-full object-cover" />
                                 </div>
                                 <span className="font-bold mt-4 text-lg">{userProfile.name}</span>
                             </div>
-
-                            {/* VS Icon */}
-                            <div className="text-4xl font-black text-[#dcae45] italic tracking-tighter drop-shadow-[0_0_10px_rgba(220,174,69,0.8)]">
-                                VS
-                            </div>
-
-                            {/* Player 2 (Opponent) */}
+                            <div className="text-4xl font-black text-[#dcae45] italic tracking-tighter drop-shadow-[0_0_10px_rgba(220,174,69,0.8)]">VS</div>
                             <div className="flex flex-col items-center">
                                 <div className={`w-24 h-24 rounded-full border-4 p-1 bg-black ${matchFound ? 'border-red-500 shadow-[0_0_20px_rgba(239,68,68,0.5)]' : 'border-[#dcae45] border-dashed spin-slow'}`}>
-                                    <img src={opponent.img} className={`w-full h-full rounded-full object-cover ${matchFound ? '' : 'animate-pulse'}`} />
+                                    <img src={opponent.img} className={`w-full h-full rounded-full object-cover ${matchFound ? '' : 'animate-pulse opacity-50'}`} />
                                 </div>
                                 <span className="font-bold mt-4 text-lg">{opponent.name}</span>
                             </div>
                         </div>
-
                         <div className="absolute bottom-20 text-center">
                             <div className="text-gray-400">Entry: <span className="text-white font-bold">₹{currentBet}</span></div>
                             <div className="text-gray-400 mt-1">Prize Pool: <span className="text-emerald-400 font-bold text-xl">₹{currentBet * 1.8}</span></div>
@@ -281,57 +260,65 @@
                 );
             }
 
-            // 2. IN-GAME UI
-            if (isPlaying) {
+            // ---------------- IN-GAME UI ---------------- //
+            if (isPlaying && roomData) {
+                let myData = playerRole === 1 ? roomData.p1 : roomData.p2;
+                let oppData = playerRole === 1 ? roomData.p2 : roomData.p1;
+                let myTokens = playerRole === 1 ? roomData.p1Tokens : roomData.p2Tokens;
+                let oppTokens = playerRole === 1 ? roomData.p2Tokens : roomData.p1Tokens;
+                let myBidStatus = playerRole === 1 ? roomData.p1Bid : roomData.p2Bid;
+
                 return (
                     <div className="max-w-md mx-auto bg-black min-h-screen text-white p-4 flex flex-col relative pb-28">
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-xl font-bold text-[#dcae45]"><i className="fa-solid fa-gamepad"></i> Game Running</h2>
-                            <span className={`font-bold ${timeLeft <= 5 ? 'text-red-500' : 'text-emerald-400'}`}>00:{timeLeft < 10 ? '0'+timeLeft : timeLeft}</span>
                         </div>
-                        <div className="flex justify-between items-center bg-dark-premium p-4 rounded-xl">
+                        <div className="flex justify-between items-center bg-dark-premium p-4 rounded-xl border border-gray-800 shadow-lg">
                             <div className="text-center w-1/3">
-                                <img src={userProfile.avatar} className="w-8 h-8 rounded-full object-cover mx-auto mb-1 border border-emerald-500"/>
-                                <div className="text-2xl font-bold text-emerald-400">{playerTokens}</div>
+                                <img src={myData.img} className="w-10 h-10 rounded-full object-cover mx-auto mb-1 border-2 border-emerald-500 shadow-md"/>
+                                <div className="text-2xl font-bold text-emerald-400">{myTokens}</div>
                             </div>
-                            <div className="text-xl font-black text-[#dcae45] w-1/3 text-center">R{round}/3</div>
+                            <div className="text-xl font-black text-[#dcae45] w-1/3 text-center">R{roomData.round}/3</div>
                             <div className="text-center w-1/3">
-                                <img src={opponent.img || 'youth-earners-logo.png'} className="w-8 h-8 rounded-full object-cover mx-auto mb-1 border border-red-500"/>
-                                <div className="text-2xl font-bold text-rose-400">{botTokens}</div>
+                                <img src={oppData.img} className="w-10 h-10 rounded-full object-cover mx-auto mb-1 border-2 border-rose-500 shadow-md"/>
+                                <div className="text-2xl font-bold text-rose-400">{oppTokens}</div>
                             </div>
                         </div>
                         
-                        {!roundResult ? (
+                        {!roomData.lastResult ? (
                             <div className="mt-8">
-                                <input type="number" value={bidInput} onChange={(e) => setBidInput(e.target.value)} className="w-full bg-[#111] border-2 border-[#dcae45] rounded-xl text-center text-4xl py-4 focus:outline-none focus:border-emerald-500 font-bold shadow-[0_0_15px_rgba(220,174,69,0.2)]" placeholder="Enter Bid" />
-                                <div className="flex gap-2 mt-4">
-                                    <button onClick={() => setBidInput(Math.floor(playerTokens/2))} className="flex-1 bg-[#222] border border-[#dcae45]/50 py-2 rounded-lg font-bold">1/2</button>
-                                    <button onClick={() => setBidInput(playerTokens)} className="flex-1 bg-[#222] border border-[#dcae45]/50 py-2 rounded-lg font-bold">Max</button>
-                                </div>
-                                <button onClick={() => handleBidSubmit(false)} className="w-full mt-8 btn-gold-glow py-4 rounded-xl text-lg tracking-widest">LOCK BID</button>
+                                {myBidStatus === null ? (
+                                    <>
+                                        <input type="number" value={bidInput} onChange={(e) => setBidInput(e.target.value)} className="w-full bg-[#111] border-2 border-[#dcae45] rounded-xl text-center text-4xl py-4 focus:outline-none focus:border-emerald-500 font-bold shadow-[0_0_15px_rgba(220,174,69,0.2)]" placeholder="Enter Bid" />
+                                        <div className="flex gap-2 mt-4">
+                                            <button onClick={() => setBidInput(Math.floor(myTokens/2))} className="flex-1 bg-[#222] border border-[#dcae45]/50 py-2 rounded-lg font-bold">1/2</button>
+                                            <button onClick={() => setBidInput(myTokens)} className="flex-1 bg-[#222] border border-[#dcae45]/50 py-2 rounded-lg font-bold">Max</button>
+                                        </div>
+                                        <button onClick={submitBid} className="w-full mt-8 btn-gold-glow py-4 rounded-xl text-lg tracking-widest font-bold">LOCK BID</button>
+                                    </>
+                                ) : (
+                                    <div className="text-center mt-16 animate-pulse text-[#dcae45] font-bold text-xl">Waiting for opponent to lock bid...</div>
+                                )}
                             </div>
                         ) : (
-                            <div className="mt-8 text-center animate-pulse">
+                            <div className="mt-8 text-center pop-in">
                                 <h3 className="text-xl font-bold mb-4">Round Result</h3>
                                 <div className="flex justify-between text-2xl font-black mb-4">
-                                    <span className="text-emerald-400">{roundResult.pBid}</span>
+                                    <span className="text-emerald-400">{playerRole === 1 ? roomData.lastResult.p1Bid : roomData.lastResult.p2Bid}</span>
                                     <span className="text-gray-500">vs</span>
-                                    <span className="text-rose-400">{roundResult.bBid}</span>
+                                    <span className="text-rose-400">{playerRole === 1 ? roomData.lastResult.p2Bid : roomData.lastResult.p1Bid}</span>
                                 </div>
-                                <div className="text-lg text-[#ffe29a]">{roundResult.winner === 'DRAW' ? 'Tied!' : `${roundResult.winner} WON`}</div>
+                                <div className="text-2xl text-[#ffe29a] font-bold mt-4 p-4 border border-[#dcae45] rounded-xl bg-[#111]">{roomData.lastResult.winner === 'DRAW' ? 'Round Tied!' : `${roomData.lastResult.winner} WON`}</div>
                             </div>
                         )}
                     </div>
                 );
             }
 
-            // 3. MAIN APP UI (Home, Wallet, etc.)
+            // 3. MAIN APP UI
             return (
                 <div className="max-w-md mx-auto bg-black min-h-screen relative pb-24 shadow-2xl">
-                    
-                    {/* Header: Logo Size Increased */}
                     <div className="flex justify-between items-center px-4 pt-4 pb-2">
-                        {/* Logo transformed to look bigger without stretching header */}
                         <div className="w-32 h-10 flex items-center overflow-hidden">
                             <img src="youth-earners-logo.png" style={{mixBlendMode:'screen', transform: 'scale(1.8)', transformOrigin: 'left center'}} className="w-full object-contain drop-shadow-lg" alt="Logo" />
                         </div>
@@ -341,10 +328,8 @@
                     </div>
 
                     <div className="p-4">
-                        {/* ---------------- HOME TAB ---------------- */}
                         {activeTab === 'home' && (
                             <div className="space-y-6">
-                                {/* Gold Banner */}
                                 <div className="w-full h-28 rounded-xl bg-gradient-to-r from-[#dcae45] to-[#997316] p-5 flex items-center justify-between shadow-[0_4px_15px_rgba(220,174,69,0.3)]">
                                     <div className="text-black">
                                         <h3 className="font-black text-2xl mb-1">Youth Earner's</h3>
@@ -352,17 +337,6 @@
                                     </div>
                                     <i className="fa-solid fa-trophy text-5xl text-black/20"></i>
                                 </div>
-
-                                {/* Practice VS Bot - Golden Dark Theme */}
-                                <div className="bg-dark-premium p-4 rounded-xl flex items-center justify-between">
-                                    <div>
-                                        <h4 className="font-bold text-white text-lg">Practice vs Bot</h4>
-                                        <p className="text-xs text-gray-400">Free to play, train your skills</p>
-                                    </div>
-                                    <button onClick={() => { setCurrentBet(0); resetGameState(); setIsPlaying(true); }} className="btn-gold-outline px-6 py-2 rounded-lg text-sm">Practice</button>
-                                </div>
-
-                                {/* Real Player Games (Horizontal Lists) */}
                                 <div className="mt-6">
                                     <h3 className="font-bold mb-4 text-[#ffe29a] text-lg flex items-center gap-2"><i className="fa-solid fa-users"></i> Play with Real Players</h3>
                                     <div className="flex flex-col gap-3">
@@ -377,22 +351,16 @@
                                                         <div className="text-[13px] text-emerald-400 font-bold">WIN: ₹{tier.win}</div>
                                                     </div>
                                                 </div>
-                                                <button onClick={() => openConfirmation(tier)} className="btn-green-glow px-5 py-2 rounded-lg font-bold text-sm tracking-wide">
-                                                    Play Now
-                                                </button>
+                                                <button onClick={() => setConfirmPopup(tier)} className="btn-green-glow px-5 py-2 rounded-lg font-bold text-sm tracking-wide">Play Now</button>
                                             </div>
                                         ))}
                                     </div>
                                 </div>
                             </div>
                         )}
-
-                        {/* ---------------- WALLET TAB ---------------- */}
                         {activeTab === 'wallet' && (
                             <div className="space-y-6 pt-2">
                                 <h2 className="text-2xl font-bold text-[#dcae45] text-center"><i className="fa-solid fa-vault"></i> My Wallet</h2>
-                                
-                                {/* Premium ATM Card Style Wallet */}
                                 <div className="bg-gradient-to-br from-[#1a1a1a] to-[#000] p-6 rounded-2xl border border-[#dcae45]/40 shadow-[0_10px_30px_rgba(220,174,69,0.15)] relative overflow-hidden">
                                     <div className="absolute top-0 right-0 w-32 h-32 bg-[#dcae45] opacity-10 rounded-full blur-3xl"></div>
                                     <div className="text-gray-400 text-sm font-semibold">Total Balance</div>
@@ -402,15 +370,8 @@
                                         <button onClick={handleWithdraw} className="flex-1 bg-[#111] border border-gray-600 hover:border-[#dcae45] transition-colors py-3 rounded-xl font-bold text-lg text-white"><i className="fa-solid fa-arrow-up"></i> Withdraw</button>
                                     </div>
                                 </div>
-
-                                <div className="grid grid-cols-2 gap-4 mt-8">
-                                    <button className="bg-dark-premium py-4 rounded-xl text-sm font-bold text-gray-400 hover:text-[#dcae45] border border-gray-800 transition-colors"><i className="fa-solid fa-clock-rotate-left mb-2 text-2xl text-gray-600 block"></i> Deposit History</button>
-                                    <button className="bg-dark-premium py-4 rounded-xl text-sm font-bold text-gray-400 hover:text-[#dcae45] border border-gray-800 transition-colors"><i className="fa-solid fa-file-invoice-dollar mb-2 text-2xl text-gray-600 block"></i> Withdraw History</button>
-                                </div>
                             </div>
                         )}
-
-                        {/* ---------------- PROFILE TAB ---------------- */}
                         {activeTab === 'profile' && (
                             <div className="space-y-6 text-center pt-8">
                                 <div className="relative inline-block">
@@ -418,48 +379,14 @@
                                     <button onClick={() => fileInputRef.current.click()} className="absolute bottom-1 right-1 bg-[#dcae45] text-black w-8 h-8 flex items-center justify-center rounded-full border-2 border-black shadow-lg"><i className="fa-solid fa-camera"></i></button>
                                     <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
                                 </div>
-                                
                                 <div>
-                                    <input 
-                                        type="text" 
-                                        value={userProfile.name} 
-                                        onChange={(e) => setUserProfile({...userProfile, name: e.target.value})}
-                                        className="bg-transparent text-white text-3xl font-bold text-center border-b border-gray-800 focus:border-[#dcae45] focus:outline-none pb-2 w-64"
-                                    />
+                                    <input type="text" value={userProfile.name} onChange={(e) => setUserProfile({...userProfile, name: e.target.value})} className="bg-transparent text-white text-3xl font-bold text-center border-b border-gray-800 focus:border-[#dcae45] focus:outline-none pb-2 w-64" />
                                     <p className="text-[#dcae45] mt-2 tracking-widest font-bold"><i className="fa-solid fa-phone text-xs"></i> +91 {userProfile.number}</p>
-                                </div>
-
-                                <div className="bg-dark-premium rounded-xl text-left mt-8 border border-gray-800">
-                                    <div className="border-b border-gray-800 p-4 text-gray-300 flex justify-between items-center cursor-pointer hover:bg-white/5 rounded-t-lg"><span className="font-bold"><i className="fa-solid fa-shield-halved w-8 text-center text-[#dcae45]"></i> Security</span> <i className="fa-solid fa-chevron-right text-xs"></i></div>
-                                    <div className="border-b border-gray-800 p-4 text-gray-300 flex justify-between items-center cursor-pointer hover:bg-white/5"><span className="font-bold"><i className="fa-solid fa-circle-info w-8 text-center text-[#dcae45]"></i> Rules & Fair Play</span> <i className="fa-solid fa-chevron-right text-xs"></i></div>
-                                    <div className="p-4 text-red-500 font-bold flex justify-between items-center cursor-pointer hover:bg-white/5 rounded-b-lg"><span><i className="fa-solid fa-right-from-bracket w-8 text-center"></i> Logout</span></div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* ---------------- ABOUT & SUPPORT (Kept Clean) ---------------- */}
-                        {activeTab === 'about' && (
-                            <div className="bg-dark-premium p-6 rounded-xl mt-4 border border-[#dcae45]/20">
-                                <h2 className="text-2xl font-bold text-[#ffe29a] mb-4 text-center">About Us</h2>
-                                <p className="text-gray-300 text-sm leading-relaxed text-justify mb-4">Welcome to <span className="text-[#dcae45] font-bold">Youth Earner's</span>, India's most premium skill-based gaming platform. We empower youth by providing a safe, secure environment to test strategies and win real cash.</p>
-                                <div className="bg-[#111] p-3 rounded-lg text-center mt-6 border border-emerald-500/30">
-                                    <div className="text-emerald-400 font-bold text-lg"><i className="fa-solid fa-shield-check"></i> 100% Secure</div>
-                                </div>
-                            </div>
-                        )}
-                        {activeTab === 'support' && (
-                            <div className="text-center pt-10">
-                                <h2 className="text-3xl font-bold text-[#ffe29a] mb-2">Need Help?</h2>
-                                <p className="text-gray-400 mb-10 text-sm">Support available 24/7</p>
-                                <div className="flex gap-4 justify-center">
-                                    <button className="flex-1 bg-[#25D366] text-white py-4 rounded-xl font-bold flex flex-col items-center gap-2 shadow-[0_0_15px_rgba(37,211,102,0.3)]"><i className="fa-brands fa-whatsapp text-3xl"></i><span>WhatsApp</span></button>
-                                    <button className="flex-1 bg-gradient-to-tr from-[#f09433] via-[#e6683c] to-[#bc1888] text-white py-4 rounded-xl font-bold flex flex-col items-center gap-2 shadow-[0_0_15px_rgba(188,24,136,0.3)]"><i className="fa-brands fa-instagram text-3xl"></i><span>Instagram</span></button>
                                 </div>
                             </div>
                         )}
                     </div>
 
-                    {/* POP-UP CONFIRMATION MODAL */}
                     {confirmPopup && (
                         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[70] backdrop-blur-sm px-4 pop-in">
                             <div className="bg-[#111] border border-[#dcae45] w-full max-w-sm rounded-2xl p-6 text-center shadow-[0_0_30px_rgba(220,174,69,0.2)]">
@@ -468,14 +395,8 @@
                                 </div>
                                 <h2 className="text-2xl font-bold text-white mb-2">Confirm Match</h2>
                                 <div className="bg-[#050505] rounded-xl p-4 my-4 flex justify-between items-center border border-gray-800">
-                                    <div className="text-left">
-                                        <div className="text-gray-400 text-xs">Entry Amount</div>
-                                        <div className="text-white font-bold text-lg">₹{confirmPopup.entry}</div>
-                                    </div>
-                                    <div className="text-right">
-                                        <div className="text-gray-400 text-xs">Winning Amount</div>
-                                        <div className="text-emerald-400 font-bold text-xl">₹{confirmPopup.win}</div>
-                                    </div>
+                                    <div className="text-left"><div className="text-gray-400 text-xs">Entry Amount</div><div className="text-white font-bold text-lg">₹{confirmPopup.entry}</div></div>
+                                    <div className="text-right"><div className="text-gray-400 text-xs">Winning Amount</div><div className="text-emerald-400 font-bold text-xl">₹{confirmPopup.win}</div></div>
                                 </div>
                                 <div className="flex gap-3 mt-6">
                                     <button onClick={() => setConfirmPopup(null)} className="flex-1 bg-transparent border border-gray-600 text-gray-300 py-3 rounded-xl font-bold hover:bg-gray-800">Cancel</button>
@@ -485,30 +406,17 @@
                         </div>
                     )}
 
-                    {/* STANDARD BOTTOM NAVIGATION (Fixed styling) */}
                     <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-[#0a0a0a] border-t border-gray-900 flex justify-between items-center h-16 px-6 z-50 rounded-t-3xl shadow-[0_-5px_20px_rgba(0,0,0,0.9)]">
-                        <button onClick={()=>setActiveTab('home')} className={`flex flex-col items-center gap-1 w-10 ${activeTab==='home'?'text-[#dcae45]':'text-gray-500'}`}>
-                            <i className="fa-solid fa-house text-xl"></i><span className="text-[9px] font-bold">Home</span>
-                        </button>
-                        <button onClick={()=>setActiveTab('about')} className={`flex flex-col items-center gap-1 w-10 ${activeTab==='about'?'text-[#dcae45]':'text-gray-500'}`}>
-                            <i className="fa-solid fa-circle-info text-xl"></i><span className="text-[9px] font-bold">About</span>
-                        </button>
-                        
-                        {/* Elevated Center Button */}
+                        <button onClick={()=>setActiveTab('home')} className={`flex flex-col items-center gap-1 w-10 ${activeTab==='home'?'text-[#dcae45]':'text-gray-500'}`}><i className="fa-solid fa-house text-xl"></i><span className="text-[9px] font-bold">Home</span></button>
+                        <button onClick={()=>setActiveTab('profile')} className={`flex flex-col items-center gap-1 w-10 ${activeTab==='profile'?'text-[#dcae45]':'text-gray-500'}`}><i className="fa-solid fa-user text-xl"></i><span className="text-[9px] font-bold">Profile</span></button>
                         <div className="relative -top-5">
                             <button onClick={()=>setActiveTab('wallet')} className={`w-14 h-14 rounded-full flex items-center justify-center border-4 border-[#0a0a0a] shadow-[0_0_15px_rgba(220,174,69,0.3)] transition-transform ${activeTab==='wallet'?'bg-gradient-to-b from-[#ffe29a] to-[#dcae45] text-black scale-105':'bg-[#111] text-[#dcae45]'}`}>
                                 <i className="fa-solid fa-wallet text-2xl"></i>
                             </button>
                         </div>
-                        
-                        <button onClick={()=>setActiveTab('support')} className={`flex flex-col items-center gap-1 w-10 ${activeTab==='support'?'text-[#dcae45]':'text-gray-500'}`}>
-                            <i className="fa-solid fa-headset text-xl"></i><span className="text-[9px] font-bold">Support</span>
-                        </button>
-                        <button onClick={()=>setActiveTab('profile')} className={`flex flex-col items-center gap-1 w-10 ${activeTab==='profile'?'text-[#dcae45]':'text-gray-500'}`}>
-                            <i className="fa-solid fa-user text-xl"></i><span className="text-[9px] font-bold">Profile</span>
-                        </button>
+                        <button onClick={() => alert('Support logic')} className="flex flex-col items-center gap-1 w-10 text-gray-500"><i className="fa-solid fa-headset text-xl"></i><span className="text-[9px] font-bold">Support</span></button>
+                        <button onClick={() => alert('About logic')} className="flex flex-col items-center gap-1 w-10 text-gray-500"><i className="fa-solid fa-circle-info text-xl"></i><span className="text-[9px] font-bold">About</span></button>
                     </div>
-
                 </div>
             );
         }
