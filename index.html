@@ -96,12 +96,10 @@
                 setMatchFound(false); setMatchTime(20); setIsMatchmaking(true); setCurrentBet(tier.entry);
 
                 try {
-                    // Check if open room exists
                     const q = window.fs.query(window.fs.collection(window.db, "rooms"), window.fs.where("tier", "==", tier.entry), window.fs.where("status", "==", "waiting"));
                     const querySnapshot = await window.fs.getDocs(q);
 
                     if (!querySnapshot.empty) {
-                        // JOIN EXISTING ROOM
                         const roomDoc = querySnapshot.docs[0];
                         await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomDoc.id), {
                             status: 'playing',
@@ -109,7 +107,6 @@
                         });
                         setRoomId(roomDoc.id); setPlayerRole(2);
                     } else {
-                        // CREATE NEW ROOM
                         const docRef = await window.fs.addDoc(window.fs.collection(window.db, "rooms"), {
                             tier: tier.entry, status: 'waiting',
                             p1: { uid: window.auth.currentUser.uid, name: userProfile.name, img: userProfile.avatar },
@@ -128,17 +125,15 @@
                     if(!data) return;
                     setRoomData(data);
 
-                    // If Match found (Status changed to playing)
                     if(data.status === 'playing' && !matchFound) {
                         setMatchFound(true);
                         setOpponent(playerRole === 1 ? data.p2 : data.p1);
                         setTimeout(() => {
-                            setWallet(prev => prev - data.tier); // Deduct wallet when game actually starts
+                            setWallet(prev => prev - data.tier); 
                             setIsMatchmaking(false); setIsPlaying(true); setBidInput('');
                         }, 3000);
                     }
 
-                    // Game Over Check
                     if(data.status === 'finished') {
                         setIsPlaying(false); setRoomId(null);
                         let isWinner = false;
@@ -147,7 +142,6 @@
                         } else if(data.p2Wins > data.p1Wins || (data.p2Wins === data.p1Wins && data.p2Tokens > data.p1Tokens)) {
                             isWinner = playerRole === 2;
                         } else {
-                            // Perfect Draw
                             isWinner = 'draw';
                         }
                         
@@ -163,7 +157,6 @@
                         }
                     }
 
-                    // Process Round Logic (Only Player 1 executes this to avoid double update)
                     if(data.status === 'playing' && data.p1Bid !== null && data.p2Bid !== null && !data.lastResult) {
                         if(playerRole === 1) {
                             let p1T = data.p1Tokens - data.p1Bid; let p2T = data.p2Tokens - data.p2Bid;
@@ -191,7 +184,6 @@
                 return () => unsub();
             }, [roomId, matchFound, playerRole]);
 
-            // Timeout Logic (If no player joins in 20s)
             useEffect(() => {
                 let timer;
                 if (isMatchmaking && !matchFound) {
@@ -201,7 +193,6 @@
                                 clearInterval(timer);
                                 setIsMatchmaking(false);
                                 alert("No real player found right now. Try again!");
-                                // Delete room if I am creator
                                 if(playerRole === 1 && roomId) { window.fs.deleteDoc(window.fs.doc(window.db, "rooms", roomId)); }
                                 setRoomId(null);
                                 return 0;
@@ -318,11 +309,14 @@
             // 3. MAIN APP UI
             return (
                 <div className="max-w-md mx-auto bg-black min-h-screen relative pb-24 shadow-2xl">
-                    <div className="flex justify-between items-center px-4 pt-4 pb-2">
-                        <div className="w-32 h-10 flex items-center overflow-hidden">
-                            <img src="youth-earners-logo.png" style={{mixBlendMode:'screen', transform: 'scale(1.8)', transformOrigin: 'left center'}} className="w-full object-contain drop-shadow-lg" alt="Logo" />
+                    
+                    {/* FIXED HEADER WITH FULL LOGO AND TEXT */}
+                    <div className="flex justify-between items-center px-4 pt-4 pb-2 border-b border-gray-900">
+                        <div className="flex items-center gap-2">
+                            <img src="youth-earners-logo.png" style={{mixBlendMode:'screen'}} className="h-10 w-auto object-contain" alt="Logo" />
+                            <span className="font-black text-[#ffe29a] text-[15px] tracking-wider uppercase">Youth Earners</span>
                         </div>
-                        <div onClick={()=>setActiveTab('wallet')} className="bg-[#111] cursor-pointer border border-[#dcae45] px-4 py-1.5 rounded-full text-sm font-bold text-[#ffe29a] flex items-center gap-2 shadow-[0_0_10px_rgba(220,174,69,0.3)]">
+                        <div onClick={()=>setActiveTab('wallet')} className="bg-[#111] cursor-pointer border border-[#dcae45] px-3 py-1.5 rounded-full text-xs font-bold text-[#ffe29a] flex items-center gap-2 shadow-[0_0_10px_rgba(220,174,69,0.3)]">
                             <i className="fa-solid fa-wallet text-[#dcae45]"></i> ₹{wallet.toFixed(2)}
                         </div>
                     </div>
@@ -330,28 +324,35 @@
                     <div className="p-4">
                         {activeTab === 'home' && (
                             <div className="space-y-6">
-                                <div className="w-full h-28 rounded-xl bg-gradient-to-r from-[#dcae45] to-[#997316] p-5 flex items-center justify-between shadow-[0_4px_15px_rgba(220,174,69,0.3)]">
-                                    <div className="text-black">
-                                        <h3 className="font-black text-2xl mb-1">Youth Earner's</h3>
-                                        <p className="text-sm font-bold opacity-90">Play & Win Real Cash!</p>
+                                {/* LARGER GOLD BANNER */}
+                                <div className="w-full h-44 rounded-xl bg-gradient-to-br from-[#dcae45] via-[#a37d22] to-[#7a5912] p-6 flex flex-col justify-center items-start shadow-[0_4px_20px_rgba(220,174,69,0.3)] relative overflow-hidden">
+                                    <i className="fa-solid fa-trophy text-8xl text-black/10 absolute right-4 top-4 transform rotate-12"></i>
+                                    <div className="text-black relative z-10">
+                                        <h3 className="font-black text-3xl mb-2">Youth Earner's</h3>
+                                        <p className="text-sm font-bold opacity-90 tracking-wide">Play & Win Real Cash!</p>
                                     </div>
-                                    <i className="fa-solid fa-trophy text-5xl text-black/20"></i>
                                 </div>
+
                                 <div className="mt-6">
                                     <h3 className="font-bold mb-4 text-[#ffe29a] text-lg flex items-center gap-2"><i className="fa-solid fa-users"></i> Play with Real Players</h3>
-                                    <div className="flex flex-col gap-3">
+                                    
+                                    {/* 2-COLUMN GRID FOR GAMES */}
+                                    <div className="grid grid-cols-2 gap-4">
                                         {playTiers.map(tier => (
-                                            <div key={tier.entry} className="flex items-center justify-between bg-dark-premium rounded-xl p-3 border border-gray-800">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#dcae45] to-[#ffe29a] flex items-center justify-center text-black shadow-[0_0_10px_rgba(220,174,69,0.4)]">
-                                                        <i className="fa-solid fa-coins text-xl"></i>
-                                                    </div>
-                                                    <div>
-                                                        <div className="text-sm text-gray-400 mb-0.5">Entry: <span className="font-bold text-white">₹{tier.entry}</span></div>
-                                                        <div className="text-[13px] text-emerald-400 font-bold">WIN: ₹{tier.win}</div>
-                                                    </div>
+                                            <div key={tier.entry} className="bg-dark-premium rounded-xl p-4 border border-gray-800 flex flex-col items-center text-center relative overflow-hidden hover:border-[#dcae45]/50 transition-colors">
+                                                {/* Card Logo Image (Using same logo for now) */}
+                                                <img src="youth-earners-logo.png" style={{mixBlendMode:'screen'}} className="h-10 w-auto mb-3 opacity-90 drop-shadow-[0_0_5px_rgba(220,174,69,0.5)]" alt="game-icon" />
+                                                
+                                                <div className="text-xs text-gray-400 mb-1">Entry: <span className="font-bold text-white text-sm">₹{tier.entry}</span></div>
+                                                
+                                                {/* Glowing Green Win Amount */}
+                                                <div className="text-[16px] text-[#10b981] font-black mb-4 drop-shadow-[0_0_8px_rgba(16,185,129,0.8)] tracking-wide">
+                                                    WIN: ₹{tier.win}
                                                 </div>
-                                                <button onClick={() => setConfirmPopup(tier)} className="btn-green-glow px-5 py-2 rounded-lg font-bold text-sm tracking-wide">Play Now</button>
+                                                
+                                                <button onClick={() => setConfirmPopup(tier)} className="w-full btn-green-glow py-2 rounded-lg font-bold text-sm tracking-wide shadow-[0_0_15px_rgba(16,185,129,0.4)]">
+                                                    Play Now
+                                                </button>
                                             </div>
                                         ))}
                                     </div>
