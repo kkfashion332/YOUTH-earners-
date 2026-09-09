@@ -12,11 +12,18 @@ html, body { width: 100%; min-height: 100%; background: var(--black); color: var
 .hide-scrollbar::-webkit-scrollbar { display: none; }
 .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* Premium Radiant Background */
+/* 1. UPDATED: Premium Radiant Animated Background */
 .bg-premium-dark {
-    background: radial-gradient(ellipse at top, rgba(220, 174, 69, 0.15) 0%, transparent 60%),
-                radial-gradient(circle at bottom, rgba(220, 174, 69, 0.1) 0%, #000000 60%);
-    background-color: var(--black);
+    background: linear-gradient(135deg, #050505, #111111, #1a1508, #000000);
+    background-size: 300% 300%;
+    animation: gradientShift 15s ease infinite;
+    color: var(--text);
+    min-height: 100vh;
+}
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
 .curved-header {
@@ -66,16 +73,62 @@ body.intro-running { overflow: hidden; }
 }
 .gold-card:hover { border-color: #dcae45; box-shadow: 0 0 25px rgba(220,174,69,0.3); }
 
+/* 2. NEW: Premium Frosted Glass Effect */
+.glass-card {
+    background: rgba(17, 17, 17, 0.4); 
+    backdrop-filter: blur(12px); 
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(220, 174, 69, 0.2);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.glass-card:hover {
+    border: 1px solid rgba(220, 174, 69, 0.7);
+    transform: translateY(-6px);
+    box-shadow: 0 15px 40px 0 rgba(220, 174, 69, 0.2);
+}
+
+/* 3. UPDATED: Sweeping Shine Effect on Play Buttons */
 .btn-play-gold { 
+    position: relative;
+    overflow: hidden;
     background: linear-gradient(90deg, #dcae45, #ffe29a, #dcae45); 
     background-size: 200% auto;
     color: #000; 
     box-shadow: 0 4px 15px rgba(220, 174, 69, 0.4); 
-    border: none; 
+    border: none;
+    font-weight: 900;
+    z-index: 1; 
     transition: 0.5s; 
 }
 .btn-play-gold:hover { background-position: right center; }
-.btn-play-gold:active { transform: scale(0.95); }
+.btn-play-gold:active { transform: scale(0.92); }
+
+.btn-play-gold::before {
+    content: "";
+    position: absolute;
+    top: 0; left: -100%;
+    width: 50%; height: 100%;
+    background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0) 100%);
+    transform: skewX(-25deg);
+    animation: shineSweeper 3s infinite;
+    z-index: -1;
+}
+@keyframes shineSweeper {
+    0% { left: -100%; }
+    20% { left: 200%; }
+    100% { left: 200%; }
+}
+
+/* 4. NEW: Floating Animation for Logos/Icons */
+.float-anim {
+    animation: levitate 3s ease-in-out infinite;
+}
+@keyframes levitate {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0); }
+}
 
 .text-gold-gradient {
     background: linear-gradient(90deg, #ffe29a, #dcae45);
