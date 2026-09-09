@@ -55,7 +55,7 @@
 
     <!-- MEGA REACT APP LOGIC WITH REAL 2-PLAYER 3-ROUND BIDDING ENGINE -->
     <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
+                const { useState, useEffect, useRef } = React;
 
         function App() {
             // Core States
@@ -85,6 +85,8 @@
             const [playerRole, setPlayerRole] = useState(null);
             const [roomData, setRoomData] = useState(null);
             const [opponent, setOpponent] = useState({ name: 'Searching...', img: 'youth-earners-logo.png' });
+            
+            // Bidding inputs
             const [bidInput, setBidInput] = useState('');
 
             const playTiers = [
@@ -111,7 +113,7 @@
                 setTransactions(prev => [newTx, ...prev].slice(0, 10));
             };
 
-            // Initial Load & Game Start Bridge
+            // Initial Load
             useEffect(() => {
                 const handleGameStart = (e) => {
                     const data = e.detail;
@@ -187,7 +189,7 @@
                 return list.sort((a,b) => b.xp - a.xp);
             };
 
-            // --- FIREBASE MATCHMAKING ---
+            // --- REAL FIREBASE MATCHMAKING LOGIC ---
             const startMatch = async (tier) => {
                 playClick();
                 if(tier.entry > 0 && wallet < tier.entry) {
@@ -224,7 +226,7 @@
                 }
             };
 
-            // Matchmaking Timeout Timer
+            // Matchmaking Timeout
             useEffect(() => {
                 let timer;
                 if (isMatchmaking && !matchFound) {
@@ -247,7 +249,7 @@
                 return () => clearInterval(timer);
             }, [isMatchmaking, matchFound, roomId, playerRole]);
 
-            // --- REALTIME 3-ROUND BIDDING ENGINE ---
+            // --- THE 3-ROUND BLIND BID ENGINE ---
             useEffect(() => {
                 if (!roomId) return;
                 const unsub = window.fs.onSnapshot(window.fs.doc(window.db, "rooms", roomId), async (doc) => {
@@ -255,6 +257,7 @@
                     if(!data) return;
                     setRoomData(data);
 
+                    // Game Starts
                     if(data.status === 'playing' && !matchFound) {
                         setMatchFound(true); 
                         setOpponent(playerRole === 1 ? data.p2 : data.p1);
@@ -269,7 +272,7 @@
                         }, 2000);
                     }
 
-                    // Round Calculation (Executed by P1)
+                    // Round Resolution Logic (Handled only by P1 to avoid double calculation)
                     if(data.status === 'playing' && data.p1Bid !== null && data.p2Bid !== null && !data.lastResult) {
                         if(playerRole === 1) {
                             let p1T = data.p1Tokens - data.p1Bid; 
@@ -282,11 +285,13 @@
                             
                             let nextRound = data.round + 1;
                             
+                            // Save Result for this round
                             await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomId), {
                                 p1Tokens: p1T, p2Tokens: p2T, p1Wins: p1W, p2Wins: p2W,
                                 lastResult: { p1Bid: data.p1Bid, p2Bid: data.p2Bid, winner }
                             });
 
+                            // Move to next round or finish game after 3.5 seconds
                             setTimeout(async () => {
                                 if(nextRound > 3) {
                                     await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomId), { status: 'finished' });
@@ -297,11 +302,12 @@
                         }
                     }
 
-                    // Game Finished & Reward Distribution
+                    // Game Finished Logic
                     if(data.status === 'finished') {
                         setIsPlaying(false); setRoomId(null);
                         let isWinner = false;
                         
+                        // Decide Winner based on Wins, tiebreaker is remaining tokens
                         if(data.p1Wins > data.p2Wins || (data.p1Wins === data.p2Wins && data.p1Tokens > data.p2Tokens)) {
                             isWinner = playerRole === 1;
                         } else if(data.p2Wins > data.p1Wins || (data.p2Wins === data.p1Wins && data.p2Tokens > data.p1Tokens)) {
@@ -310,6 +316,7 @@
                             isWinner = 'draw';
                         }
                         
+                        // Distribute Rewards
                         if(isWinner === true) {
                             let winnings = data.tier * 1.8;
                             setWallet(prev => prev + winnings);
@@ -386,6 +393,7 @@
                         {/* HOME TAB */}
                         {activeTab === 'home' && (
                             <div className="space-y-6 pop-in">
+                                {/* Profile / Balance Dashboard Card */}
                                 <div className="gold-card p-5">
                                     <div className="flex justify-between items-center mb-4">
                                         <div className="flex items-center gap-3">
@@ -402,6 +410,7 @@
                                             <div className="text-2xl font-black text-[#ffcc00]">₹{wallet.toFixed(2)}</div>
                                         </div>
                                     </div>
+                                    {/* XP Progress */}
                                     <div>
                                         <div className="flex justify-between text-xs font-bold text-gray-300 mb-1">
                                             <span>Level {level}</span>
@@ -411,6 +420,7 @@
                                     </div>
                                 </div>
 
+                                {/* Banner */}
                                 <div className="w-full h-36 rounded-xl bg-black border border-[#333] overflow-hidden flex items-center justify-center relative shadow-[0_0_15px_rgba(255,204,0,0.1)]">
                                     <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80')] bg-cover bg-center opacity-30"></div>
                                     <div className="relative z-10 text-center">
@@ -419,6 +429,7 @@
                                     </div>
                                 </div>
 
+                                {/* Game Modes */}
                                 <div>
                                     <h3 className="font-bold mb-3 text-white uppercase tracking-wider text-sm"><i className="fa-solid fa-gamepad text-[#ffcc00]"></i> Select Mode</h3>
                                     <div className="grid grid-cols-2 gap-3">
@@ -435,7 +446,7 @@
                             </div>
                         )}
 
-                        {/* TASKS TAB */}
+                        {/* TASKS & REWARDS TAB */}
                         {activeTab === 'tasks' && (
                             <div className="space-y-6 pop-in">
                                 <div>
@@ -482,17 +493,20 @@
                                 <h2 className="text-2xl font-black text-center text-white uppercase tracking-widest mb-6"><i className="fa-solid fa-crown text-[#ffcc00]"></i> Hall of Fame</h2>
                                 
                                 <div className="podium-container">
+                                    {/* 2nd Place */}
                                     <div className="podium-item">
                                         <img src="youth-earners-logo.png" className="podium-avatar" />
                                         <div className="text-xs font-bold text-white mb-1 truncate w-full text-center">{getLeaderboard()[1].name}</div>
                                         <div className="podium-step step-2">2<div className="text-[10px] text-gray-800 mt-1">{getLeaderboard()[1].xp} XP</div></div>
                                     </div>
+                                    {/* 1st Place */}
                                     <div className="podium-item" style={{marginBottom: '20px'}}>
                                         <i className="fa-solid fa-crown text-[#ffcc00] text-2xl absolute -top-8 drop-shadow-[0_0_10px_#ffcc00]"></i>
                                         <img src="youth-earners-logo.png" className="podium-avatar border-[#ffcc00]" />
                                         <div className="text-xs font-bold text-[#ffcc00] mb-1 truncate w-full text-center">{getLeaderboard()[0].name}</div>
                                         <div className="podium-step step-1">1<div className="text-[10px] text-gray-800 mt-1">{getLeaderboard()[0].xp} XP</div></div>
                                     </div>
+                                    {/* 3rd Place */}
                                     <div className="podium-item">
                                         <img src="youth-earners-logo.png" className="podium-avatar" />
                                         <div className="text-xs font-bold text-white mb-1 truncate w-full text-center">{getLeaderboard()[2].name}</div>
@@ -635,11 +649,13 @@
                     {isPlaying && roomData && (
                         <div className="fixed inset-0 bg-[#050505] text-white flex flex-col p-4 z-[200] pb-20">
                             
+                            {/* In-Game Header */}
                             <div className="flex justify-between items-center mb-6 mt-2">
                                 <h2 className="text-lg font-black text-[#ffcc00] tracking-widest uppercase"><i className="fa-solid fa-bolt"></i> BLIND BID</h2>
                                 <div className="bg-[#111] px-4 py-1 rounded-full border border-[#333] text-xs font-bold text-gray-400">ROUND {roomData.round}/3</div>
                             </div>
 
+                            {/* Player vs Player Stats Panel */}
                             <div className="gold-card p-4 flex justify-between items-center mb-8">
                                 <div className="text-center w-1/3">
                                     <img src={playerRole === 1 ? roomData.p1.img : roomData.p2.img} className="w-12 h-12 rounded-full mx-auto mb-2 border-2 border-emerald-500 bg-black"/>
@@ -660,6 +676,7 @@
                                 </div>
                             </div>
                             
+                            {/* Gameplay Area */}
                             {!roomData.lastResult ? (
                                 <div className="mt-4 flex-1">
                                     {(playerRole === 1 ? roomData.p1Bid : roomData.p2Bid) === null ? (
@@ -687,6 +704,7 @@
                                     )}
                                 </div>
                             ) : (
+                                /* Round Result Screen */
                                 <div className="mt-10 text-center pop-in flex-1">
                                     <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6">Round {roomData.round} Result</h3>
                                     
