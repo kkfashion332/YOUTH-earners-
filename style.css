@@ -19,77 +19,37 @@ html, body { width: 100%; min-height: 100%; background: var(--black); color: var
     background-color: var(--black);
 }
 
+/* Updated Header (Cleaned up as per Image 1) */
 .curved-header {
     background: linear-gradient(180deg, #050505 0%, #111 100%);
-    border-bottom-left-radius: 35px;
-    border-bottom-right-radius: 35px;
-    border-bottom: 2px solid rgba(220, 174, 69, 0.6);
-    box-shadow: 0 4px 20px rgba(220,174,69,0.15);
+    border-bottom-left-radius: 25px;
+    border-bottom-right-radius: 25px;
+    border-bottom: 1px solid rgba(220, 174, 69, 0.4);
+    box-shadow: 0 4px 15px rgba(220,174,69,0.1);
 }
 
+/* Intro Animations */
 body.intro-running { overflow: hidden; }
-#logoIntro { position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #000; opacity: 1; transition: opacity 900ms ease; }
-#logoIntro::before { content: ""; position: absolute; width: 120vmin; height: 120vmin; border-radius: 50%; background: radial-gradient(circle, rgba(220,174,69,.22) 0%, rgba(220,174,69,.06) 40%, transparent 65%); animation: glowPulse 4.5s ease-in-out infinite; }
-.intro-stage { position: relative; display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 24px; text-align: center; }
-.intro-logo { width: min(560px, 78vw); height: auto; opacity: 0; transform: scale(.82); animation: logoIn 1.5s cubic-bezier(.2,.7,.2,1) .25s forwards, logoFloat 5s ease-in-out 2s infinite; }
-.logo-wrap { position: relative; overflow: hidden; border-radius: 12px; }
-.logo-wrap::after { content: ""; position: absolute; top: -60%; left: -140%; width: 60%; height: 220%; transform: rotate(18deg); background: linear-gradient(90deg, transparent, rgba(255,226,154,.55), transparent); animation: shine 3.2s ease-in-out 1.3s infinite; }
-.intro-line { width: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); animation: lineGrow 1.1s ease .9s forwards; }
-.intro-title { letter-spacing: .32em; text-transform: uppercase; font-size: clamp(11px, 3vw, 15px); color: var(--gold-light); opacity: 0; animation: fadeUp .9s ease 1.25s forwards; }
+#logoIntro { position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; background: #000; transition: opacity 900ms ease; }
+.intro-logo { width: 200px; height: auto; animation: logoIn 1.5s forwards; }
+@keyframes logoIn { 0%{transform:scale(0.8); opacity:0;} 100%{transform:scale(1); opacity:1;} }
 
-@keyframes logoIn { 0%{opacity:0;transform:scale(.82) translateY(14px);filter:blur(8px)} 60%{opacity:1;filter:blur(0)} 100%{opacity:1;transform:scale(1) translateY(0);filter:blur(0)} }
-@keyframes logoFloat { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-8px) scale(1.015)} }
-@keyframes shine { 0%{left:-140%} 55%,100%{left:140%} }
-@keyframes lineGrow { to{width:min(420px,62vw)} }
-@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-@keyframes glowPulse { 0%,100%{opacity:.55;transform:scale(1)} 50%{opacity:1;transform:scale(1.08)} }
+.auth-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.form-container { background: var(--dark); border: 1px solid rgba(220,174,69,0.3); border-radius: 20px; padding: 30px; width: 100%; max-width: 350px; text-align: center; }
+.input-group input { width: 100%; padding: 12px 15px; border-radius: 8px; background: #111; border: 1px solid rgba(220,174,69,0.3); color: white; margin-bottom: 15px; outline: none; }
+.input-group input:focus { border-color: var(--gold); }
+.auth-btn { width: 100%; padding: 12px; border-radius: 8px; background: linear-gradient(90deg, #dcae45, #ffe29a); color: #000; font-weight: bold; border: none; cursor: pointer; }
 
-.auth-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at center, rgba(220,174,69,0.1), var(--black) 70%); padding: 20px; }
-.form-container { background: var(--dark); border: 1px solid rgba(220,174,69,0.3); border-radius: 20px; padding: 40px 30px; width: 100%; max-width: 400px; box-shadow: 0 0 30px rgba(220,174,69,0.1); text-align: center; }
-.auth-logo { width: 220px; margin: 0 auto 20px; mix-blend-mode: screen; }
-.auth-form h2 { color: var(--gold-light); margin-bottom: 25px; font-size: 24px; font-weight: bold; }
-.input-group { margin-bottom: 15px; }
-.input-group input { width: 100%; padding: 14px 20px; border-radius: 10px; background: #111; border: 1px solid rgba(220,174,69,0.3); color: white; font-size: 16px; outline: none; transition: border 0.3s; }
-.input-group input:focus { border: 1px solid var(--gold); box-shadow: 0 0 10px rgba(220,174,69,0.2); }
-.auth-btn { width: 100%; padding: 15px; border-radius: 10px; background: linear-gradient(90deg, #dcae45, #ffe29a); color: #000; font-size: 16px; font-weight: bold; border: none; cursor: pointer; transition: transform 0.2s; margin-top: 10px; box-shadow: 0 0 15px rgba(220,174,69,0.4); }
-.auth-btn:hover { transform: translateY(-2px); box-shadow: 0 0 20px rgba(220,174,69,0.6); }
-.switch-form { margin-top: 20px; font-size: 14px; color: #94a3b8; }
-.switch-form span { color: var(--gold); cursor: pointer; font-weight: bold; text-decoration: underline; }
-
-#website { min-height: 100vh; opacity: 1; transition: opacity 700ms ease; }
-
-.gold-card { 
-    background: linear-gradient(180deg, #111, #050505); 
-    border: 1px solid rgba(220,174,69,0.4); 
-    box-shadow: 0 0 15px rgba(220,174,69,0.1); 
-    transition: all 0.3s ease; 
-}
-.gold-card:hover { border-color: #dcae45; box-shadow: 0 0 25px rgba(220,174,69,0.3); }
-
-.btn-play-gold { 
-    background: linear-gradient(90deg, #dcae45, #ffe29a, #dcae45); 
-    background-size: 200% auto;
-    color: #000; 
-    box-shadow: 0 4px 15px rgba(220, 174, 69, 0.4); 
-    border: none; 
-    transition: 0.5s; 
-}
+/* Match Cards */
+.match-card { background: #111; border: 1px solid #333; border-radius: 12px; padding: 15px; text-align: center; transition: 0.3s; }
+.match-card:hover { border-color: #dcae45; }
+.btn-play-gold { background: linear-gradient(90deg, #dcae45, #ffe29a, #dcae45); background-size: 200% auto; color: #000; border: none; transition: 0.5s; font-weight: bold; }
 .btn-play-gold:hover { background-position: right center; }
-.btn-play-gold:active { transform: scale(0.95); }
 
-.text-gold-gradient {
-    background: linear-gradient(90deg, #ffe29a, #dcae45);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
+/* Animations & Modals */
 .spin-slow { animation: spin 3s linear infinite; }
-@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-.pop-in { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-@keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
-/* Victory Popup Animation */
-.victory-anim { animation: victoryPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-@keyframes victoryPop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+.pop-in { animation: popIn 0.2s ease-out forwards; }
+@keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
 .pb-24 { padding-bottom: 6.5rem; }
