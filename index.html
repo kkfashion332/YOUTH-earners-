@@ -20,7 +20,7 @@
     <audio id="winSound" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3"></audio>
     <audio id="levelUpSound" src="https://assets.mixkit.co/active_storage/sfx/1434/1434-preview.mp3"></audio>
 
-    <!-- INTRO & AUTH (Unchanged HTML structure) -->
+    <!-- INTRO & AUTH -->
     <div id="logoIntro">
         <div class="intro-stage">
             <div class="logo-wrap"><img class="intro-logo" src="youth-earners-logo.png" alt="Logo" /></div>
@@ -53,7 +53,7 @@
     <main id="website" class="hidden"><div id="root"></div></main>
     <script type="module" src="app.js"></script>
 
-    <!-- MEGA REACT APP LOGIC -->
+    <!-- MEGA REACT APP LOGIC WITH REAL 2-PLAYER 3-ROUND BIDDING ENGINE -->
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
@@ -75,12 +75,17 @@
             const [toasts, setToasts] = useState([]);
             const [showLevelUp, setShowLevelUp] = useState(false);
             
-            // Play States
+            // --- REAL MATCHMAKING & BIDDING STATES ---
             const [confirmPopup, setConfirmPopup] = useState(null); 
             const [isPlaying, setIsPlaying] = useState(false);
             const [isMatchmaking, setIsMatchmaking] = useState(false);
-            const [matchTime, setMatchTime] = useState(20);
-            const [chatMsg, setChatMsg] = useState("");
+            const [matchTime, setMatchTime] = useState(15); 
+            const [matchFound, setMatchFound] = useState(false);
+            const [roomId, setRoomId] = useState(null);
+            const [playerRole, setPlayerRole] = useState(null);
+            const [roomData, setRoomData] = useState(null);
+            const [opponent, setOpponent] = useState({ name: 'Searching...', img: 'youth-earners-logo.png' });
+            const [bidInput, setBidInput] = useState('');
 
             const playTiers = [
                 { entry: 0, win: 0, name: "Practice" },
@@ -103,7 +108,7 @@
 
             const addTransaction = (amount, desc) => {
                 const newTx = { id: Date.now(), amount, desc, date: new Date().toLocaleDateString() };
-                setTransactions(prev => [newTx, ...prev].slice(0, 10)); // Keep last 10
+                setTransactions(prev => [newTx, ...prev].slice(0, 10));
             };
 
             // Initial Load & Game Start Bridge
@@ -112,8 +117,6 @@
                     const data = e.detail;
                     if(data) {
                         setUserProfile(prev => ({ ...prev, name: data.name, number: data.number }));
-                        
-                        // Load saved data or initialize
                         const savedData = JSON.parse(localStorage.getItem('ye_save_' + data.number));
                         if(savedData) {
                             setWallet(savedData.wallet);
@@ -122,7 +125,7 @@
                             setClaimedDays(savedData.claimedDays || []);
                             setTransactions(savedData.transactions || []);
                         } else {
-                            setWallet(data.wallet || 0); // Bonus mapping
+                            setWallet(data.wallet || 0); 
                         }
                     }
                 };
@@ -164,7 +167,7 @@
                 playClick();
                 if(!claimedDays.includes(day)) {
                     setClaimedDays([...claimedDays, day]);
-                    const reward = day * 2; // Simple math reward
+                    const reward = day * 2;
                     setWallet(w => w + reward);
                     setXp(x => x + 10);
                     addTransaction(reward, `Daily Reward Day ${day}`);
@@ -172,7 +175,6 @@
                 }
             };
 
-            // Dummy Leaderboard Generator
             const getLeaderboard = () => {
                 let list = [
                     { name: 'Rahul_Pro', xp: 4500, avatar: 'youth-earners-logo.png' },
@@ -185,33 +187,158 @@
                 return list.sort((a,b) => b.xp - a.xp);
             };
 
-            const startMatch = (tier) => {
+            // --- FIREBASE MATCHMAKING ---
+            const startMatch = async (tier) => {
                 playClick();
                 if(tier.entry > 0 && wallet < tier.entry) {
                     addToast("Insufficient Balance!", "error"); return;
                 }
                 setConfirmPopup(null);
-                setIsMatchmaking(true);
-                setMatchTime(5); 
-                
-                setTimeout(() => {
-                    setIsMatchmaking(false);
-                    setIsPlaying(true);
-                    setMatchTime(20); 
-                    if(tier.entry > 0) {
-                        setWallet(w => w - tier.entry);
-                        addTransaction(-tier.entry, `Entry: ${tier.name} Match`);
+                setMatchFound(false);
+                setMatchTime(15); 
+                setIsMatchmaking(true); 
+
+                try {
+                    const q = window.fs.query(window.fs.collection(window.db, "rooms"), window.fs.where("tier", "==", tier.entry), window.fs.where("status", "==", "waiting"));
+                    const querySnapshot = await window.fs.getDocs(q);
+
+                    if (!querySnapshot.empty) {
+                        const roomDoc = querySnapshot.docs[0];
+                        await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomDoc.id), {
+                            status: 'playing',
+                            p2: { uid: window.auth.currentUser.uid, name: userProfile.name, img: userProfile.avatar }
+                        });
+                        setRoomId(roomDoc.id); setPlayerRole(2);
+                    } else {
+                        const docRef = await window.fs.addDoc(window.fs.collection(window.db, "rooms"), {
+                            tier: tier.entry, status: 'waiting',
+                            p1: { uid: window.auth.currentUser.uid, name: userProfile.name, img: userProfile.avatar },
+                            p1Bid: null, p2Bid: null, round: 1, p1Tokens: 500, p2Tokens: 500, p1Wins: 0, p2Wins: 0, lastResult: null,
+                            timestamp: new Date()
+                        });
+                        setRoomId(docRef.id); setPlayerRole(1);
                     }
-                }, 4000);
+                } catch(e) { 
+                    addToast("Network Error!", "error"); 
+                    setIsMatchmaking(false); 
+                }
             };
 
-            const simulateWin = () => {
-                setIsPlaying(false); 
-                const a = document.getElementById('winSound'); if(a) a.play().catch(()=>{});
-                setWallet(w => w + 18);
-                setXp(x => x + 50);
-                addTransaction(18, "Match Won!");
-                addToast("Victory! +₹18", "success");
+            // Matchmaking Timeout Timer
+            useEffect(() => {
+                let timer;
+                if (isMatchmaking && !matchFound) {
+                    timer = setInterval(async () => {
+                        setMatchTime(prev => {
+                            if(prev <= 1) {
+                                clearInterval(timer);
+                                setIsMatchmaking(false);
+                                addToast("No player found. Try again!");
+                                if(playerRole === 1 && roomId) { 
+                                    window.fs.deleteDoc(window.fs.doc(window.db, "rooms", roomId)); 
+                                }
+                                setRoomId(null);
+                                return 0;
+                            }
+                            return prev - 1;
+                        });
+                    }, 1000);
+                }
+                return () => clearInterval(timer);
+            }, [isMatchmaking, matchFound, roomId, playerRole]);
+
+            // --- REALTIME 3-ROUND BIDDING ENGINE ---
+            useEffect(() => {
+                if (!roomId) return;
+                const unsub = window.fs.onSnapshot(window.fs.doc(window.db, "rooms", roomId), async (doc) => {
+                    const data = doc.data();
+                    if(!data) return;
+                    setRoomData(data);
+
+                    if(data.status === 'playing' && !matchFound) {
+                        setMatchFound(true); 
+                        setOpponent(playerRole === 1 ? data.p2 : data.p1);
+                        setTimeout(() => {
+                            if(data.tier > 0) {
+                                setWallet(w => w - data.tier);
+                                addTransaction(-data.tier, `Entry: ₹${data.tier} Match`);
+                            }
+                            setIsMatchmaking(false); 
+                            setIsPlaying(true); 
+                            setBidInput('');
+                        }, 2000);
+                    }
+
+                    // Round Calculation (Executed by P1)
+                    if(data.status === 'playing' && data.p1Bid !== null && data.p2Bid !== null && !data.lastResult) {
+                        if(playerRole === 1) {
+                            let p1T = data.p1Tokens - data.p1Bid; 
+                            let p2T = data.p2Tokens - data.p2Bid;
+                            let p1W = data.p1Wins; let p2W = data.p2Wins;
+                            let winner = "DRAW";
+                            
+                            if(data.p1Bid > data.p2Bid) { winner = data.p1.name; p1W++; }
+                            else if(data.p2Bid > data.p1Bid) { winner = data.p2.name; p2W++; }
+                            
+                            let nextRound = data.round + 1;
+                            
+                            await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomId), {
+                                p1Tokens: p1T, p2Tokens: p2T, p1Wins: p1W, p2Wins: p2W,
+                                lastResult: { p1Bid: data.p1Bid, p2Bid: data.p2Bid, winner }
+                            });
+
+                            setTimeout(async () => {
+                                if(nextRound > 3) {
+                                    await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomId), { status: 'finished' });
+                                } else {
+                                    await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomId), { p1Bid: null, p2Bid: null, round: nextRound, lastResult: null });
+                                }
+                            }, 3500);
+                        }
+                    }
+
+                    // Game Finished & Reward Distribution
+                    if(data.status === 'finished') {
+                        setIsPlaying(false); setRoomId(null);
+                        let isWinner = false;
+                        
+                        if(data.p1Wins > data.p2Wins || (data.p1Wins === data.p2Wins && data.p1Tokens > data.p2Tokens)) {
+                            isWinner = playerRole === 1;
+                        } else if(data.p2Wins > data.p1Wins || (data.p2Wins === data.p1Wins && data.p2Tokens > data.p1Tokens)) {
+                            isWinner = playerRole === 2;
+                        } else {
+                            isWinner = 'draw';
+                        }
+                        
+                        if(isWinner === true) {
+                            let winnings = data.tier * 1.8;
+                            setWallet(prev => prev + winnings);
+                            setXp(x => x + 50);
+                            addTransaction(winnings, "Match Won!");
+                            addToast(`Victory! +₹${winnings}`, "success");
+                            const a = document.getElementById('winSound'); if(a) a.play().catch(()=>{});
+                        } else if(isWinner === 'draw') {
+                            setWallet(prev => prev + data.tier);
+                            addTransaction(data.tier, "Match Draw Refund");
+                            addToast("Match Draw! Fee refunded.", "success");
+                        } else {
+                            addToast("You Lost the Match!", "error");
+                        }
+                    }
+                });
+                return () => unsub();
+            }, [roomId, matchFound, playerRole]);
+
+            const submitBid = async () => {
+                if(!roomId || !roomData) return;
+                playClick();
+                let myTokens = playerRole === 1 ? roomData.p1Tokens : roomData.p2Tokens;
+                let b = parseInt(bidInput);
+                if(isNaN(b) || b < 0) b = 0; if(b > myTokens) b = myTokens;
+                
+                await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomId), {
+                    [playerRole === 1 ? 'p1Bid' : 'p2Bid']: b
+                });
             };
 
             // VIEWS
@@ -245,7 +372,7 @@
 
                     {/* Level Up Modal */}
                     {showLevelUp && (
-                        <div className="modal-overlay">
+                        <div className="modal-overlay z-[999]">
                             <div className="text-center level-up-anim">
                                 <i className="fa-solid fa-angles-up text-7xl text-[#ffcc00] drop-shadow-[0_0_20px_#ffcc00] mb-4"></i>
                                 <h2 className="text-5xl font-black text-white italic tracking-tighter">LEVEL UP!</h2>
@@ -259,7 +386,6 @@
                         {/* HOME TAB */}
                         {activeTab === 'home' && (
                             <div className="space-y-6 pop-in">
-                                {/* Profile / Balance Dashboard Card */}
                                 <div className="gold-card p-5">
                                     <div className="flex justify-between items-center mb-4">
                                         <div className="flex items-center gap-3">
@@ -276,7 +402,6 @@
                                             <div className="text-2xl font-black text-[#ffcc00]">₹{wallet.toFixed(2)}</div>
                                         </div>
                                     </div>
-                                    {/* XP Progress */}
                                     <div>
                                         <div className="flex justify-between text-xs font-bold text-gray-300 mb-1">
                                             <span>Level {level}</span>
@@ -286,7 +411,6 @@
                                     </div>
                                 </div>
 
-                                {/* Banner */}
                                 <div className="w-full h-36 rounded-xl bg-black border border-[#333] overflow-hidden flex items-center justify-center relative shadow-[0_0_15px_rgba(255,204,0,0.1)]">
                                     <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80')] bg-cover bg-center opacity-30"></div>
                                     <div className="relative z-10 text-center">
@@ -295,7 +419,6 @@
                                     </div>
                                 </div>
 
-                                {/* Game Modes */}
                                 <div>
                                     <h3 className="font-bold mb-3 text-white uppercase tracking-wider text-sm"><i className="fa-solid fa-gamepad text-[#ffcc00]"></i> Select Mode</h3>
                                     <div className="grid grid-cols-2 gap-3">
@@ -312,7 +435,7 @@
                             </div>
                         )}
 
-                        {/* TASKS & REWARDS TAB */}
+                        {/* TASKS TAB */}
                         {activeTab === 'tasks' && (
                             <div className="space-y-6 pop-in">
                                 <div>
@@ -359,20 +482,17 @@
                                 <h2 className="text-2xl font-black text-center text-white uppercase tracking-widest mb-6"><i className="fa-solid fa-crown text-[#ffcc00]"></i> Hall of Fame</h2>
                                 
                                 <div className="podium-container">
-                                    {/* 2nd Place */}
                                     <div className="podium-item">
                                         <img src="youth-earners-logo.png" className="podium-avatar" />
                                         <div className="text-xs font-bold text-white mb-1 truncate w-full text-center">{getLeaderboard()[1].name}</div>
                                         <div className="podium-step step-2">2<div className="text-[10px] text-gray-800 mt-1">{getLeaderboard()[1].xp} XP</div></div>
                                     </div>
-                                    {/* 1st Place */}
                                     <div className="podium-item" style={{marginBottom: '20px'}}>
                                         <i className="fa-solid fa-crown text-[#ffcc00] text-2xl absolute -top-8 drop-shadow-[0_0_10px_#ffcc00]"></i>
                                         <img src="youth-earners-logo.png" className="podium-avatar border-[#ffcc00]" />
                                         <div className="text-xs font-bold text-[#ffcc00] mb-1 truncate w-full text-center">{getLeaderboard()[0].name}</div>
                                         <div className="podium-step step-1">1<div className="text-[10px] text-gray-800 mt-1">{getLeaderboard()[0].xp} XP</div></div>
                                     </div>
-                                    {/* 3rd Place */}
                                     <div className="podium-item">
                                         <img src="youth-earners-logo.png" className="podium-avatar" />
                                         <div className="text-xs font-bold text-white mb-1 truncate w-full text-center">{getLeaderboard()[2].name}</div>
@@ -498,60 +618,123 @@
                         </div>
                     )}
 
+                    {/* MATCHMAKING SCREEN */}
                     {isMatchmaking && (
                         <div className="modal-overlay flex-col z-[150]">
                             <h2 className="text-[#ffcc00] text-3xl font-black tracking-widest uppercase mb-10 animate-pulse">Matchmaking</h2>
                             <div className="w-32 h-32 rounded-full border-4 border-[#ffcc00] border-dashed spin-slow mb-6"></div>
-                            <p className="font-bold text-gray-400 tracking-widest">EST. TIME: {matchTime}s</p>
+                            {matchFound ? (
+                                <p className="font-bold text-emerald-400 tracking-widest">PLAYER FOUND!</p>
+                            ) : (
+                                <p className="font-bold text-gray-400 tracking-widest">EST. TIME: {matchTime}s</p>
+                            )}
                         </div>
                     )}
 
-                    {isPlaying && (
-                        <div className="fixed inset-0 bg-[#050505] text-white flex flex-col items-center justify-center p-4 z-[200]">
-                            <div className="w-full flex justify-between items-center mb-12 px-6">
-                                <div className="text-center"><img src={userProfile.avatar} className="w-16 h-16 rounded-full border-2 border-blue-500 bg-black mb-2"/><p className="font-bold text-sm">{userProfile.name}</p></div>
-                                <div className="text-5xl font-black text-[#ffcc00] italic">VS</div>
-                                <div className="text-center"><img src="youth-earners-logo.png" className="w-16 h-16 rounded-full border-2 border-red-500 bg-black mb-2"/><p className="font-bold text-sm">Opponent</p></div>
-                            </div>
+                    {/* --- THE IN-GAME BLIND BID UI --- */}
+                    {isPlaying && roomData && (
+                        <div className="fixed inset-0 bg-[#050505] text-white flex flex-col p-4 z-[200] pb-20">
                             
-                            <div className="text-7xl font-black text-white mb-10 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">{matchTime}s</div>
-                            
-                            {/* Live Chat */}
-                            <div className="absolute bottom-32 w-full max-w-sm px-6 flex gap-2">
-                                <input type="text" value={chatMsg} onChange={e=>setChatMsg(e.target.value)} placeholder="Send emoji or chat..." className="flex-1 bg-[#111] rounded-xl px-4 py-3 border border-[#333] outline-none text-sm font-bold" />
-                                <button onClick={()=>{ playClick(); setChatMsg(''); addToast('Message sent'); }} className="bg-[#ffcc00] text-black w-12 h-12 rounded-xl font-bold flex items-center justify-center"><i className="fa-solid fa-paper-plane"></i></button>
+                            <div className="flex justify-between items-center mb-6 mt-2">
+                                <h2 className="text-lg font-black text-[#ffcc00] tracking-widest uppercase"><i className="fa-solid fa-bolt"></i> BLIND BID</h2>
+                                <div className="bg-[#111] px-4 py-1 rounded-full border border-[#333] text-xs font-bold text-gray-400">ROUND {roomData.round}/3</div>
                             </div>
 
-                            <button onClick={simulateWin} className="btn-play-gold py-4 px-12 rounded-xl font-black text-xl absolute bottom-10 uppercase tracking-widest">Simulate Win</button>
-                        </div>
-                    )}
-
-                    {/* Enhanced Bottom Navigation */}
-                    <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-[#0a0a0a] border-t border-[#333] flex justify-between items-center h-[70px] px-2 z-50 rounded-t-2xl shadow-[0_-5px_20px_rgba(0,0,0,0.8)]">
-                        {[
-                            { id: 'home', icon: 'fa-house', label: 'HOME' },
-                            { id: 'tasks', icon: 'fa-list-check', label: 'TASKS' },
-                            { id: 'wallet', icon: 'fa-wallet', label: 'WALLET', special: true },
-                            { id: 'leaderboard', icon: 'fa-crown', label: 'RANKS' },
-                            { id: 'profile', icon: 'fa-user', label: 'PROFILE' }
-                        ].map(tab => (
-                            tab.special ? (
-                                <div key={tab.id} className="relative -top-6 w-[20%] flex justify-center">
-                                    <button onClick={()=>{playClick(); setActiveTab(tab.id);}} className={`w-16 h-16 rounded-full flex items-center justify-center border-4 border-[#050505] transition-transform ${activeTab===tab.id?'bg-[#ffcc00] text-black shadow-[0_0_15px_rgba(255,204,0,0.5)] scale-110':'bg-[#111] text-[#ffcc00]'}`}>
-                                        <i className={`fa-solid ${tab.icon} text-2xl`}></i>
-                                    </button>
+                            <div className="gold-card p-4 flex justify-between items-center mb-8">
+                                <div className="text-center w-1/3">
+                                    <img src={playerRole === 1 ? roomData.p1.img : roomData.p2.img} className="w-12 h-12 rounded-full mx-auto mb-2 border-2 border-emerald-500 bg-black"/>
+                                    <div className="text-2xl font-black text-[#ffcc00]">{playerRole === 1 ? roomData.p1Tokens : roomData.p2Tokens}</div>
+                                    <div className="text-[10px] text-gray-400 uppercase font-bold mt-1">My Tokens</div>
+                                    <div className="flex gap-1 justify-center mt-2">
+                                        {[...Array(playerRole === 1 ? roomData.p1Wins : roomData.p2Wins)].map((_,i) => <i key={i} className="fa-solid fa-star text-emerald-400 text-[10px]"></i>)}
+                                    </div>
+                                </div>
+                                <div className="text-3xl font-black text-[#333] italic">VS</div>
+                                <div className="text-center w-1/3">
+                                    <img src={playerRole === 1 ? roomData.p2.img : roomData.p1.img} className="w-12 h-12 rounded-full mx-auto mb-2 border-2 border-red-500 bg-black"/>
+                                    <div className="text-2xl font-black text-red-400">{playerRole === 1 ? roomData.p2Tokens : roomData.p1Tokens}</div>
+                                    <div className="text-[10px] text-gray-400 uppercase font-bold mt-1">Opponent</div>
+                                    <div className="flex gap-1 justify-center mt-2">
+                                        {[...Array(playerRole === 1 ? roomData.p2Wins : roomData.p1Wins)].map((_,i) => <i key={i} className="fa-solid fa-star text-red-500 text-[10px]"></i>)}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {!roomData.lastResult ? (
+                                <div className="mt-4 flex-1">
+                                    {(playerRole === 1 ? roomData.p1Bid : roomData.p2Bid) === null ? (
+                                        <div className="pop-in">
+                                            <div className="text-center text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Enter Your Bid</div>
+                                            <input 
+                                                type="number" 
+                                                value={bidInput} 
+                                                onChange={(e) => setBidInput(e.target.value)} 
+                                                className="w-full bg-[#111] border-2 border-[#ffcc00] rounded-2xl text-center text-5xl py-6 focus:outline-none font-black shadow-[0_0_20px_rgba(255,204,0,0.2)] text-white" 
+                                                placeholder="0" 
+                                            />
+                                            <div className="flex gap-3 mt-6">
+                                                <button onClick={() => { playClick(); setBidInput(Math.floor((playerRole === 1 ? roomData.p1Tokens : roomData.p2Tokens)/2)); }} className="flex-1 bg-black border border-[#ffcc00] py-3 rounded-xl font-black text-[#ffcc00] uppercase">Half</button>
+                                                <button onClick={() => { playClick(); setBidInput(playerRole === 1 ? roomData.p1Tokens : roomData.p2Tokens); }} className="flex-1 bg-black border border-[#ffcc00] py-3 rounded-xl font-black text-[#ffcc00] uppercase">Max</button>
+                                            </div>
+                                            <button onClick={submitBid} className="w-full mt-6 btn-play-gold py-5 rounded-2xl text-xl tracking-widest font-black shadow-[0_0_20px_rgba(255,204,0,0.5)]">LOCK BID</button>
+                                        </div>
+                                    ) : (
+                                        <div className="text-center mt-20 animate-pulse">
+                                            <i className="fa-solid fa-hourglass-half text-5xl text-[#ffcc00] mb-6 drop-shadow-[0_0_15px_#ffcc00]"></i>
+                                            <div className="text-[#ffcc00] font-black text-xl uppercase tracking-widest">Waiting for opponent...</div>
+                                            <div className="text-gray-400 text-sm mt-2 font-bold">Your bid is locked.</div>
+                                        </div>
+                                    )}
                                 </div>
                             ) : (
-                                <button key={tab.id} onClick={()=>{playClick(); setActiveTab(tab.id);}} className={`flex flex-col items-center gap-1 w-[20%] transition-colors ${activeTab===tab.id?'text-[#ffcc00] drop-shadow-[0_0_5px_rgba(255,204,0,0.5)]':'text-gray-500 hover:text-gray-300'}`}>
-                                    <i className={`fa-solid ${tab.icon} text-xl`}></i>
-                                    <span className="text-[9px] font-black tracking-widest">{tab.label}</span>
-                                </button>
-                            )
-                        ))}
-                    </div>
+                                <div className="mt-10 text-center pop-in flex-1">
+                                    <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6">Round {roomData.round} Result</h3>
+                                    
+                                    <div className="flex justify-between items-center px-4 mb-8">
+                                        <div className="text-4xl font-black text-emerald-400">{playerRole === 1 ? roomData.lastResult.p1Bid : roomData.lastResult.p2Bid}</div>
+                                        <div className="text-xl font-bold text-gray-600">VS</div>
+                                        <div className="text-4xl font-black text-red-400">{playerRole === 1 ? roomData.lastResult.p2Bid : roomData.lastResult.p1Bid}</div>
+                                    </div>
+                                    
+                                    <div className={`p-6 border-2 rounded-2xl ${roomData.lastResult.winner === 'DRAW' ? 'border-gray-500 bg-gray-900' : (roomData.lastResult.winner === userProfile.name ? 'border-emerald-500 bg-emerald-900/30' : 'border-red-500 bg-red-900/30')}`}>
+                                        <div className={`text-3xl font-black uppercase tracking-widest ${roomData.lastResult.winner === 'DRAW' ? 'text-gray-300' : (roomData.lastResult.winner === userProfile.name ? 'text-emerald-400' : 'text-red-400')}`}>
+                                            {roomData.lastResult.winner === 'DRAW' ? 'Round Tied!' : (roomData.lastResult.winner === userProfile.name ? 'YOU WON ROUND!' : 'OPPONENT WON')}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Bottom Navigation */}
+                    {!isPlaying && (
+                        <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-[#0a0a0a] border-t border-[#333] flex justify-between items-center h-[70px] px-2 z-50 rounded-t-2xl shadow-[0_-5px_20px_rgba(0,0,0,0.8)]">
+                            {[
+                                { id: 'home', icon: 'fa-house', label: 'HOME' },
+                                { id: 'tasks', icon: 'fa-list-check', label: 'TASKS' },
+                                { id: 'wallet', icon: 'fa-wallet', label: 'WALLET', special: true },
+                                { id: 'leaderboard', icon: 'fa-crown', label: 'RANKS' },
+                                { id: 'profile', icon: 'fa-user', label: 'PROFILE' }
+                            ].map(tab => (
+                                tab.special ? (
+                                    <div key={tab.id} className="relative -top-6 w-[20%] flex justify-center">
+                                        <button onClick={()=>{playClick(); setActiveTab(tab.id);}} className={`w-16 h-16 rounded-full flex items-center justify-center border-4 border-[#050505] transition-transform ${activeTab===tab.id?'bg-[#ffcc00] text-black shadow-[0_0_15px_rgba(255,204,0,0.5)] scale-110':'bg-[#111] text-[#ffcc00]'}`}>
+                                            <i className={`fa-solid ${tab.icon} text-2xl`}></i>
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <button key={tab.id} onClick={()=>{playClick(); setActiveTab(tab.id);}} className={`flex flex-col items-center gap-1 w-[20%] transition-colors ${activeTab===tab.id?'text-[#ffcc00] drop-shadow-[0_0_5px_rgba(255,204,0,0.5)]':'text-gray-500 hover:text-gray-300'}`}>
+                                        <i className={`fa-solid ${tab.icon} text-xl`}></i>
+                                        <span className="text-[9px] font-black tracking-widest">{tab.label}</span>
+                                    </button>
+                                )
+                            ))}
+                        </div>
+                    )}
                 </div>
             );
         }
+
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
