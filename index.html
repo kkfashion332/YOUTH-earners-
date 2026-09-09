@@ -14,34 +14,31 @@
 </head>
 <body class="intro-running bg-premium-dark text-white">
 
-    <!-- Audio Elements -->
-    <audio id="bgm" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" loop></audio>
-    <audio id="clickSound" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
-    <audio id="winSound" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3"></audio>
-
-    <div id="logoIntro">
-        <div class="text-center">
-            <img class="intro-logo mb-4" src="youth-earners-logo.png" alt="Youth Earner's" />
-            <div class="text-xl font-bold text-[#dcae45] tracking-widest">YOUTH EARNERS</div>
+    <div id="logoIntro" aria-label="Youth Earner's logo introduction">
+        <div class="intro-stage">
+            <div class="logo-wrap"><img class="intro-logo" src="youth-earners-logo.png" alt="Youth Earner's" /></div>
+            <div class="intro-line"></div>
+            <p class="intro-title">Youth Earner's</p>
         </div>
     </div>
 
-    <!-- Auth Container (Same as before) -->
     <div id="authContainer" class="hidden auth-wrapper">
         <div class="form-container">
-            <h2 class="text-2xl font-bold text-[#dcae45] mb-6">Login</h2>
-            <form id="loginForm">
-                <div class="input-group"><input type="tel" id="loginNumber" placeholder="Mobile Number" required></div>
-                <div class="input-group"><input type="password" id="loginPassword" placeholder="Password" required></div>
+            <img class="auth-logo" src="youth-earners-logo.png" alt="Logo" />
+            <form id="loginForm" class="auth-form">
+                <h2>Welcome Back</h2>
+                <div class="input-group"><input type="tel" id="loginNumber" placeholder="Enter your mobile number" pattern="[0-9]{10}" maxlength="10" required></div>
+                <div class="input-group"><input type="password" id="loginPassword" placeholder="Password (content 6 digit)" minlength="6" required></div>
                 <button type="submit" id="loginBtn" class="auth-btn">Log In</button>
-                <p class="mt-4 text-sm text-gray-400">New? <span id="showRegister" class="text-[#dcae45] cursor-pointer">Register Here</span></p>
+                <p class="switch-form">New user? <span id="showRegister">Sign in (Register)</span></p>
             </form>
-            <form id="registerForm" class="hidden">
+            <form id="registerForm" class="auth-form hidden">
+                <h2>Create Account</h2>
                 <div class="input-group"><input type="text" id="regName" placeholder="Full Name" required></div>
-                <div class="input-group"><input type="tel" id="regNumber" placeholder="Mobile Number" required></div>
-                <div class="input-group"><input type="password" id="regPassword" placeholder="Password" required></div>
+                <div class="input-group"><input type="tel" id="regNumber" placeholder="Enter your mobile number" pattern="[0-9]{10}" maxlength="10" required></div>
+                <div class="input-group"><input type="password" id="regPassword" placeholder="Password (content 6 digit)" minlength="6" required></div>
                 <button type="submit" id="regBtn" class="auth-btn">Register</button>
-                <p class="mt-4 text-sm text-gray-400">Have account? <span id="showLogin" class="text-[#dcae45] cursor-pointer">Log In</span></p>
+                <p class="switch-form">Already have an account? <span id="showLogin">Log In</span></p>
             </form>
         </div>
     </div>
@@ -50,153 +47,382 @@
 
     <script type="module" src="app.js"></script>
     <script type="text/babel">
-        const { useState, useEffect } = React;
+        const { useState, useEffect, useRef } = React;
 
         function App() {
             const [activeTab, setActiveTab] = useState('home'); 
+            const [isPlaying, setIsPlaying] = useState(false); 
+            
             const [userProfile, setUserProfile] = useState({ name: 'Player', number: '9999999999', avatar: 'youth-earners-logo.png' });
             const [wallet, setWallet] = useState(0);
-            const [banners, setBanners] = useState([]);
+            const [withdrawable, setWithdrawable] = useState(0);
             
-            // Modals & States
             const [confirmPopup, setConfirmPopup] = useState(null); 
-            const [isPlaying, setIsPlaying] = useState(false);
+            const [showWinPopup, setShowWinPopup] = useState(null);
+            
             const [isMatchmaking, setIsMatchmaking] = useState(false);
             const [matchTime, setMatchTime] = useState(20);
+            const [matchFound, setMatchFound] = useState(false);
+            const [opponent, setOpponent] = useState({ name: 'Searching...', img: 'youth-earners-logo.png' });
             
-            // Leaderboard & History
-            const [leaderboard, setLeaderboard] = useState([]);
-            const [history, setHistory] = useState([]);
-            const [chatMsg, setChatMsg] = useState("");
+            // Payment Modals
+            const [depositModal, setDepositModal] = useState(false);
+            const [withdrawModal, setWithdrawModal] = useState(false);
+            const [utrInput, setUtrInput] = useState('');
+            const [depositAmount, setDepositAmount] = useState('');
+            const [withdrawType, setWithdrawType] = useState('upi');
+            const [withdrawId, setWithdrawId] = useState('');
+            const [withdrawAmount, setWithdrawAmount] = useState('');
 
-            // Hardcoded Tiers + Practice Mode
-            const playTiers = [
-                { entry: 0, win: 0, name: "Practice" },
-                { entry: 5, win: 9 }, 
-                { entry: 10, win: 18 }, 
-                { entry: 15, win: 27 }, 
-                { entry: 20, win: 36 }
-            ];
-
-            const playClick = () => document.getElementById('clickSound').play().catch(()=>{});
-            const playWin = () => document.getElementById('winSound').play().catch(()=>{});
+            const [roomId, setRoomId] = useState(null);
+            const [playerRole, setPlayerRole] = useState(null); 
+            const [roomData, setRoomData] = useState(null);
+            const [currentBet, setCurrentBet] = useState(0);
+            const [bidInput, setBidInput] = useState('');
+            
+            const fileInputRef = useRef(null);
+            const playTiers = [{ entry: 5, win: 9 }, { entry: 10, win: 18 }, { entry: 15, win: 27 }, { entry: 20, win: 36 }];
 
             useEffect(() => {
+                // LocalStorage se Profile Photo Load karo
+                const savedAvatar = localStorage.getItem('userAvatar');
+                
                 const handleGameStart = (e) => {
-                    if(e.detail) {
-                        setUserProfile({ ...userProfile, name: e.detail.name, number: e.detail.number });
-                        if(e.detail.wallet !== undefined) setWallet(e.detail.wallet);
+                    const data = e.detail;
+                    if(data) {
+                        setUserProfile(prev => ({ 
+                            ...prev, 
+                            name: data.name || 'Player', 
+                            number: data.number || 'N/A',
+                            avatar: savedAvatar ? savedAvatar : 'youth-earners-logo.png'
+                        }));
+                        if(data.wallet !== undefined) setWallet(data.wallet);
                     }
                 };
                 window.addEventListener('gameStart', handleGameStart);
-
-                // Fetch Dynamic Banners from Admin
-                setTimeout(() => {
-                    if(window.fs && window.db) {
-                        window.fs.onSnapshot(window.fs.collection(window.db, "banners"), (snap) => {
-                            setBanners(snap.docs.map(doc => doc.data()));
-                        });
-                        // Fetch Leaderboard (Mocking for now, sorted by wallet)
-                        window.fs.onSnapshot(window.fs.collection(window.db, "users"), (snap) => {
-                            let users = snap.docs.map(doc => doc.data());
-                            setLeaderboard(users.sort((a,b) => b.wallet - a.wallet).slice(0, 10));
-                        });
-                    }
-                }, 2000);
-
                 return () => window.removeEventListener('gameStart', handleGameStart);
             }, []);
 
-            // Helper for Player Badge
-            const getBadge = (amt) => amt > 500 ? '🥇 Gold' : amt > 100 ? '🥈 Silver' : '🥉 Bronze';
-
-            const startMatch = (tier) => {
-                playClick();
-                if(tier.entry > 0 && wallet < tier.entry) {
-                    alert("Low Balance!"); return;
-                }
-                setConfirmPopup(null);
-                setIsMatchmaking(true);
-                setMatchTime(5); // 5 seconds search time
-                
-                setTimeout(() => {
-                    setIsMatchmaking(false);
-                    setIsPlaying(true);
-                    setMatchTime(20); // 20 Seconds Game Timer!
-                    if(tier.entry > 0) setWallet(prev => prev - tier.entry);
-                }, 5000);
+            // ---- LOCAL STORAGE IMAGE UPLOAD ----
+            const handleImageUpload = (e) => { 
+                const file = e.target.files[0]; 
+                if (file) { 
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        const base64String = reader.result;
+                        localStorage.setItem('userAvatar', base64String); // Save to phone storage
+                        setUserProfile(prev => ({ ...prev, avatar: base64String }));
+                    };
+                    reader.readAsDataURL(file);
+                } 
             };
 
-            // ---- IN-GAME UI ----
+            // ---- FIREBASE MATCHMAKING LOGIC ----
+            const confirmPlay = async () => {
+                if (wallet < confirmPopup.entry) {
+                    alert("Low Balance! Please deposit money to play.");
+                    setConfirmPopup(null); setActiveTab('wallet'); return;
+                }
+                const tier = confirmPopup;
+                setConfirmPopup(null);
+                setMatchFound(false); setMatchTime(20); setIsMatchmaking(true); setCurrentBet(tier.entry);
+
+                try {
+                    const q = window.fs.query(window.fs.collection(window.db, "rooms"), window.fs.where("tier", "==", tier.entry), window.fs.where("status", "==", "waiting"));
+                    const querySnapshot = await window.fs.getDocs(q);
+
+                    if (!querySnapshot.empty) {
+                        const roomDoc = querySnapshot.docs[0];
+                        await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomDoc.id), {
+                            status: 'playing',
+                            p2: { uid: window.auth.currentUser.uid, name: userProfile.name, img: userProfile.avatar }
+                        });
+                        setRoomId(roomDoc.id); setPlayerRole(2);
+                    } else {
+                        const docRef = await window.fs.addDoc(window.fs.collection(window.db, "rooms"), {
+                            tier: tier.entry, status: 'waiting',
+                            p1: { uid: window.auth.currentUser.uid, name: userProfile.name, img: userProfile.avatar },
+                            p1Bid: null, p2Bid: null, round: 1, p1Tokens: 500, p2Tokens: 500, p1Wins: 0, p2Wins: 0, lastResult: null
+                        });
+                        setRoomId(docRef.id); setPlayerRole(1);
+                    }
+                } catch(e) { alert("Error connecting to server!"); setIsMatchmaking(false); }
+            };
+
+            const cancelMatchmaking = async () => {
+                setIsMatchmaking(false);
+                if(playerRole === 1 && roomId) { 
+                    await window.fs.deleteDoc(window.fs.doc(window.db, "rooms", roomId)); 
+                }
+                setRoomId(null);
+            };
+
+            // ---- REALTIME LISTENER FOR ROOM ----
+            useEffect(() => {
+                if (!roomId) return;
+                const unsub = window.fs.onSnapshot(window.fs.doc(window.db, "rooms", roomId), async (doc) => {
+                    const data = doc.data();
+                    if(!data) return;
+                    setRoomData(data);
+
+                    if(data.status === 'playing' && !matchFound) {
+                        setMatchFound(true);
+                        setOpponent(playerRole === 1 ? data.p2 : data.p1);
+                        setTimeout(() => {
+                            setWallet(prev => prev - data.tier); 
+                            setIsMatchmaking(false); setIsPlaying(true); setBidInput('');
+                        }, 3000);
+                    }
+
+                    if(data.status === 'finished') {
+                        setIsPlaying(false); setRoomId(null);
+                        let isWinner = false;
+                        if(data.p1Wins > data.p2Wins || (data.p1Wins === data.p2Wins && data.p1Tokens > data.p2Tokens)) {
+                            isWinner = playerRole === 1;
+                        } else if(data.p2Wins > data.p1Wins || (data.p2Wins === data.p1Wins && data.p2Tokens > data.p1Tokens)) {
+                            isWinner = playerRole === 2;
+                        } else {
+                            isWinner = 'draw';
+                        }
+                        
+                        if(isWinner === true) {
+                            let winnings = data.tier * 1.8;
+                            setWallet(prev => prev + winnings);
+                            setWithdrawable(prev => prev + winnings);
+                            setShowWinPopup(winnings); // WinZO style popup
+                        } else if(isWinner === 'draw') {
+                            setWallet(prev => prev + data.tier);
+                            alert("Match Draw! Entry fee refunded.");
+                        } else {
+                            // Do nothing, money already deducted
+                        }
+                    }
+
+                    if(data.status === 'playing' && data.p1Bid !== null && data.p2Bid !== null && !data.lastResult) {
+                        if(playerRole === 1) {
+                            let p1T = data.p1Tokens - data.p1Bid; let p2T = data.p2Tokens - data.p2Bid;
+                            let p1W = data.p1Wins; let p2W = data.p2Wins;
+                            let winner = "DRAW";
+                            if(data.p1Bid > data.p2Bid) { winner = data.p1.name; p1W++; }
+                            else if(data.p2Bid > data.p1Bid) { winner = data.p2.name; p2W++; }
+                            
+                            let nextRound = data.round + 1;
+                            await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomId), {
+                                p1Tokens: p1T, p2Tokens: p2T, p1Wins: p1W, p2Wins: p2W,
+                                lastResult: { p1Bid: data.p1Bid, p2Bid: data.p2Bid, winner }
+                            });
+
+                            setTimeout(async () => {
+                                if(nextRound > 3) {
+                                    await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomId), { status: 'finished' });
+                                } else {
+                                    await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomId), { p1Bid: null, p2Bid: null, round: nextRound, lastResult: null });
+                                }
+                            }, 3500);
+                        }
+                    }
+                });
+                return () => unsub();
+            }, [roomId, matchFound, playerRole]);
+
+            useEffect(() => {
+                let timer;
+                if (isMatchmaking && !matchFound) {
+                    timer = setInterval(async () => {
+                        setMatchTime(prev => {
+                            if(prev <= 1) {
+                                clearInterval(timer);
+                                setIsMatchmaking(false);
+                                alert("No real player found right now. Try again!");
+                                if(playerRole === 1 && roomId) { window.fs.deleteDoc(window.fs.doc(window.db, "rooms", roomId)); }
+                                setRoomId(null);
+                                return 0;
+                            }
+                            return prev - 1;
+                        });
+                    }, 1000);
+                }
+                return () => clearInterval(timer);
+            }, [isMatchmaking, matchFound, roomId, playerRole]);
+
+            const submitBid = async () => {
+                if(!roomId || !roomData) return;
+                let myTokens = playerRole === 1 ? roomData.p1Tokens : roomData.p2Tokens;
+                let b = parseInt(bidInput);
+                if(isNaN(b) || b < 0) b = 0; if(b > myTokens) b = myTokens;
+                
+                await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomId), {
+                    [playerRole === 1 ? 'p1Bid' : 'p2Bid']: b
+                });
+            };
+
+            // ---- FIREBASE WALLET SUBMITS ----
+            const submitDepositRequest = async () => {
+                if(!utrInput || !depositAmount) return alert("Fill all details!");
+                try {
+                    await window.fs.addDoc(window.fs.collection(window.db, "deposits"), {
+                        uid: window.auth.currentUser.uid, name: userProfile.name, utr: utrInput, amount: depositAmount, status: 'pending', date: new Date()
+                    });
+                    alert("Deposit proof sent to Admin! Wallet will be updated soon.");
+                    setDepositModal(false); setUtrInput(''); setDepositAmount('');
+                } catch(e) { alert("Error submitting request!"); }
+            };
+
+            const submitWithdrawRequest = async () => {
+                if(!withdrawId || !withdrawAmount) return alert("Fill all details!");
+                if(withdrawAmount > withdrawable) return alert("You don't have enough Winning Balance!");
+                try {
+                    await window.fs.addDoc(window.fs.collection(window.db, "withdrawals"), {
+                        uid: window.auth.currentUser.uid, name: userProfile.name, type: withdrawType, id: withdrawId, amount: withdrawAmount, status: 'pending', date: new Date()
+                    });
+                    setWithdrawable(prev => prev - withdrawAmount);
+                    setWallet(prev => prev - withdrawAmount);
+                    alert("Withdrawal request sent successfully!");
+                    setWithdrawModal(false); setWithdrawId(''); setWithdrawAmount('');
+                } catch(e) { alert("Error submitting request!"); }
+            };
+
+
+            // ---------------- MATCHMAKING & IN-GAME UI ---------------- //
             if (isMatchmaking) {
                 return (
-                    <div className="fixed inset-0 bg-[#050505] text-white flex flex-col items-center justify-center z-50">
-                        <div className="text-[#dcae45] text-2xl font-black mb-8 animate-pulse">SEARCHING PLAYERS...</div>
-                        <div className="w-24 h-24 rounded-full border-4 border-[#dcae45] border-dashed spin-slow mb-4"></div>
-                        <p>Time: {matchTime}s</p>
+                    <div className="fixed inset-0 z-[100] bg-[#050505] text-white flex flex-col items-center pt-20 px-6">
+                        <div className="absolute top-10 w-full text-center">
+                            <h2 className="text-[#ffe29a] text-xl font-bold tracking-widest uppercase">{matchFound ? "MATCH FOUND!" : "SEARCHING FOR PLAYERS..."}</h2>
+                            {!matchFound && <p className="text-gray-400 text-sm mt-2">Timeout in: {matchTime}s</p>}
+                        </div>
+                        <div className="flex w-full justify-between items-center mt-24">
+                            <div className="flex flex-col items-center">
+                                <div className="w-24 h-24 rounded-full border-4 border-[#10b981] p-1 shadow-[0_0_20px_rgba(16,185,129,0.5)] bg-black">
+                                    <img src={userProfile.avatar} className="w-full h-full rounded-full object-cover" />
+                                </div>
+                                <span className="font-bold mt-4 text-lg">{userProfile.name}</span>
+                            </div>
+                            <div className="text-4xl font-black text-[#dcae45] italic tracking-tighter drop-shadow-[0_0_10px_rgba(220,174,69,0.8)]">VS</div>
+                            <div className="flex flex-col items-center">
+                                <div className={`w-24 h-24 rounded-full border-4 p-1 bg-black ${matchFound ? 'border-red-500 shadow-[0_0_20px_rgba(239,68,68,0.5)]' : 'border-[#dcae45] border-dashed spin-slow'}`}>
+                                    <img src={opponent.img} className={`w-full h-full rounded-full object-cover ${matchFound ? '' : 'animate-pulse opacity-50'}`} />
+                                </div>
+                                <span className="font-bold mt-4 text-lg">{opponent.name}</span>
+                            </div>
+                        </div>
+                        
+                        {!matchFound && (
+                            <button onClick={cancelMatchmaking} className="absolute bottom-20 px-8 py-3 rounded-full border-2 border-red-500 text-red-500 font-bold hover:bg-red-500 hover:text-white transition-colors">
+                                Cancel Search
+                            </button>
+                        )}
                     </div>
                 );
             }
 
-            if (isPlaying) {
+            if (isPlaying && roomData) {
+                let myData = playerRole === 1 ? roomData.p1 : roomData.p2;
+                let oppData = playerRole === 1 ? roomData.p2 : roomData.p1;
+                let myTokens = playerRole === 1 ? roomData.p1Tokens : roomData.p2Tokens;
+                let oppTokens = playerRole === 1 ? roomData.p2Tokens : roomData.p1Tokens;
+                let myBidStatus = playerRole === 1 ? roomData.p1Bid : roomData.p2Bid;
+
                 return (
-                    <div className="fixed inset-0 bg-[#111] text-white flex flex-col items-center justify-center p-4 z-50">
-                        <div className="w-full flex justify-between items-center mb-10 px-4">
-                            <div className="text-center"><img src="youth-earners-logo.png" className="w-12 h-12 rounded-full border-2 border-emerald-500"/><p>{userProfile.name}</p></div>
-                            <div className="text-3xl font-black text-[#dcae45]">VS</div>
-                            <div className="text-center"><img src="youth-earners-logo.png" className="w-12 h-12 rounded-full border-2 border-rose-500"/><p>Opponent</p></div>
+                    <div className="max-w-md mx-auto bg-transparent min-h-screen text-white p-4 flex flex-col relative pb-28">
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-xl font-bold text-[#dcae45]"><i className="fa-solid fa-gamepad"></i> Game Running</h2>
+                        </div>
+                        <div className="flex justify-between items-center gold-card p-4 rounded-xl">
+                            <div className="text-center w-1/3">
+                                <img src={myData.img} className="w-10 h-10 rounded-full object-cover mx-auto mb-1 border-2 border-emerald-500"/>
+                                <div className="text-2xl font-bold text-[#ffe29a]">{myTokens}</div>
+                            </div>
+                            <div className="text-xl font-black text-[#dcae45] w-1/3 text-center">R{roomData.round}/3</div>
+                            <div className="text-center w-1/3">
+                                <img src={oppData.img} className="w-10 h-10 rounded-full object-cover mx-auto mb-1 border-2 border-rose-500"/>
+                                <div className="text-2xl font-bold text-rose-400">{oppTokens}</div>
+                            </div>
                         </div>
                         
-                        <div className="text-5xl font-black text-white mb-8">{matchTime}s</div>
-                        
-                        {/* Live Chat Overlay */}
-                        <div className="absolute bottom-32 left-4 right-4 flex gap-2">
-                            <input type="text" value={chatMsg} onChange={e=>setChatMsg(e.target.value)} placeholder="Say something..." className="flex-1 bg-black rounded-full px-4 border border-gray-600 outline-none" />
-                            <button onClick={()=>setChatMsg('')} className="bg-[#dcae45] text-black w-10 h-10 rounded-full font-bold">💬</button>
-                        </div>
-
-                        <button onClick={() => { setIsPlaying(false); playWin(); setWallet(prev => prev + 10); alert("You Won!"); }} className="btn-play-gold py-4 px-10 rounded-full font-black text-xl absolute bottom-10">SIMULATE WIN</button>
+                        {!roomData.lastResult ? (
+                            <div className="mt-8">
+                                {myBidStatus === null ? (
+                                    <>
+                                        <input type="number" value={bidInput} onChange={(e) => setBidInput(e.target.value)} className="w-full bg-[#111] border-2 border-[#dcae45] rounded-xl text-center text-4xl py-4 focus:outline-none focus:border-[#ffe29a] font-bold shadow-[0_0_15px_rgba(220,174,69,0.2)] text-[#ffe29a]" placeholder="Enter Bid" />
+                                        <div className="flex gap-2 mt-4">
+                                            <button onClick={() => setBidInput(Math.floor(myTokens/2))} className="flex-1 bg-black border border-[#dcae45]/50 py-2 rounded-lg font-bold text-[#ffe29a]">1/2</button>
+                                            <button onClick={() => setBidInput(myTokens)} className="flex-1 bg-black border border-[#dcae45]/50 py-2 rounded-lg font-bold text-[#ffe29a]">Max</button>
+                                        </div>
+                                        <button onClick={submitBid} className="w-full mt-8 btn-play-gold py-4 rounded-full text-lg tracking-widest font-bold">LOCK BID</button>
+                                    </>
+                                ) : (
+                                    <div className="text-center mt-16 animate-pulse text-[#dcae45] font-bold text-xl">Waiting for opponent...</div>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="mt-8 text-center pop-in">
+                                <h3 className="text-xl font-bold mb-4">Round Result</h3>
+                                <div className="flex justify-between text-2xl font-black mb-4">
+                                    <span className="text-emerald-400">{playerRole === 1 ? roomData.lastResult.p1Bid : roomData.lastResult.p2Bid}</span>
+                                    <span className="text-gray-500">vs</span>
+                                    <span className="text-rose-400">{playerRole === 1 ? roomData.lastResult.p2Bid : roomData.lastResult.p1Bid}</span>
+                                </div>
+                                <div className="text-2xl text-[#ffe29a] font-bold mt-4 p-4 border border-[#dcae45] rounded-xl bg-[#111]">{roomData.lastResult.winner === 'DRAW' ? 'Round Tied!' : `${roomData.lastResult.winner} WON`}</div>
+                            </div>
+                        )}
                     </div>
                 );
             }
 
+            // ---------------- MAIN APP UI ---------------- //
             return (
-                <div className="max-w-md mx-auto min-h-screen relative pb-24">
+                <div className="max-w-md mx-auto bg-transparent min-h-screen relative pb-24">
                     
-                    {/* Fixed Header (Smaller as per Image 1) */}
-                    <div className="curved-header flex items-center justify-center py-3 relative z-10">
-                        <img src="youth-earners-logo.png" style={{mixBlendMode:'screen'}} className="h-8 w-8 object-contain mr-2" alt="Logo" />
-                        <div className="flex flex-col items-start">
-                            <span className="font-black text-white text-[16px] tracking-widest leading-none">YOUTH EARNERS</span>
+                    {/* MZ FASHION STYLE CURVED HEADER (No Wallet) */}
+                    <div className="curved-header flex flex-col items-center justify-center pt-6 pb-5 relative z-10">
+                        <div className="absolute left-6 top-6 w-14 h-14 flex items-center justify-center bg-black rounded-full border border-[#dcae45] shadow-[0_0_15px_rgba(220,174,69,0.4)] overflow-hidden shrink-0">
+                            <img src="youth-earners-logo.png" style={{mixBlendMode:'screen'}} className="h-12 w-12 object-contain" alt="Logo" />
+                        </div>
+                        
+                        <span className="font-black text-white text-2xl tracking-widest uppercase mb-1 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] ml-14">YOUTH EARNERS</span>
+                        <div className="flex items-center gap-2 ml-14 mt-1">
+                            <div className="h-[1px] w-6 bg-[#dcae45]"></div>
+                            <span className="text-[9px] text-[#dcae45] tracking-[0.2em] font-bold uppercase">PLAY • EARN • GROW</span>
+                            <div className="h-[1px] w-6 bg-[#dcae45]"></div>
                         </div>
                     </div>
 
                     <div className="p-4 pt-6">
-                        
-                        {/* HOME TAB */}
                         {activeTab === 'home' && (
                             <div className="space-y-6">
-                                {/* Dynamic Banner */}
-                                <div className="w-full h-40 rounded-2xl bg-[#111] border border-[#dcae45]/30 overflow-hidden flex items-center justify-center relative">
-                                    {banners.length > 0 ? (
-                                        <img src={banners[0].imageUrl} className="w-full h-full object-cover" />
-                                    ) : (
-                                        <div className="text-center p-4">
-                                            <h3 className="text-xl font-bold text-[#dcae45]">Welcome to Youth Earners</h3>
-                                            <p className="text-sm text-gray-400">Play & Win Real Cash!</p>
+                                {/* LARGER PREMIUM BANNER */}
+                                <div className="w-full h-56 rounded-3xl bg-gradient-to-br from-[#111] via-[#1a1508] to-[#000] border border-[#dcae45]/40 p-6 flex flex-col justify-center items-start shadow-[0_4px_25px_rgba(220,174,69,0.2)] relative overflow-hidden">
+                                    <div className="absolute right-0 top-0 w-40 h-40 bg-[#dcae45] opacity-20 blur-3xl rounded-full"></div>
+                                    <i className="fa-solid fa-trophy text-9xl text-[#dcae45]/10 absolute -right-4 -bottom-4 transform rotate-12"></i>
+                                    <div className="relative z-10 w-full mt-4">
+                                        <h3 className="font-black text-4xl mb-2 text-white">Youth <span className="text-gold-gradient">Earner's</span></h3>
+                                        <p className="text-base font-bold text-gray-300 tracking-wide mb-8">Play & Win Real Cash!</p>
+                                        
+                                        <div className="flex items-center gap-3 text-xs font-bold text-[#ffe29a] tracking-wider uppercase border-t border-[#dcae45]/20 pt-4 w-[90%]">
+                                            <span><i className="fa-solid fa-shield-halved text-[#dcae45]"></i> Safe</span>
+                                            <span className="text-gray-600">|</span>
+                                            <span><i className="fa-solid fa-bolt text-[#dcae45]"></i> Fast</span>
+                                            <span className="text-gray-600">|</span>
+                                            <span><i className="fa-solid fa-star text-[#dcae45]"></i> Trusted</span>
                                         </div>
-                                    )}
+                                    </div>
                                 </div>
 
-                                <div>
-                                    <h3 className="font-bold mb-4 text-white text-lg"><i className="fa-solid fa-gamepad text-[#dcae45]"></i> Select Game Mode</h3>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        {playTiers.map((tier, idx) => (
-                                            <div key={idx} className="match-card">
-                                                <div className="text-gray-400 text-xs mb-1">{tier.entry === 0 ? 'Free Play' : 'Entry Fee'}</div>
-                                                <div className="text-white font-bold mb-1">₹{tier.entry}</div>
-                                                <div className="text-[#ffe29a] font-black text-lg mb-3">WIN: ₹{tier.win}</div>
-                                                <button onClick={() => { playClick(); setConfirmPopup(tier); }} className="w-full btn-play-gold py-2 rounded-lg font-bold text-sm">Play Now</button>
+                                <div className="mt-8">
+                                    <h3 className="font-bold mb-4 text-white text-lg flex items-center gap-2">
+                                        <i className="fa-solid fa-users text-[#dcae45]"></i> Play with Real Players
+                                    </h3>
+                                    
+                                    <div className="grid grid-cols-2 gap-4">
+                                        {playTiers.map(tier => (
+                                            <div key={tier.entry} className="gold-card rounded-2xl p-4 flex flex-col items-center text-center relative overflow-hidden">
+                                                <div className="bg-black border border-[#dcae45]/30 rounded-lg px-4 py-1.5 mb-3 shadow-[0_0_10px_rgba(0,0,0,0.8)]">
+                                                    <img src="youth-earners-logo.png" style={{mixBlendMode:'screen'}} className="h-6 w-auto opacity-90" alt="game-icon" />
+                                                </div>
+                                                <div className="text-xs text-gray-400 mb-1">Entry: <span className="font-bold text-white text-base">₹{tier.entry}</span></div>
+                                                <div className="text-[22px] text-[#ffe29a] font-black mb-5 drop-shadow-[0_0_10px_rgba(220,174,69,0.5)] tracking-wide">WIN: ₹{tier.win}</div>
+                                                <button onClick={() => setConfirmPopup(tier)} className="w-full btn-play-gold py-2.5 rounded-full font-black text-[13px] tracking-wide flex items-center justify-center gap-2"><i className="fa-solid fa-play"></i> Play Now</button>
                                             </div>
                                         ))}
                                     </div>
@@ -204,112 +430,154 @@
                             </div>
                         )}
 
-                        {/* LEADERBOARD TAB */}
-                        {activeTab === 'leaderboard' && (
-                            <div>
-                                <h2 className="text-xl font-bold text-[#dcae45] text-center mb-6"><i className="fa-solid fa-trophy"></i> Top Players</h2>
-                                <div className="space-y-3">
-                                    {leaderboard.map((user, idx) => (
-                                        <div key={idx} className="bg-[#111] p-3 rounded-xl border border-gray-800 flex justify-between items-center">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 bg-[#dcae45] text-black font-bold rounded-full flex items-center justify-center">#{idx+1}</div>
-                                                <span className="font-bold">{user.name}</span>
-                                            </div>
-                                            <span className="text-[#10b981] font-bold">₹{user.wallet}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* REFER & EARN TAB */}
-                        {activeTab === 'refer' && (
-                            <div className="text-center pt-4">
-                                <i className="fa-solid fa-gift text-6xl text-[#dcae45] mb-4"></i>
-                                <h2 className="text-2xl font-black text-white mb-2">Refer & Earn</h2>
-                                <p className="text-gray-400 mb-6">Invite friends and get ₹10 bonus instantly when they sign up!</p>
-                                <div className="bg-[#111] border border-dashed border-[#dcae45] p-4 rounded-xl mb-4 text-xl font-bold text-[#ffe29a]">
-                                    YOUTH{userProfile.number.substring(0,4)}
-                                </div>
-                                <button className="btn-play-gold py-3 px-8 rounded-full font-bold w-full"><i className="fa-solid fa-share-nodes"></i> Share Now</button>
-                            </div>
-                        )}
-
-                        {/* WALLET TAB (With History) */}
+                        {/* NEW WALLET SECTION */}
                         {activeTab === 'wallet' && (
                             <div className="space-y-6 pt-2">
-                                <div className="bg-gradient-to-br from-[#1a1a1a] to-[#000] p-6 rounded-3xl border border-[#dcae45]/40 shadow-lg text-center">
-                                    <div className="text-gray-400 text-sm font-semibold">Total Balance</div>
-                                    <div className="text-5xl font-black text-white my-2">₹{wallet.toFixed(2)}</div>
-                                    <div className="flex gap-4 mt-6">
-                                        <button className="flex-1 btn-play-gold py-3 rounded-xl font-bold">Add Money</button>
-                                        <button className="flex-1 border border-[#dcae45] text-[#dcae45] py-3 rounded-xl font-bold">Withdraw</button>
-                                    </div>
-                                </div>
+                                <h2 className="text-2xl font-bold text-[#dcae45] text-center mb-6"><i className="fa-solid fa-vault"></i> My Wallet</h2>
                                 
-                                <h3 className="font-bold text-white mt-8"><i className="fa-solid fa-clock-rotate-left"></i> Transaction History</h3>
-                                <div className="bg-[#111] p-4 rounded-xl text-center text-gray-500 text-sm">
-                                    No recent transactions found.
+                                {/* Total Balance Card */}
+                                <div className="bg-gradient-to-br from-[#1a1a1a] to-[#000] p-6 rounded-3xl border border-[#dcae45]/40 shadow-[0_10px_30px_rgba(220,174,69,0.15)] relative overflow-hidden">
+                                    <div className="text-gray-400 text-sm font-semibold">Total Balance</div>
+                                    <div className="text-5xl font-black text-white my-2 tracking-wide">₹{wallet.toFixed(2)}</div>
+                                </div>
+
+                                {/* Winning/Withdrawable Card */}
+                                <div className="bg-[#111] p-5 rounded-2xl border border-gray-800 flex justify-between items-center shadow-lg">
+                                    <div>
+                                        <div className="text-gray-400 text-xs font-semibold mb-1">Winning Balance (Withdrawable)</div>
+                                        <div className="text-2xl font-black text-[#10b981]">₹{withdrawable.toFixed(2)}</div>
+                                    </div>
+                                    <i className="fa-solid fa-money-bill-wave text-3xl text-gray-700"></i>
+                                </div>
+
+                                <div className="flex gap-4 mt-8">
+                                    <button onClick={() => setDepositModal(true)} className="flex-1 btn-play-gold py-4 rounded-2xl font-bold text-lg shadow-[0_0_15px_rgba(220,174,69,0.4)]"><i className="fa-solid fa-plus-circle"></i> Add Money</button>
+                                    <button onClick={() => setWithdrawModal(true)} className="flex-1 bg-transparent border-2 border-[#dcae45] py-4 rounded-2xl font-bold text-lg text-[#ffe29a] hover:bg-[#111] transition-colors"><i className="fa-solid fa-building-columns"></i> Withdraw</button>
                                 </div>
                             </div>
                         )}
 
-                        {/* PROFILE TAB */}
                         {activeTab === 'profile' && (
-                            <div className="text-center pt-4">
-                                <img src={userProfile.avatar} className="w-24 h-24 rounded-full border-4 border-[#dcae45] mx-auto mb-4 bg-black" />
-                                <h2 className="text-2xl font-bold text-white">{userProfile.name}</h2>
-                                <p className="text-gray-400 mb-2">{userProfile.number}</p>
-                                <div className="inline-block bg-[#111] px-4 py-1 rounded-full border border-[#dcae45]/50 text-[#ffe29a] font-bold text-sm mb-6">
-                                    {getBadge(wallet)} Tier
+                            <div className="space-y-6 text-center pt-8">
+                                <div className="relative inline-block">
+                                    <img src={userProfile.avatar} alt="Profile" className="w-32 h-32 rounded-full object-cover border-4 border-[#dcae45] p-1 mx-auto bg-black shadow-[0_0_20px_rgba(220,174,69,0.3)]" />
+                                    <button onClick={() => fileInputRef.current.click()} className="absolute bottom-1 right-1 bg-[#dcae45] text-black w-10 h-10 flex items-center justify-center rounded-full border-2 border-black shadow-lg"><i className="fa-solid fa-camera text-lg"></i></button>
+                                    <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
                                 </div>
-                                
-                                <div className="space-y-3">
-                                    <button className="w-full bg-[#111] border border-gray-800 p-4 rounded-xl flex justify-between font-bold text-left hover:border-[#dcae45]"><span className="text-white"><i className="fa-solid fa-headset w-6"></i> Support Tickets</span><i className="fa-solid fa-chevron-right text-gray-600"></i></button>
-                                    <button className="w-full bg-[#111] border border-gray-800 p-4 rounded-xl flex justify-between font-bold text-left hover:border-[#dcae45]"><span className="text-white"><i className="fa-solid fa-circle-info w-6"></i> About Us</span><i className="fa-solid fa-chevron-right text-gray-600"></i></button>
+                                <div className="mt-4">
+                                    <input type="text" value={userProfile.name} onChange={(e) => setUserProfile({...userProfile, name: e.target.value})} className="bg-transparent text-white text-3xl font-bold text-center border-b border-gray-800 focus:border-[#dcae45] focus:outline-none pb-2 w-64" />
+                                    <p className="text-[#dcae45] mt-2 tracking-widest font-bold text-lg"><i className="fa-solid fa-phone text-sm"></i> +91 {userProfile.number}</p>
                                 </div>
                             </div>
                         )}
                     </div>
 
-                    {/* CONFIRM MATCH MODAL (Image 2 - Compact WinZO Style) */}
+                    {/* FULL SCREEN CONFIRMATION MODAL */}
                     {confirmPopup && (
-                        <div className="fixed inset-0 bg-black/80 z-[80] flex items-center justify-center p-4">
-                            <div className="bg-[#050505] border border-[#dcae45]/50 w-full max-w-[260px] rounded-2xl p-5 pop-in text-center relative">
-                                <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-gradient-to-b from-[#ffe29a] to-[#dcae45] w-12 h-12 rounded-full flex items-center justify-center border-2 border-black shadow-lg">
-                                    <i className="fa-solid fa-coins text-black text-xl"></i>
+                        <div className="fixed inset-0 bg-black z-[80] flex flex-col items-center justify-center p-6 pop-in">
+                            <div className="w-full max-w-sm flex flex-col gap-8">
+                                <div className="mx-auto w-24 h-24 bg-gradient-to-tr from-[#dcae45] to-[#ffe29a] rounded-full flex items-center justify-center text-black text-5xl shadow-[0_0_30px_rgba(220,174,69,0.6)]">
+                                    <i className="fa-solid fa-coins"></i>
                                 </div>
-                                <h3 className="text-white font-bold tracking-widest mt-6 mb-4 text-sm">CONFIRM MATCH</h3>
+                                <h2 className="text-3xl font-black text-center text-white tracking-widest uppercase">Confirm Match</h2>
                                 
-                                <div className="bg-[#111] border border-gray-800 rounded-xl p-3 mb-5">
-                                    <div className="text-[10px] text-gray-400 uppercase tracking-widest mb-1">Entry amount</div>
-                                    <div className="text-white font-bold text-2xl mb-2">₹{confirmPopup.entry}</div>
-                                    <div className="h-[1px] w-full bg-gray-800 my-2"></div>
-                                    <div className="text-[10px] text-gray-400 uppercase tracking-widest mb-1">Winning amount</div>
-                                    <div className="text-[#ffe29a] font-black text-3xl">₹{confirmPopup.win}</div>
+                                <div className="bg-[#111] border border-[#dcae45] rounded-3xl p-8 flex flex-col gap-6 text-center shadow-[0_0_20px_rgba(220,174,69,0.2)]">
+                                    <div>
+                                        <div className="text-gray-400 text-sm mb-1 uppercase tracking-wider">Entry Amount</div>
+                                        <div className="text-white font-black text-4xl">₹{confirmPopup.entry}</div>
+                                    </div>
+                                    <hr className="border-gray-800" />
+                                    <div>
+                                        <div className="text-gray-400 text-sm mb-1 uppercase tracking-wider">Winning Amount</div>
+                                        <div className="text-[#ffe29a] font-black text-5xl drop-shadow-[0_0_10px_rgba(220,174,69,0.8)]">₹{confirmPopup.win}</div>
+                                    </div>
                                 </div>
                                 
-                                <div className="flex gap-2 w-full">
-                                    <button onClick={() => { playClick(); setConfirmPopup(null); }} className="flex-1 bg-[#111] border border-gray-600 text-gray-300 py-2.5 rounded-lg font-bold text-sm">Cancel</button>
-                                    <button onClick={() => startMatch(confirmPopup)} className="flex-1 btn-play-gold py-2.5 rounded-lg font-bold text-sm text-black">PLAY NOW</button>
+                                <div className="flex gap-4 w-full mt-4">
+                                    <button onClick={() => setConfirmPopup(null)} className="flex-1 bg-transparent border-2 border-gray-600 text-gray-300 py-4 rounded-2xl font-bold text-lg hover:bg-gray-800 transition">Cancel</button>
+                                    <button onClick={confirmPlay} className="flex-1 btn-play-gold py-4 rounded-2xl font-black text-lg text-black uppercase tracking-wide">Play Now</button>
                                 </div>
                             </div>
                         </div>
                     )}
 
-                    {/* NEW BOTTOM NAV (Home | Leaderboard | Wallet | Refer | Profile) */}
-                    <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-[#050505] border-t border-[#dcae45]/30 flex justify-between items-center h-[70px] px-4 z-50 rounded-t-2xl shadow-[0_-5px_15px_rgba(0,0,0,0.8)]">
-                        <button onClick={()=>{playClick(); setActiveTab('home');}} className={`flex flex-col items-center gap-1 w-[20%] ${activeTab==='home'?'text-[#dcae45]':'text-gray-500'}`}><i className="fa-solid fa-house text-xl"></i><span className="text-[9px] font-bold">Home</span></button>
-                        <button onClick={()=>{playClick(); setActiveTab('leaderboard');}} className={`flex flex-col items-center gap-1 w-[20%] ${activeTab==='leaderboard'?'text-[#dcae45]':'text-gray-500'}`}><i className="fa-solid fa-chart-simple text-xl"></i><span className="text-[9px] font-bold">Ranks</span></button>
+                    {/* ADD MONEY MODAL */}
+                    {depositModal && (
+                        <div className="fixed inset-0 bg-black/90 z-[90] flex items-center justify-center p-4 backdrop-blur-sm pop-in">
+                            <div className="bg-[#111] border border-[#dcae45] w-full max-w-sm rounded-3xl p-6 shadow-[0_0_30px_rgba(220,174,69,0.2)]">
+                                <h3 className="text-xl font-bold text-[#ffe29a] mb-4 text-center">Deposit Money</h3>
+                                <div className="bg-white p-2 rounded-xl w-40 h-40 mx-auto mb-4">
+                                    {/* Dummy QR image, you can replace URL later */}
+                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=youthearners@ybl&pn=YouthEarners" className="w-full h-full" alt="QR Code" />
+                                </div>
+                                <div className="text-center mb-6">
+                                    <p className="text-gray-400 text-xs mb-1">Scan QR or Pay to UPI ID</p>
+                                    <div className="flex items-center justify-center gap-2 text-white font-bold bg-black py-2 rounded-lg border border-gray-700">
+                                        youthearners@ybl <i className="fa-solid fa-copy text-[#dcae45] cursor-pointer" onClick={() => alert('Copied!')}></i>
+                                    </div>
+                                </div>
+                                <div className="space-y-3 mb-6">
+                                    <input type="number" placeholder="Enter Amount Paid (₹)" value={depositAmount} onChange={e=>setDepositAmount(e.target.value)} className="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none" />
+                                    <input type="text" placeholder="12-Digit UTR / Ref Number" value={utrInput} onChange={e=>setUtrInput(e.target.value)} className="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none" />
+                                </div>
+                                <div className="flex gap-3">
+                                    <button onClick={() => setDepositModal(false)} className="flex-1 border border-gray-600 py-3 rounded-xl font-bold text-gray-400">Cancel</button>
+                                    <button onClick={submitDepositRequest} className="flex-1 btn-play-gold py-3 rounded-xl font-bold">Submit Proof</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* WITHDRAW MODAL */}
+                    {withdrawModal && (
+                        <div className="fixed inset-0 bg-black/90 z-[90] flex items-center justify-center p-4 backdrop-blur-sm pop-in">
+                            <div className="bg-[#111] border border-[#dcae45] w-full max-w-sm rounded-3xl p-6 shadow-[0_0_30px_rgba(220,174,69,0.2)]">
+                                <h3 className="text-xl font-bold text-[#ffe29a] mb-2 text-center">Withdraw Money</h3>
+                                <p className="text-center text-gray-400 text-sm mb-6">Available: <span className="text-[#10b981] font-bold">₹{withdrawable.toFixed(2)}</span></p>
+                                
+                                <div className="flex gap-2 mb-4 bg-black p-1 rounded-xl border border-gray-800">
+                                    <button onClick={() => setWithdrawType('upi')} className={`flex-1 py-2 rounded-lg font-bold text-sm ${withdrawType==='upi'?'bg-[#dcae45] text-black':'text-gray-400'}`}>UPI ID</button>
+                                    <button onClick={() => setWithdrawType('number')} className={`flex-1 py-2 rounded-lg font-bold text-sm ${withdrawType==='number'?'bg-[#dcae45] text-black':'text-gray-400'}`}>Mobile No.</button>
+                                </div>
+                                
+                                <div className="space-y-3 mb-6">
+                                    <input type="text" placeholder={withdrawType==='upi'?"Enter UPI ID":"Enter Mobile Number"} value={withdrawId} onChange={e=>setWithdrawId(e.target.value)} className="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none" />
+                                    <input type="number" placeholder="Enter Amount to Withdraw" value={withdrawAmount} onChange={e=>setWithdrawAmount(e.target.value)} className="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none" />
+                                </div>
+                                <div className="flex gap-3">
+                                    <button onClick={() => setWithdrawModal(false)} className="flex-1 border border-gray-600 py-3 rounded-xl font-bold text-gray-400">Cancel</button>
+                                    <button onClick={submitWithdrawRequest} className="flex-1 btn-play-gold py-3 rounded-xl font-bold">Withdraw</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* VICTORY POPUP (WinZO Style) */}
+                    {showWinPopup !== null && (
+                        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/90 backdrop-blur-md victory-anim px-4">
+                            <div className="bg-gradient-to-b from-[#1a1508] to-[#000] border-2 border-[#dcae45] p-8 rounded-3xl text-center shadow-[0_0_50px_rgba(220,174,69,0.5)] w-full max-w-sm">
+                                <i className="fa-solid fa-trophy text-8xl text-[#dcae45] mb-6 drop-shadow-[0_0_20px_#ffe29a]"></i>
+                                <h2 className="text-4xl font-black text-white mb-2 tracking-widest uppercase">YOU WIN!</h2>
+                                <p className="text-gray-400 mb-6 font-bold">Amount added to Winning Wallet</p>
+                                <div className="text-6xl font-black text-[#10b981] drop-shadow-[0_0_15px_#10b981] mb-10">+₹{showWinPopup}</div>
+                                <button onClick={() => setShowWinPopup(null)} className="btn-play-gold w-full py-4 rounded-full font-black text-black text-xl uppercase tracking-wider">Awesome!</button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* BOTTOM NAVIGATION */}
+                    <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-[#050505] border-t border-[#dcae45]/30 flex justify-between items-center h-[70px] px-6 z-50 rounded-t-3xl shadow-[0_-10px_25px_rgba(0,0,0,0.9)] backdrop-blur-md">
+                        <button onClick={()=>setActiveTab('home')} className={`flex flex-col items-center gap-1 w-10 ${activeTab==='home'?'text-[#ffe29a] drop-shadow-[0_0_8px_rgba(220,174,69,0.8)]':'text-gray-500'}`}><i className="fa-solid fa-house text-xl"></i><span className="text-[10px] font-bold">Home</span></button>
+                        <button onClick={()=>setActiveTab('profile')} className={`flex flex-col items-center gap-1 w-10 ${activeTab==='profile'?'text-[#ffe29a] drop-shadow-[0_0_8px_rgba(220,174,69,0.8)]':'text-gray-500'}`}><i className="fa-solid fa-user text-xl"></i><span className="text-[10px] font-bold">Profile</span></button>
                         
-                        <div className="relative -top-5 w-[20%] flex justify-center">
-                            <button onClick={()=>{playClick(); setActiveTab('wallet');}} className={`w-14 h-14 rounded-full flex items-center justify-center border-4 border-[#050505] transition-transform ${activeTab==='wallet'?'bg-gradient-to-b from-[#ffe29a] to-[#dcae45] text-black scale-105':'bg-[#111] text-[#dcae45]'}`}>
+                        <div className="relative -top-6">
+                            <button onClick={()=>setActiveTab('wallet')} className={`w-16 h-16 rounded-full flex items-center justify-center border-4 border-[#050505] shadow-[0_0_20px_rgba(220,174,69,0.6)] transition-transform ${activeTab==='wallet'?'bg-gradient-to-b from-[#ffe29a] to-[#dcae45] text-black scale-105':'bg-[#111] text-[#dcae45]'}`}>
                                 <i className="fa-solid fa-wallet text-2xl"></i>
                             </button>
                         </div>
                         
-                        <button onClick={()=>{playClick(); setActiveTab('refer');}} className={`flex flex-col items-center gap-1 w-[20%] ${activeTab==='refer'?'text-[#dcae45]':'text-gray-500'}`}><i className="fa-solid fa-gift text-xl"></i><span className="text-[9px] font-bold">Refer</span></button>
-                        <button onClick={()=>{playClick(); setActiveTab('profile');}} className={`flex flex-col items-center gap-1 w-[20%] ${activeTab==='profile'?'text-[#dcae45]':'text-gray-500'}`}><i className="fa-solid fa-user text-xl"></i><span className="text-[9px] font-bold">Profile</span></button>
+                        <button onClick={() => alert('Support')} className="flex flex-col items-center gap-1 w-10 text-gray-500"><i className="fa-solid fa-headset text-xl"></i><span className="text-[10px] font-bold">Support</span></button>
+                        <button onClick={() => alert('About')} className="flex flex-col items-center gap-1 w-10 text-gray-500"><i className="fa-solid fa-circle-info text-xl"></i><span className="text-[10px] font-bold">About</span></button>
                     </div>
                 </div>
             );
