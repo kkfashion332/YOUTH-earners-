@@ -2,588 +2,1166 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Youth Earner's - Pro</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MZ Fashion</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-database-compat.js"></script>
+
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .content-padding { padding-bottom: 90px; }
+        .size-radio:checked + label {
+            background-color: #eab308;
+            color: #fff;
+            border-color: #eab308;
+        }
+        /* Make inputs autofill look clean in light theme */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover, 
+        input:-webkit-autofill:focus, 
+        input:-webkit-autofill:active{
+            -webkit-box-shadow: 0 0 0 30px white inset !important;
+        }
+
+        /* --- FLIPKART STYLE ANIMATIONS --- */
+        .strike-anim {
+            position: relative;
+            display: inline-block;
+            color: #878787; /* Gray color for old price */
+        }
+        .strike-anim::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 1.5px;
+            background-color: #878787;
+            transform-origin: left;
+            animation: strikethrough 0.6s ease-out forwards;
+        }
+        @keyframes strikethrough {
+            0% { transform: scaleX(0); }
+            100% { transform: scaleX(1); }
+        }
+
+        .discount-text {
+            color: #16a34a; /* Flipkart Green */
+            animation: pulseText 1.2s infinite alternate ease-in-out;
+        }
+        @keyframes pulseText {
+            0% { transform: scale(1); text-shadow: 0 0 0 rgba(22, 163, 74, 0); }
+            100% { transform: scale(1.02); text-shadow: 0 0 4px rgba(22, 163, 74, 0.3); }
+        }
+    </style>
 </head>
-<body class="intro-running bg-premium-dark text-white">
+<body class="bg-gray-50 text-gray-900 font-sans">
 
-    <div id="logoIntro" aria-label="Youth Earner's logo introduction">
-        <div class="intro-stage">
-            <div class="logo-wrap"><img class="intro-logo" src="youth-earners-logo.png" alt="Youth Earner's" /></div>
-            <div class="intro-line"></div>
-            <p class="intro-title">Youth Earner's</p>
+    <!-- Top Navbar -->
+    <nav id="topNav" class="hidden bg-[#0a0a0a] py-2.5 px-3 flex justify-between items-center relative z-50 shadow-md border-b-[1.5px] border-yellow-500 rounded-b-[1.5rem]">
+        <div class="flex items-center w-full justify-between relative px-1">
+            <div class="flex-shrink-0">
+                <img id="secretLogo" src="logo.png" onerror="this.src='https://ui-avatars.com/api/?name=MZ&background=000&color=D4AF37'" alt="MZ Fashion" class="w-10 h-10 rounded-full cursor-pointer border-[1.5px] border-yellow-500 object-cover shadow-[0_0_8px_rgba(212,175,55,0.4)]">
+            </div>
+            
+            <div class="flex flex-col items-center justify-center cursor-pointer absolute left-1/2 transform -translate-x-1/2" onclick="goHome()">
+                <span class="font-black text-[20px] tracking-[0.08em] text-white leading-none mt-0.5">MZ FASHION</span>
+                <div class="flex items-center gap-1.5 mt-1 w-full justify-center opacity-90">
+                    <div class="w-5 h-[1px] bg-yellow-500"></div>
+                    <span class="text-[6.5px] tracking-[0.2em] text-yellow-500 uppercase whitespace-nowrap font-bold">Style Your Story</span>
+                    <div class="w-5 h-[1px] bg-yellow-500"></div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4 text-white text-[18px] flex-shrink-0">
+                <i class="fa-solid fa-magnifying-glass cursor-pointer hover:text-yellow-500 transition drop-shadow-md"></i>
+                <div class="relative cursor-pointer hover:text-yellow-500 transition drop-shadow-md" onclick="showCart()">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span id="topCartBadge" class="absolute -top-1.5 -right-2 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full hidden border border-black shadow-sm">0</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main App Container -->
+    <div id="app" class="max-w-md mx-auto bg-gray-50 min-h-screen shadow-2xl content-padding relative">
+        <div class="min-h-screen flex flex-col items-center justify-center text-yellow-500">
+            <i class="fa-solid fa-spinner fa-spin text-5xl mb-4"></i>
+            <p class="font-bold tracking-widest text-gray-800">LOADING STORE...</p>
         </div>
     </div>
 
-    <div id="authContainer" class="hidden auth-wrapper">
-        <div class="form-container">
-            <img class="auth-logo" src="youth-earners-logo.png" alt="Logo" />
-            <form id="loginForm" class="auth-form">
-                <h2>Welcome Back</h2>
-                <div class="input-group"><input type="tel" id="loginNumber" placeholder="Enter your mobile number" pattern="[0-9]{10}" maxlength="10" required></div>
-                <div class="input-group"><input type="password" id="loginPassword" placeholder="Password (content 6 digit)" minlength="6" required></div>
-                <button type="submit" id="loginBtn" class="auth-btn">Log In</button>
-                <p class="switch-form">New user? <span id="showRegister">Sign in (Register)</span></p>
-            </form>
-            <form id="registerForm" class="auth-form hidden">
-                <h2>Create Account</h2>
-                <div class="input-group"><input type="text" id="regName" placeholder="Full Name" required></div>
-                <div class="input-group"><input type="tel" id="regNumber" placeholder="Enter your mobile number" pattern="[0-9]{10}" maxlength="10" required></div>
-                <div class="input-group"><input type="password" id="regPassword" placeholder="Password (content 6 digit)" minlength="6" required></div>
-                <button type="submit" id="regBtn" class="auth-btn">Register</button>
-                <p class="switch-form">Already have an account? <span id="showLogin">Log In</span></p>
-            </form>
+    <!-- Bottom Navigation Bar -->
+    <div id="bottomNav" class="hidden fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 p-2 max-w-md mx-auto z-[60] flex justify-around items-center h-16 shadow-[0_-4px_15px_rgba(0,0,0,0.05)]">
+        <div onclick="requireAuth(() => showLikes())" class="flex flex-col items-center w-1/5 text-gray-400 hover:text-yellow-500 cursor-pointer transition-colors"><i class="fa-solid fa-heart text-[20px]"></i><span class="text-[9px] mt-1 font-bold">Likes</span></div>
+        <div onclick="requireAuth(() => showMyOrders())" class="flex flex-col items-center w-1/5 text-gray-400 hover:text-yellow-500 cursor-pointer transition-colors"><i class="fa-solid fa-box text-[20px]"></i><span class="text-[9px] mt-1 font-bold">Orders</span></div>
+        <div class="w-1/5 flex justify-center relative">
+            <div onclick="goHome()" class="absolute -top-10 w-14 h-14 bg-gradient-to-r from-yellow-500 to-yellow-400 rounded-full flex items-center justify-center text-white text-2xl shadow-[0_0_15px_rgba(212,175,55,0.4)] border-[3px] border-white cursor-pointer z-50 transition-transform active:scale-95"><i class="fa-solid fa-house drop-shadow-md"></i></div>
         </div>
+        <div onclick="showCart()" class="flex flex-col items-center w-1/5 text-gray-400 hover:text-yellow-500 cursor-pointer relative transition-colors"><i class="fa-solid fa-cart-shopping text-[20px]"></i><span class="text-[9px] mt-1 font-bold">Cart</span><span id="bottomCartCount" class="absolute -top-1 right-2 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full hidden border border-white">0</span></div>
+        <div onclick="requireAuth(() => showProfile())" class="flex flex-col items-center w-1/5 text-gray-400 hover:text-yellow-500 cursor-pointer transition-colors"><i class="fa-solid fa-user text-[20px]"></i><span class="text-[9px] mt-1 font-bold">Profile</span></div>
     </div>
 
-    <main id="website" class="hidden"><div id="root"></div></main>
+    <div id="imageModalContainer"></div>
 
-    <script type="module" src="app.js"></script>
-    <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
+    <script>
+        // --- FIREBASE INITIALIZATION ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyDYbppZ6nR4qs9tTZswSnVwurPI-Z5EqJ8",
+            authDomain: "mzfashion.firebaseapp.com",
+            databaseURL: "https://mzfashion-default-rtdb.firebaseio.com",
+            projectId: "mzfashion",
+            storageBucket: "mzfashion.firebasestorage.app",
+            messagingSenderId: "355960541786",
+            appId: "1:355960541786:web:df4b50d44291d0dd0c3e63"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-        function App() {
-            const [activeTab, setActiveTab] = useState('home'); 
-            const [isPlaying, setIsPlaying] = useState(false); 
-            
-            const [userProfile, setUserProfile] = useState({ name: 'Player', number: '9999999999', avatar: 'youth-earners-logo.png' });
-            const [wallet, setWallet] = useState(0);
-            const [withdrawable, setWithdrawable] = useState(0);
-            
-            const [confirmPopup, setConfirmPopup] = useState(null); 
-            const [showWinPopup, setShowWinPopup] = useState(null);
-            
-            const [isMatchmaking, setIsMatchmaking] = useState(false);
-            const [matchTime, setMatchTime] = useState(20);
-            const [matchFound, setMatchFound] = useState(false);
-            const [opponent, setOpponent] = useState({ name: 'Searching...', img: 'youth-earners-logo.png' });
-            
-            // Payment Modals
-            const [depositModal, setDepositModal] = useState(false);
-            const [withdrawModal, setWithdrawModal] = useState(false);
-            const [utrInput, setUtrInput] = useState('');
-            const [depositAmount, setDepositAmount] = useState('');
-            const [withdrawType, setWithdrawType] = useState('upi');
-            const [withdrawId, setWithdrawId] = useState('');
-            const [withdrawAmount, setWithdrawAmount] = useState('');
+        // --- DYNAMIC DATA STATE ---
+        let categories = []; 
+        let products = [];
+        let banners = [];
+        let paymentSettings = { qr_url: "", upi_id: "", whatsapp: "919982437489" };
+        
+        let currentUser = JSON.parse(localStorage.getItem('mz_currentUser')) || null;
+        let cart = JSON.parse(localStorage.getItem('mz_cart')) || [];
+        let likedItems = JSON.parse(localStorage.getItem('mz_likes')) || [];
+        let activeCategory = ""; 
+        let tempCheckoutData = null; 
+        
+        let currentSelectedSize = null; 
+        let currentComboSize1 = null; 
+        let currentComboSize2 = null; 
+        
+        const appDiv = document.getElementById('app');
+        const topNav = document.getElementById('topNav');
+        const bottomNav = document.getElementById('bottomNav');
 
-            const [roomId, setRoomId] = useState(null);
-            const [playerRole, setPlayerRole] = useState(null); 
-            const [roomData, setRoomData] = useState(null);
-            const [currentBet, setCurrentBet] = useState(0);
-            const [bidInput, setBidInput] = useState('');
-            
-            const fileInputRef = useRef(null);
-            const playTiers = [{ entry: 5, win: 9 }, { entry: 10, win: 18 }, { entry: 15, win: 27 }, { entry: 20, win: 36 }];
+        // --- SMART NAVIGATION & HARDWARE BACK BUTTON LOGIC ---
+        let isNavigatingBack = false;
 
-            useEffect(() => {
-                // LocalStorage se Profile Photo Load karo
-                const savedAvatar = localStorage.getItem('userAvatar');
-                
-                const handleGameStart = (e) => {
-                    const data = e.detail;
-                    if(data) {
-                        setUserProfile(prev => ({ 
-                            ...prev, 
-                            name: data.name || 'Player', 
-                            number: data.number || 'N/A',
-                            avatar: savedAvatar ? savedAvatar : 'youth-earners-logo.png'
-                        }));
-                        if(data.wallet !== undefined) setWallet(data.wallet);
-                    }
-                };
-                window.addEventListener('gameStart', handleGameStart);
-                return () => window.removeEventListener('gameStart', handleGameStart);
-            }, []);
+        function pushHistory(page, param = null) {
+            if (isNavigatingBack) return;
+            const stateObj = { page, param };
+            const hashUrl = `#${page}${param ? '-' + param : ''}`;
+            if (history.state && history.state.page === page && history.state.param === param) return;
+            history.pushState(stateObj, '', hashUrl);
+        }
 
-            // ---- LOCAL STORAGE IMAGE UPLOAD ----
-            const handleImageUpload = (e) => { 
-                const file = e.target.files[0]; 
-                if (file) { 
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                        const base64String = reader.result;
-                        localStorage.setItem('userAvatar', base64String); // Save to phone storage
-                        setUserProfile(prev => ({ ...prev, avatar: base64String }));
-                    };
-                    reader.readAsDataURL(file);
-                } 
-            };
-
-            // ---- FIREBASE MATCHMAKING LOGIC ----
-            const confirmPlay = async () => {
-                if (wallet < confirmPopup.entry) {
-                    alert("Low Balance! Please deposit money to play.");
-                    setConfirmPopup(null); setActiveTab('wallet'); return;
-                }
-                const tier = confirmPopup;
-                setConfirmPopup(null);
-                setMatchFound(false); setMatchTime(20); setIsMatchmaking(true); setCurrentBet(tier.entry);
-
-                try {
-                    const q = window.fs.query(window.fs.collection(window.db, "rooms"), window.fs.where("tier", "==", tier.entry), window.fs.where("status", "==", "waiting"));
-                    const querySnapshot = await window.fs.getDocs(q);
-
-                    if (!querySnapshot.empty) {
-                        const roomDoc = querySnapshot.docs[0];
-                        await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomDoc.id), {
-                            status: 'playing',
-                            p2: { uid: window.auth.currentUser.uid, name: userProfile.name, img: userProfile.avatar }
-                        });
-                        setRoomId(roomDoc.id); setPlayerRole(2);
-                    } else {
-                        const docRef = await window.fs.addDoc(window.fs.collection(window.db, "rooms"), {
-                            tier: tier.entry, status: 'waiting',
-                            p1: { uid: window.auth.currentUser.uid, name: userProfile.name, img: userProfile.avatar },
-                            p1Bid: null, p2Bid: null, round: 1, p1Tokens: 500, p2Tokens: 500, p1Wins: 0, p2Wins: 0, lastResult: null
-                        });
-                        setRoomId(docRef.id); setPlayerRole(1);
-                    }
-                } catch(e) { alert("Error connecting to server!"); setIsMatchmaking(false); }
-            };
-
-            const cancelMatchmaking = async () => {
-                setIsMatchmaking(false);
-                if(playerRole === 1 && roomId) { 
-                    await window.fs.deleteDoc(window.fs.doc(window.db, "rooms", roomId)); 
-                }
-                setRoomId(null);
-            };
-
-            // ---- REALTIME LISTENER FOR ROOM ----
-            useEffect(() => {
-                if (!roomId) return;
-                const unsub = window.fs.onSnapshot(window.fs.doc(window.db, "rooms", roomId), async (doc) => {
-                    const data = doc.data();
-                    if(!data) return;
-                    setRoomData(data);
-
-                    if(data.status === 'playing' && !matchFound) {
-                        setMatchFound(true);
-                        setOpponent(playerRole === 1 ? data.p2 : data.p1);
-                        setTimeout(() => {
-                            setWallet(prev => prev - data.tier); 
-                            setIsMatchmaking(false); setIsPlaying(true); setBidInput('');
-                        }, 3000);
-                    }
-
-                    if(data.status === 'finished') {
-                        setIsPlaying(false); setRoomId(null);
-                        let isWinner = false;
-                        if(data.p1Wins > data.p2Wins || (data.p1Wins === data.p2Wins && data.p1Tokens > data.p2Tokens)) {
-                            isWinner = playerRole === 1;
-                        } else if(data.p2Wins > data.p1Wins || (data.p2Wins === data.p1Wins && data.p2Tokens > data.p1Tokens)) {
-                            isWinner = playerRole === 2;
-                        } else {
-                            isWinner = 'draw';
-                        }
-                        
-                        if(isWinner === true) {
-                            let winnings = data.tier * 1.8;
-                            setWallet(prev => prev + winnings);
-                            setWithdrawable(prev => prev + winnings);
-                            setShowWinPopup(winnings); // WinZO style popup
-                        } else if(isWinner === 'draw') {
-                            setWallet(prev => prev + data.tier);
-                            alert("Match Draw! Entry fee refunded.");
-                        } else {
-                            // Do nothing, money already deducted
-                        }
-                    }
-
-                    if(data.status === 'playing' && data.p1Bid !== null && data.p2Bid !== null && !data.lastResult) {
-                        if(playerRole === 1) {
-                            let p1T = data.p1Tokens - data.p1Bid; let p2T = data.p2Tokens - data.p2Bid;
-                            let p1W = data.p1Wins; let p2W = data.p2Wins;
-                            let winner = "DRAW";
-                            if(data.p1Bid > data.p2Bid) { winner = data.p1.name; p1W++; }
-                            else if(data.p2Bid > data.p1Bid) { winner = data.p2.name; p2W++; }
-                            
-                            let nextRound = data.round + 1;
-                            await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomId), {
-                                p1Tokens: p1T, p2Tokens: p2T, p1Wins: p1W, p2Wins: p2W,
-                                lastResult: { p1Bid: data.p1Bid, p2Bid: data.p2Bid, winner }
-                            });
-
-                            setTimeout(async () => {
-                                if(nextRound > 3) {
-                                    await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomId), { status: 'finished' });
-                                } else {
-                                    await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomId), { p1Bid: null, p2Bid: null, round: nextRound, lastResult: null });
-                                }
-                            }, 3500);
-                        }
-                    }
-                });
-                return () => unsub();
-            }, [roomId, matchFound, playerRole]);
-
-            useEffect(() => {
-                let timer;
-                if (isMatchmaking && !matchFound) {
-                    timer = setInterval(async () => {
-                        setMatchTime(prev => {
-                            if(prev <= 1) {
-                                clearInterval(timer);
-                                setIsMatchmaking(false);
-                                alert("No real player found right now. Try again!");
-                                if(playerRole === 1 && roomId) { window.fs.deleteDoc(window.fs.doc(window.db, "rooms", roomId)); }
-                                setRoomId(null);
-                                return 0;
-                            }
-                            return prev - 1;
-                        });
-                    }, 1000);
-                }
-                return () => clearInterval(timer);
-            }, [isMatchmaking, matchFound, roomId, playerRole]);
-
-            const submitBid = async () => {
-                if(!roomId || !roomData) return;
-                let myTokens = playerRole === 1 ? roomData.p1Tokens : roomData.p2Tokens;
-                let b = parseInt(bidInput);
-                if(isNaN(b) || b < 0) b = 0; if(b > myTokens) b = myTokens;
-                
-                await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomId), {
-                    [playerRole === 1 ? 'p1Bid' : 'p2Bid']: b
-                });
-            };
-
-            // ---- FIREBASE WALLET SUBMITS ----
-            const submitDepositRequest = async () => {
-                if(!utrInput || !depositAmount) return alert("Fill all details!");
-                try {
-                    await window.fs.addDoc(window.fs.collection(window.db, "deposits"), {
-                        uid: window.auth.currentUser.uid, name: userProfile.name, utr: utrInput, amount: depositAmount, status: 'pending', date: new Date()
-                    });
-                    alert("Deposit proof sent to Admin! Wallet will be updated soon.");
-                    setDepositModal(false); setUtrInput(''); setDepositAmount('');
-                } catch(e) { alert("Error submitting request!"); }
-            };
-
-            const submitWithdrawRequest = async () => {
-                if(!withdrawId || !withdrawAmount) return alert("Fill all details!");
-                if(withdrawAmount > withdrawable) return alert("You don't have enough Winning Balance!");
-                try {
-                    await window.fs.addDoc(window.fs.collection(window.db, "withdrawals"), {
-                        uid: window.auth.currentUser.uid, name: userProfile.name, type: withdrawType, id: withdrawId, amount: withdrawAmount, status: 'pending', date: new Date()
-                    });
-                    setWithdrawable(prev => prev - withdrawAmount);
-                    setWallet(prev => prev - withdrawAmount);
-                    alert("Withdrawal request sent successfully!");
-                    setWithdrawModal(false); setWithdrawId(''); setWithdrawAmount('');
-                } catch(e) { alert("Error submitting request!"); }
-            };
-
-
-            // ---------------- MATCHMAKING & IN-GAME UI ---------------- //
-            if (isMatchmaking) {
-                return (
-                    <div className="fixed inset-0 z-[100] bg-[#050505] text-white flex flex-col items-center pt-20 px-6">
-                        <div className="absolute top-10 w-full text-center">
-                            <h2 className="text-[#ffe29a] text-xl font-bold tracking-widest uppercase">{matchFound ? "MATCH FOUND!" : "SEARCHING FOR PLAYERS..."}</h2>
-                            {!matchFound && <p className="text-gray-400 text-sm mt-2">Timeout in: {matchTime}s</p>}
-                        </div>
-                        <div className="flex w-full justify-between items-center mt-24">
-                            <div className="flex flex-col items-center">
-                                <div className="w-24 h-24 rounded-full border-4 border-[#10b981] p-1 shadow-[0_0_20px_rgba(16,185,129,0.5)] bg-black">
-                                    <img src={userProfile.avatar} className="w-full h-full rounded-full object-cover" />
-                                </div>
-                                <span className="font-bold mt-4 text-lg">{userProfile.name}</span>
-                            </div>
-                            <div className="text-4xl font-black text-[#dcae45] italic tracking-tighter drop-shadow-[0_0_10px_rgba(220,174,69,0.8)]">VS</div>
-                            <div className="flex flex-col items-center">
-                                <div className={`w-24 h-24 rounded-full border-4 p-1 bg-black ${matchFound ? 'border-red-500 shadow-[0_0_20px_rgba(239,68,68,0.5)]' : 'border-[#dcae45] border-dashed spin-slow'}`}>
-                                    <img src={opponent.img} className={`w-full h-full rounded-full object-cover ${matchFound ? '' : 'animate-pulse opacity-50'}`} />
-                                </div>
-                                <span className="font-bold mt-4 text-lg">{opponent.name}</span>
-                            </div>
-                        </div>
-                        
-                        {!matchFound && (
-                            <button onClick={cancelMatchmaking} className="absolute bottom-20 px-8 py-3 rounded-full border-2 border-red-500 text-red-500 font-bold hover:bg-red-500 hover:text-white transition-colors">
-                                Cancel Search
-                            </button>
-                        )}
-                    </div>
-                );
+        window.addEventListener('popstate', (event) => {
+            isNavigatingBack = true;
+            if (event.state) {
+                const { page, param } = event.state;
+                if(page === 'home') _goHome();
+                else if(page === 'product') _viewProduct(param);
+                else if(page === 'cart') _showCart();
+                else if(page === 'likes') _showLikes();
+                else if(page === 'orders') _showMyOrders();
+                else if(page === 'profile') _showProfile();
+                else if(page === 'login') _showLogin();
+                else if(page === 'register') _showRegister();
+                else if(page === 'address') _goToAddress(param);
+                else if(page === 'payment') _renderPaymentScreen();
+                else if(page === 'success') _renderSuccessScreen();
+            } else {
+                _goHome();
             }
+            setTimeout(() => { isNavigatingBack = false; }, 100);
+        });
 
-            if (isPlaying && roomData) {
-                let myData = playerRole === 1 ? roomData.p1 : roomData.p2;
-                let oppData = playerRole === 1 ? roomData.p2 : roomData.p1;
-                let myTokens = playerRole === 1 ? roomData.p1Tokens : roomData.p2Tokens;
-                let oppTokens = playerRole === 1 ? roomData.p2Tokens : roomData.p1Tokens;
-                let myBidStatus = playerRole === 1 ? roomData.p1Bid : roomData.p2Bid;
+        // --- AUTH LOGIC (FOR PROFILE/ORDERS/LIKES ONLY) ---
+        let pendingCallback = null;
 
-                return (
-                    <div className="max-w-md mx-auto bg-transparent min-h-screen text-white p-4 flex flex-col relative pb-28">
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-xl font-bold text-[#dcae45]"><i className="fa-solid fa-gamepad"></i> Game Running</h2>
-                        </div>
-                        <div className="flex justify-between items-center gold-card p-4 rounded-xl">
-                            <div className="text-center w-1/3">
-                                <img src={myData.img} className="w-10 h-10 rounded-full object-cover mx-auto mb-1 border-2 border-emerald-500"/>
-                                <div className="text-2xl font-bold text-[#ffe29a]">{myTokens}</div>
-                            </div>
-                            <div className="text-xl font-black text-[#dcae45] w-1/3 text-center">R{roomData.round}/3</div>
-                            <div className="text-center w-1/3">
-                                <img src={oppData.img} className="w-10 h-10 rounded-full object-cover mx-auto mb-1 border-2 border-rose-500"/>
-                                <div className="text-2xl font-bold text-rose-400">{oppTokens}</div>
-                            </div>
-                        </div>
-                        
-                        {!roomData.lastResult ? (
-                            <div className="mt-8">
-                                {myBidStatus === null ? (
-                                    <>
-                                        <input type="number" value={bidInput} onChange={(e) => setBidInput(e.target.value)} className="w-full bg-[#111] border-2 border-[#dcae45] rounded-xl text-center text-4xl py-4 focus:outline-none focus:border-[#ffe29a] font-bold shadow-[0_0_15px_rgba(220,174,69,0.2)] text-[#ffe29a]" placeholder="Enter Bid" />
-                                        <div className="flex gap-2 mt-4">
-                                            <button onClick={() => setBidInput(Math.floor(myTokens/2))} className="flex-1 bg-black border border-[#dcae45]/50 py-2 rounded-lg font-bold text-[#ffe29a]">1/2</button>
-                                            <button onClick={() => setBidInput(myTokens)} className="flex-1 bg-black border border-[#dcae45]/50 py-2 rounded-lg font-bold text-[#ffe29a]">Max</button>
-                                        </div>
-                                        <button onClick={submitBid} className="w-full mt-8 btn-play-gold py-4 rounded-full text-lg tracking-widest font-bold">LOCK BID</button>
-                                    </>
-                                ) : (
-                                    <div className="text-center mt-16 animate-pulse text-[#dcae45] font-bold text-xl">Waiting for opponent...</div>
-                                )}
-                            </div>
-                        ) : (
-                            <div className="mt-8 text-center pop-in">
-                                <h3 className="text-xl font-bold mb-4">Round Result</h3>
-                                <div className="flex justify-between text-2xl font-black mb-4">
-                                    <span className="text-emerald-400">{playerRole === 1 ? roomData.lastResult.p1Bid : roomData.lastResult.p2Bid}</span>
-                                    <span className="text-gray-500">vs</span>
-                                    <span className="text-rose-400">{playerRole === 1 ? roomData.lastResult.p2Bid : roomData.lastResult.p1Bid}</span>
-                                </div>
-                                <div className="text-2xl text-[#ffe29a] font-bold mt-4 p-4 border border-[#dcae45] rounded-xl bg-[#111]">{roomData.lastResult.winner === 'DRAW' ? 'Round Tied!' : `${roomData.lastResult.winner} WON`}</div>
-                            </div>
-                        )}
-                    </div>
-                );
+        function requireAuth(callback) {
+            if (currentUser) {
+                if (callback) callback();
+            } else {
+                pendingCallback = callback;
+                showLogin();
             }
+        }
 
-            // ---------------- MAIN APP UI ---------------- //
-            return (
-                <div className="max-w-md mx-auto bg-transparent min-h-screen relative pb-24">
+        function showNavs() {
+            topNav.classList.remove('hidden');
+            bottomNav.classList.remove('hidden');
+        }
+
+        function hideNavs() {
+            topNav.classList.add('hidden');
+            bottomNav.classList.add('hidden');
+        }
+
+        // --- REALTIME DATABASE SYNC ---
+        async function initApp() {
+            try {
+                // FIXED BUG: Checking settings instead of products to prevent accidental DB wipe
+                const setupCheck = await db.ref('settings/payment').once('value');
+                if (!setupCheck.exists()) await seedInitialData();
+
+                const catSnap = await db.ref('categories').once('value');
+                if(catSnap.exists()) {
+                    categories = []; 
+                    catSnap.forEach(child => {
+                        if(child.val() && typeof child.val() === 'object') categories.push(child.val());
+                    });
+                }
+
+                const pSnap = await db.ref('products').once('value');
+                if(pSnap.exists()) {
+                    products = [];
+                    pSnap.forEach(child => {
+                        if(child.val() && typeof child.val() === 'object') products.push(child.val());
+                    });
+                }
+
+                const bSnap = await db.ref('banners').once('value');
+                if(bSnap.exists()) {
+                    banners = [];
+                    bSnap.forEach(child => {
+                        if(child.val() && typeof child.val() === 'object') banners.push(child.val());
+                    });
+                }
+
+                const paySnap = await db.ref('settings/payment').once('value');
+                if(paySnap.exists()) paymentSettings = paySnap.val();
+
+                if (!history.state) {
+                    history.replaceState({ page: 'home', param: null }, '', '#home');
+                }
+                
+                _goHome();
+                updateCartBadge();
+            } catch (error) {
+                appDiv.innerHTML = `<div class="text-center mt-20 text-red-500 font-bold">Network Error. Please refresh.</div>`;
+            }
+        }
+
+        async function seedInitialData() {
+            await db.ref('settings/payment').set({ qr_url: "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=dummy@upi&pn=MZFASHION", upi_id: "dummy@upi", whatsapp: "919982437489" });
+            await db.ref('banners').set({ b1: { id: "b1", img: "256328.jpg", target_link: "#" } });
+            await db.ref('categories').set({ c1: { id: "c1", name: "T-Shirts", img: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=150&q=80" }, c2: { id: "c2", name: "Jeans", img: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=150&q=80" }, c3: { id: "c3", name: "Combos", img: "https://images.unsplash.com/photo-1516257984-b1b4d707412e?w=150&q=80" }});
+            await db.ref('products').set({ 
+                p1: { id: "p1", name: "Premium Black T-Shirt", price: 499, mrp: 999, discount: "50% OFF", category: "T-Shirts", img: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&q=80", shirtSizes: "S, M, L, XL, XXL", jeansSizes: "" },
+                p2: { id: "p2", name: "Ripped Blue Jeans", price: 1099, mrp: 1999, discount: "45% OFF", category: "Jeans", img: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=400&q=80", shirtSizes: "", jeansSizes: "28, 30, 32, 34, 36" },
+                p3: { id: "p3", name: "Combo (Shirt + Jeans)", price: 1499, mrp: 3198, discount: "53% OFF", category: "Combos", img: "https://images.unsplash.com/photo-1516257984-b1b4d707412e?w=400&q=80", shirtSizes: "S, M, L, XL, XXL", jeansSizes: "28, 30, 32, 34, 36" }
+            });
+        }
+
+        // --- ROUTE WRAPPERS ---
+        function goHome() { pushHistory('home'); _goHome(); }
+        function showLikes() { requireAuth(() => { pushHistory('likes'); _showLikes(); }); }
+        function showMyOrders() { requireAuth(() => { pushHistory('orders'); _showMyOrders(); }); }
+        function showProfile() { requireAuth(() => { pushHistory('profile'); _showProfile(); }); }
+        function showCart() { pushHistory('cart'); _showCart(); }
+        function viewProduct(id) { pushHistory('product', id); _viewProduct(id); }
+        function goToAddress(source) { pushHistory('address', source); _goToAddress(source); }
+        function goToPaymentScreen() { pushHistory('payment'); _renderPaymentScreen(); }
+        function showLogin() { pushHistory('login'); _showLogin(); }
+        function showRegister() { pushHistory('register'); _showRegister(); }
+
+
+        // --- AUTHENTICATION VIEWS ---
+        function _showLogin() {
+            hideNavs();
+            appDiv.innerHTML = `
+                <div class="fade-in p-6 flex flex-col justify-center min-h-screen bg-white">
+                    <button onclick="history.back()" class="absolute top-6 left-6 text-gray-800 text-xl"><i class="fa-solid fa-arrow-left"></i></button>
+                    <div class="text-center mb-10 mt-8">
+                        <div class="w-24 h-24 mx-auto border-[3px] border-yellow-500 rounded-full overflow-hidden mb-4 shadow-[0_0_20px_rgba(212,175,55,0.4)]">
+                            <img src="logo.png" onerror="this.src='https://ui-avatars.com/api/?name=MZ&background=000&color=D4AF37'" class="w-full h-full object-cover">
+                        </div>
+                        <h1 class="text-3xl font-black text-gray-900 tracking-widest uppercase">Welcome Back</h1>
+                        <p class="text-gray-500 mt-2 text-sm font-bold">Login to view your profile.</p>
+                    </div>
                     
-                    {/* MZ FASHION STYLE CURVED HEADER (No Wallet) */}
-                    <div className="curved-header flex flex-col items-center justify-center pt-6 pb-5 relative z-10">
-                        <div className="absolute left-6 top-6 w-14 h-14 flex items-center justify-center bg-black rounded-full border border-[#dcae45] shadow-[0_0_15px_rgba(220,174,69,0.4)] overflow-hidden shrink-0">
-                            <img src="youth-earners-logo.png" style={{mixBlendMode:'screen'}} className="h-12 w-12 object-contain" alt="Logo" />
+                    <form onsubmit="handleLogin(event)" class="flex flex-col gap-4">
+                        <div class="relative"><i class="fa-solid fa-phone absolute left-4 top-4 text-gray-400"></i><input type="tel" id="loginPhone" placeholder="Phone Number" required class="bg-gray-50 border border-gray-300 focus:border-yellow-500 focus:bg-white outline-none text-gray-900 p-3.5 pl-12 rounded-xl w-full font-semibold transition-colors shadow-sm"></div>
+                        <div class="relative"><i class="fa-solid fa-lock absolute left-4 top-4 text-gray-400"></i><input type="password" id="loginPassword" placeholder="Password" required class="bg-gray-50 border border-gray-300 focus:border-yellow-500 focus:bg-white outline-none text-gray-900 p-3.5 pl-12 rounded-xl w-full font-semibold transition-colors shadow-sm"></div>
+                        <p id="loginError" class="text-red-500 text-xs text-center hidden font-bold">Invalid phone or password.</p>
+                        <button type="submit" id="loginBtn" class="mt-4 bg-gradient-to-r from-yellow-500 to-yellow-400 text-white font-black py-4 rounded-xl shadow-md w-full tracking-wide transition transform active:scale-95 text-lg">LOGIN SECURELY</button>
+                    </form>
+                    
+                    <p class="text-center text-gray-500 mt-6 text-sm font-bold">Don't have an account? <span onclick="showRegister()" class="text-yellow-600 font-black cursor-pointer hover:underline">Register Now</span></p>
+                </div>
+            `;
+            window.scrollTo(0,0);
+        }
+
+        function _showRegister() {
+            hideNavs();
+            appDiv.innerHTML = `
+                <div class="fade-in p-6 flex flex-col justify-center min-h-screen bg-white">
+                    <button onclick="history.back()" class="absolute top-6 left-6 text-gray-800 text-xl"><i class="fa-solid fa-arrow-left"></i></button>
+                    <div class="text-center mb-8 mt-8">
+                        <h1 class="text-3xl font-black text-gray-900 tracking-widest uppercase">CREATE ACCOUNT</h1>
+                        <p class="text-gray-500 mt-2 text-sm font-bold">Register to manage your orders.</p>
+                    </div>
+                    
+                    <form onsubmit="handleRegister(event)" class="flex flex-col gap-4">
+                        <div class="relative"><i class="fa-solid fa-user absolute left-4 top-4 text-gray-400"></i><input type="text" id="regName" placeholder="Full Name" required class="bg-gray-50 border border-gray-300 focus:border-yellow-500 focus:bg-white outline-none text-gray-900 p-3.5 pl-12 rounded-xl w-full font-semibold transition-colors shadow-sm"></div>
+                        <div class="relative"><i class="fa-solid fa-phone absolute left-4 top-4 text-gray-400"></i><input type="tel" id="regPhone" placeholder="Phone Number" required class="bg-gray-50 border border-gray-300 focus:border-yellow-500 focus:bg-white outline-none text-gray-900 p-3.5 pl-12 rounded-xl w-full font-semibold transition-colors shadow-sm"></div>
+                        <div class="relative"><i class="fa-solid fa-lock absolute left-4 top-4 text-gray-400"></i><input type="password" id="regPassword" placeholder="Password" required class="bg-gray-50 border border-gray-300 focus:border-yellow-500 focus:bg-white outline-none text-gray-900 p-3.5 pl-12 rounded-xl w-full font-semibold transition-colors shadow-sm"></div>
+                        <p id="regError" class="text-red-500 text-xs text-center hidden font-bold">Phone number already registered.</p>
+                        <button type="submit" id="regBtn" class="mt-4 bg-gradient-to-r from-yellow-500 to-yellow-400 text-white font-black py-4 rounded-xl shadow-md w-full tracking-wide transition transform active:scale-95 text-lg">CREATE ACCOUNT</button>
+                    </form>
+                    
+                    <p class="text-center text-gray-500 mt-6 text-sm font-bold">Already have an account? <span onclick="showLogin()" class="text-yellow-600 font-black cursor-pointer hover:underline">Login Here</span></p>
+                </div>
+            `;
+            window.scrollTo(0,0);
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const phone = document.getElementById('loginPhone').value;
+            const pass = document.getElementById('loginPassword').value;
+            const btn = document.getElementById('loginBtn');
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> LOGGING IN...`;
+
+            try {
+                const snapshot = await db.ref('users/' + phone).once('value');
+                if (snapshot.exists() && snapshot.val().password === pass) {
+                    currentUser = snapshot.val();
+                    localStorage.setItem('mz_currentUser', JSON.stringify(currentUser));
+                    
+                    if(pendingCallback) {
+                        const cb = pendingCallback; pendingCallback = null;
+                        history.back(); 
+                        setTimeout(() => cb(), 100); 
+                    } else {
+                        history.back();
+                    }
+                } else {
+                    document.getElementById('loginError').classList.remove('hidden');
+                    btn.innerHTML = "LOGIN SECURELY";
+                }
+            } catch (error) { alert("Database Error!"); btn.innerHTML = "LOGIN SECURELY"; }
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('regName').value;
+            const phone = document.getElementById('regPhone').value;
+            const pass = document.getElementById('regPassword').value;
+            const btn = document.getElementById('regBtn');
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> CREATING ACCOUNT...`;
+            
+            try {
+                const snapshot = await db.ref('users/' + phone).once('value');
+                if (snapshot.exists()) {
+                    document.getElementById('regError').classList.remove('hidden');
+                    btn.innerHTML = "CREATE ACCOUNT";
+                    return;
+                }
+                const newUser = { name, phone, password: pass, linkedEmail: "mzfashion@gmail.com" };
+                await db.ref('users/' + phone).set(newUser);
+                currentUser = newUser;
+                localStorage.setItem('mz_currentUser', JSON.stringify(newUser));
+                
+                if(pendingCallback) {
+                    const cb = pendingCallback; pendingCallback = null;
+                    history.back();
+                    setTimeout(() => cb(), 100);
+                } else {
+                    history.back();
+                }
+            } catch (error) { alert("Database Error!"); btn.innerHTML = "CREATE ACCOUNT"; }
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('mz_currentUser');
+            goHome(); 
+        }
+
+        function handleLikeClick(btn, id) {
+            requireAuth(() => toggleLike(btn, id));
+        }
+
+        // --- VIEWS ---
+
+        // 1. HOME PAGE
+        function _goHome() {
+            showNavs();
+            pendingCallback = null; 
+            
+            let displayProducts = products;
+            if(activeCategory !== "") {
+                displayProducts = products.filter(p => p.category === activeCategory);
+            }
+
+            let catHTML = categories.map(cat => `
+                <div onclick="filterCategory('${cat.name}')" class="flex flex-col items-center gap-1.5 cursor-pointer w-full">
+                    <div class="w-14 h-14 rounded-full overflow-hidden border-[2.5px] ${activeCategory === cat.name ? 'border-yellow-500 shadow-md scale-105' : 'border-gray-200'} transition-all mx-auto flex-shrink-0 bg-white">
+                        <img src="${cat.img}" class="w-full h-full object-cover">
+                    </div>
+                    <span class="text-[9px] md:text-[10px] ${activeCategory === cat.name ? 'text-yellow-600 font-extrabold' : 'text-gray-600 font-bold'} text-center w-full uppercase break-words line-clamp-2 leading-tight">${cat.name}</span>
+                </div>
+            `).join('');
+            
+            // --- SINGLE COLUMN PRODUCT CARDS WITH FLIPKART STYLE PRICE ---
+            let prodHTML = displayProducts.map(item => {
+                const isLiked = likedItems.includes(item.id);
+                // FIXED BUG: Safe string parsing for discount text to prevent crashes
+                const discountVal = item.discount ? String(item.discount).replace(/OFF/gi, '').trim() : '';
+                
+                return `
+                <div class="bg-white border border-gray-200 rounded-[20px] shadow-[0_6px_20px_rgba(0,0,0,0.06)] relative flex flex-col justify-between overflow-hidden group">
+                    <button onclick="event.stopPropagation(); handleLikeClick(this, '${item.id}')" class="absolute top-4 right-4 ${isLiked ? 'text-red-500' : 'text-gray-300'} z-10 text-2xl bg-white/90 rounded-full w-12 h-12 flex items-center justify-center backdrop-blur-sm shadow-md transition-colors hover:scale-110">
+                        <i class="fa-solid fa-heart"></i>
+                    </button>
+                    <div onclick="viewProduct('${item.id}')" class="cursor-pointer relative overflow-hidden">
+                        <img src="${item.img}" class="w-full h-[400px] object-cover transform group-hover:scale-105 transition duration-500">
+                    </div>
+                    <div class="p-5 flex flex-col flex-grow border-t border-gray-100">
+                        <h3 onclick="viewProduct('${item.id}')" class="text-xl font-extrabold truncate text-gray-900 cursor-pointer hover:text-yellow-600 transition tracking-tight">${item.name}</h3>
+                        
+                        <!-- NEW PRICE ORDER & ANIMATION (Flipkart Style) -->
+                        <div class="mt-3 flex items-center gap-2">
+                            <span class="discount-text text-[15px] font-extrabold flex items-center tracking-tight"><i class="fa-solid fa-arrow-down text-[11px] mr-0.5"></i>${discountVal}</span>
+                            <span class="text-gray-400 font-bold text-[15px] strike-anim tracking-tight">₹${item.mrp}</span>
+                            <span class="font-black text-gray-900 text-[26px] ml-1 tracking-tight">₹${item.price}</span>
                         </div>
                         
-                        <span className="font-black text-white text-2xl tracking-widest uppercase mb-1 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] ml-14">YOUTH EARNERS</span>
-                        <div className="flex items-center gap-2 ml-14 mt-1">
-                            <div className="h-[1px] w-6 bg-[#dcae45]"></div>
-                            <span className="text-[9px] text-[#dcae45] tracking-[0.2em] font-bold uppercase">PLAY • EARN • GROW</span>
-                            <div className="h-[1px] w-6 bg-[#dcae45]"></div>
-                        </div>
-                    </div>
-
-                    <div className="p-4 pt-6">
-                        {activeTab === 'home' && (
-                            <div className="space-y-6">
-                                {/* LARGER PREMIUM BANNER */}
-                                <div className="w-full h-56 rounded-3xl bg-gradient-to-br from-[#111] via-[#1a1508] to-[#000] border border-[#dcae45]/40 p-6 flex flex-col justify-center items-start shadow-[0_4px_25px_rgba(220,174,69,0.2)] relative overflow-hidden">
-                                    <div className="absolute right-0 top-0 w-40 h-40 bg-[#dcae45] opacity-20 blur-3xl rounded-full"></div>
-                                    <i className="fa-solid fa-trophy text-9xl text-[#dcae45]/10 absolute -right-4 -bottom-4 transform rotate-12"></i>
-                                    <div className="relative z-10 w-full mt-4">
-                                        <h3 className="font-black text-4xl mb-2 text-white">Youth <span className="text-gold-gradient">Earner's</span></h3>
-                                        <p className="text-base font-bold text-gray-300 tracking-wide mb-8">Play & Win Real Cash!</p>
-                                        
-                                        <div className="flex items-center gap-3 text-xs font-bold text-[#ffe29a] tracking-wider uppercase border-t border-[#dcae45]/20 pt-4 w-[90%]">
-                                            <span><i className="fa-solid fa-shield-halved text-[#dcae45]"></i> Safe</span>
-                                            <span className="text-gray-600">|</span>
-                                            <span><i className="fa-solid fa-bolt text-[#dcae45]"></i> Fast</span>
-                                            <span className="text-gray-600">|</span>
-                                            <span><i className="fa-solid fa-star text-[#dcae45]"></i> Trusted</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="mt-8">
-                                    <h3 className="font-bold mb-4 text-white text-lg flex items-center gap-2">
-                                        <i className="fa-solid fa-users text-[#dcae45]"></i> Play with Real Players
-                                    </h3>
-                                    
-                                    <div className="grid grid-cols-2 gap-4">
-                                        {playTiers.map(tier => (
-                                            <div key={tier.entry} className="gold-card rounded-2xl p-4 flex flex-col items-center text-center relative overflow-hidden">
-                                                <div className="bg-black border border-[#dcae45]/30 rounded-lg px-4 py-1.5 mb-3 shadow-[0_0_10px_rgba(0,0,0,0.8)]">
-                                                    <img src="youth-earners-logo.png" style={{mixBlendMode:'screen'}} className="h-6 w-auto opacity-90" alt="game-icon" />
-                                                </div>
-                                                <div className="text-xs text-gray-400 mb-1">Entry: <span className="font-bold text-white text-base">₹{tier.entry}</span></div>
-                                                <div className="text-[22px] text-[#ffe29a] font-black mb-5 drop-shadow-[0_0_10px_rgba(220,174,69,0.5)] tracking-wide">WIN: ₹{tier.win}</div>
-                                                <button onClick={() => setConfirmPopup(tier)} className="w-full btn-play-gold py-2.5 rounded-full font-black text-[13px] tracking-wide flex items-center justify-center gap-2"><i className="fa-solid fa-play"></i> Play Now</button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* NEW WALLET SECTION */}
-                        {activeTab === 'wallet' && (
-                            <div className="space-y-6 pt-2">
-                                <h2 className="text-2xl font-bold text-[#dcae45] text-center mb-6"><i className="fa-solid fa-vault"></i> My Wallet</h2>
-                                
-                                {/* Total Balance Card */}
-                                <div className="bg-gradient-to-br from-[#1a1a1a] to-[#000] p-6 rounded-3xl border border-[#dcae45]/40 shadow-[0_10px_30px_rgba(220,174,69,0.15)] relative overflow-hidden">
-                                    <div className="text-gray-400 text-sm font-semibold">Total Balance</div>
-                                    <div className="text-5xl font-black text-white my-2 tracking-wide">₹{wallet.toFixed(2)}</div>
-                                </div>
-
-                                {/* Winning/Withdrawable Card */}
-                                <div className="bg-[#111] p-5 rounded-2xl border border-gray-800 flex justify-between items-center shadow-lg">
-                                    <div>
-                                        <div className="text-gray-400 text-xs font-semibold mb-1">Winning Balance (Withdrawable)</div>
-                                        <div className="text-2xl font-black text-[#10b981]">₹{withdrawable.toFixed(2)}</div>
-                                    </div>
-                                    <i className="fa-solid fa-money-bill-wave text-3xl text-gray-700"></i>
-                                </div>
-
-                                <div className="flex gap-4 mt-8">
-                                    <button onClick={() => setDepositModal(true)} className="flex-1 btn-play-gold py-4 rounded-2xl font-bold text-lg shadow-[0_0_15px_rgba(220,174,69,0.4)]"><i className="fa-solid fa-plus-circle"></i> Add Money</button>
-                                    <button onClick={() => setWithdrawModal(true)} className="flex-1 bg-transparent border-2 border-[#dcae45] py-4 rounded-2xl font-bold text-lg text-[#ffe29a] hover:bg-[#111] transition-colors"><i className="fa-solid fa-building-columns"></i> Withdraw</button>
-                                </div>
-                            </div>
-                        )}
-
-                        {activeTab === 'profile' && (
-                            <div className="space-y-6 text-center pt-8">
-                                <div className="relative inline-block">
-                                    <img src={userProfile.avatar} alt="Profile" className="w-32 h-32 rounded-full object-cover border-4 border-[#dcae45] p-1 mx-auto bg-black shadow-[0_0_20px_rgba(220,174,69,0.3)]" />
-                                    <button onClick={() => fileInputRef.current.click()} className="absolute bottom-1 right-1 bg-[#dcae45] text-black w-10 h-10 flex items-center justify-center rounded-full border-2 border-black shadow-lg"><i className="fa-solid fa-camera text-lg"></i></button>
-                                    <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
-                                </div>
-                                <div className="mt-4">
-                                    <input type="text" value={userProfile.name} onChange={(e) => setUserProfile({...userProfile, name: e.target.value})} className="bg-transparent text-white text-3xl font-bold text-center border-b border-gray-800 focus:border-[#dcae45] focus:outline-none pb-2 w-64" />
-                                    <p className="text-[#dcae45] mt-2 tracking-widest font-bold text-lg"><i className="fa-solid fa-phone text-sm"></i> +91 {userProfile.number}</p>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* FULL SCREEN CONFIRMATION MODAL */}
-                    {confirmPopup && (
-                        <div className="fixed inset-0 bg-black z-[80] flex flex-col items-center justify-center p-6 pop-in">
-                            <div className="w-full max-w-sm flex flex-col gap-8">
-                                <div className="mx-auto w-24 h-24 bg-gradient-to-tr from-[#dcae45] to-[#ffe29a] rounded-full flex items-center justify-center text-black text-5xl shadow-[0_0_30px_rgba(220,174,69,0.6)]">
-                                    <i className="fa-solid fa-coins"></i>
-                                </div>
-                                <h2 className="text-3xl font-black text-center text-white tracking-widest uppercase">Confirm Match</h2>
-                                
-                                <div className="bg-[#111] border border-[#dcae45] rounded-3xl p-8 flex flex-col gap-6 text-center shadow-[0_0_20px_rgba(220,174,69,0.2)]">
-                                    <div>
-                                        <div className="text-gray-400 text-sm mb-1 uppercase tracking-wider">Entry Amount</div>
-                                        <div className="text-white font-black text-4xl">₹{confirmPopup.entry}</div>
-                                    </div>
-                                    <hr className="border-gray-800" />
-                                    <div>
-                                        <div className="text-gray-400 text-sm mb-1 uppercase tracking-wider">Winning Amount</div>
-                                        <div className="text-[#ffe29a] font-black text-5xl drop-shadow-[0_0_10px_rgba(220,174,69,0.8)]">₹{confirmPopup.win}</div>
-                                    </div>
-                                </div>
-                                
-                                <div className="flex gap-4 w-full mt-4">
-                                    <button onClick={() => setConfirmPopup(null)} className="flex-1 bg-transparent border-2 border-gray-600 text-gray-300 py-4 rounded-2xl font-bold text-lg hover:bg-gray-800 transition">Cancel</button>
-                                    <button onClick={confirmPlay} className="flex-1 btn-play-gold py-4 rounded-2xl font-black text-lg text-black uppercase tracking-wide">Play Now</button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* ADD MONEY MODAL */}
-                    {depositModal && (
-                        <div className="fixed inset-0 bg-black/90 z-[90] flex items-center justify-center p-4 backdrop-blur-sm pop-in">
-                            <div className="bg-[#111] border border-[#dcae45] w-full max-w-sm rounded-3xl p-6 shadow-[0_0_30px_rgba(220,174,69,0.2)]">
-                                <h3 className="text-xl font-bold text-[#ffe29a] mb-4 text-center">Deposit Money</h3>
-                                <div className="bg-white p-2 rounded-xl w-40 h-40 mx-auto mb-4">
-                                    {/* Dummy QR image, you can replace URL later */}
-                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=youthearners@ybl&pn=YouthEarners" className="w-full h-full" alt="QR Code" />
-                                </div>
-                                <div className="text-center mb-6">
-                                    <p className="text-gray-400 text-xs mb-1">Scan QR or Pay to UPI ID</p>
-                                    <div className="flex items-center justify-center gap-2 text-white font-bold bg-black py-2 rounded-lg border border-gray-700">
-                                        youthearners@ybl <i className="fa-solid fa-copy text-[#dcae45] cursor-pointer" onClick={() => alert('Copied!')}></i>
-                                    </div>
-                                </div>
-                                <div className="space-y-3 mb-6">
-                                    <input type="number" placeholder="Enter Amount Paid (₹)" value={depositAmount} onChange={e=>setDepositAmount(e.target.value)} className="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none" />
-                                    <input type="text" placeholder="12-Digit UTR / Ref Number" value={utrInput} onChange={e=>setUtrInput(e.target.value)} className="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none" />
-                                </div>
-                                <div className="flex gap-3">
-                                    <button onClick={() => setDepositModal(false)} className="flex-1 border border-gray-600 py-3 rounded-xl font-bold text-gray-400">Cancel</button>
-                                    <button onClick={submitDepositRequest} className="flex-1 btn-play-gold py-3 rounded-xl font-bold">Submit Proof</button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* WITHDRAW MODAL */}
-                    {withdrawModal && (
-                        <div className="fixed inset-0 bg-black/90 z-[90] flex items-center justify-center p-4 backdrop-blur-sm pop-in">
-                            <div className="bg-[#111] border border-[#dcae45] w-full max-w-sm rounded-3xl p-6 shadow-[0_0_30px_rgba(220,174,69,0.2)]">
-                                <h3 className="text-xl font-bold text-[#ffe29a] mb-2 text-center">Withdraw Money</h3>
-                                <p className="text-center text-gray-400 text-sm mb-6">Available: <span className="text-[#10b981] font-bold">₹{withdrawable.toFixed(2)}</span></p>
-                                
-                                <div className="flex gap-2 mb-4 bg-black p-1 rounded-xl border border-gray-800">
-                                    <button onClick={() => setWithdrawType('upi')} className={`flex-1 py-2 rounded-lg font-bold text-sm ${withdrawType==='upi'?'bg-[#dcae45] text-black':'text-gray-400'}`}>UPI ID</button>
-                                    <button onClick={() => setWithdrawType('number')} className={`flex-1 py-2 rounded-lg font-bold text-sm ${withdrawType==='number'?'bg-[#dcae45] text-black':'text-gray-400'}`}>Mobile No.</button>
-                                </div>
-                                
-                                <div className="space-y-3 mb-6">
-                                    <input type="text" placeholder={withdrawType==='upi'?"Enter UPI ID":"Enter Mobile Number"} value={withdrawId} onChange={e=>setWithdrawId(e.target.value)} className="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none" />
-                                    <input type="number" placeholder="Enter Amount to Withdraw" value={withdrawAmount} onChange={e=>setWithdrawAmount(e.target.value)} className="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none" />
-                                </div>
-                                <div className="flex gap-3">
-                                    <button onClick={() => setWithdrawModal(false)} className="flex-1 border border-gray-600 py-3 rounded-xl font-bold text-gray-400">Cancel</button>
-                                    <button onClick={submitWithdrawRequest} className="flex-1 btn-play-gold py-3 rounded-xl font-bold">Withdraw</button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* VICTORY POPUP (WinZO Style) */}
-                    {showWinPopup !== null && (
-                        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/90 backdrop-blur-md victory-anim px-4">
-                            <div className="bg-gradient-to-b from-[#1a1508] to-[#000] border-2 border-[#dcae45] p-8 rounded-3xl text-center shadow-[0_0_50px_rgba(220,174,69,0.5)] w-full max-w-sm">
-                                <i className="fa-solid fa-trophy text-8xl text-[#dcae45] mb-6 drop-shadow-[0_0_20px_#ffe29a]"></i>
-                                <h2 className="text-4xl font-black text-white mb-2 tracking-widest uppercase">YOU WIN!</h2>
-                                <p className="text-gray-400 mb-6 font-bold">Amount added to Winning Wallet</p>
-                                <div className="text-6xl font-black text-[#10b981] drop-shadow-[0_0_15px_#10b981] mb-10">+₹{showWinPopup}</div>
-                                <button onClick={() => setShowWinPopup(null)} className="btn-play-gold w-full py-4 rounded-full font-black text-black text-xl uppercase tracking-wider">Awesome!</button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* BOTTOM NAVIGATION */}
-                    <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-[#050505] border-t border-[#dcae45]/30 flex justify-between items-center h-[70px] px-6 z-50 rounded-t-3xl shadow-[0_-10px_25px_rgba(0,0,0,0.9)] backdrop-blur-md">
-                        <button onClick={()=>setActiveTab('home')} className={`flex flex-col items-center gap-1 w-10 ${activeTab==='home'?'text-[#ffe29a] drop-shadow-[0_0_8px_rgba(220,174,69,0.8)]':'text-gray-500'}`}><i className="fa-solid fa-house text-xl"></i><span className="text-[10px] font-bold">Home</span></button>
-                        <button onClick={()=>setActiveTab('profile')} className={`flex flex-col items-center gap-1 w-10 ${activeTab==='profile'?'text-[#ffe29a] drop-shadow-[0_0_8px_rgba(220,174,69,0.8)]':'text-gray-500'}`}><i className="fa-solid fa-user text-xl"></i><span className="text-[10px] font-bold">Profile</span></button>
-                        
-                        <div className="relative -top-6">
-                            <button onClick={()=>setActiveTab('wallet')} className={`w-16 h-16 rounded-full flex items-center justify-center border-4 border-[#050505] shadow-[0_0_20px_rgba(220,174,69,0.6)] transition-transform ${activeTab==='wallet'?'bg-gradient-to-b from-[#ffe29a] to-[#dcae45] text-black scale-105':'bg-[#111] text-[#dcae45]'}`}>
-                                <i className="fa-solid fa-wallet text-2xl"></i>
+                        <div class="flex justify-between gap-3 mt-5">
+                            <button onclick="event.stopPropagation(); viewProduct('${item.id}')" class="flex-1 bg-white border-2 border-yellow-500 text-yellow-600 font-extrabold py-3.5 rounded-xl text-xs shadow-sm hover:bg-yellow-50 hover:shadow transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-cart-plus text-base"></i> ADD TO CART
+                            </button>
+                            <button onclick="event.stopPropagation(); viewProduct('${item.id}')" class="flex-1 bg-gradient-to-r from-yellow-500 to-yellow-400 text-white font-extrabold py-3.5 rounded-xl shadow-md hover:shadow-lg transition text-xs flex items-center justify-center gap-2">
+                                BUY NOW <i class="fa-solid fa-arrow-right text-xs"></i>
                             </button>
                         </div>
-                        
-                        <button onClick={() => alert('Support')} className="flex flex-col items-center gap-1 w-10 text-gray-500"><i className="fa-solid fa-headset text-xl"></i><span className="text-[10px] font-bold">Support</span></button>
-                        <button onClick={() => alert('About')} className="flex flex-col items-center gap-1 w-10 text-gray-500"><i className="fa-solid fa-circle-info text-xl"></i><span className="text-[10px] font-bold">About</span></button>
                     </div>
                 </div>
-            );
+            `}).join('');
+
+            if(displayProducts.length === 0) { prodHTML = `<div class="text-center text-gray-500 py-10 font-semibold w-full">No products found.</div>`; }
+
+            let bannerHTML = banners.map(b => `
+                <a href="${b.target_link || '#'}" class="min-w-full flex-shrink-0 snap-center relative h-60 block">
+                    <img src="${b.img}" class="w-full h-full object-cover">
+                </a>
+            `).join('');
+
+            appDiv.innerHTML = `
+                <div id="homeView" class="fade-in bg-gray-50 min-h-screen pb-6">
+                    <div id="bannerSlider" class="flex overflow-x-auto snap-x snap-mandatory no-scrollbar relative shadow-sm" style="scroll-behavior: smooth;">
+                        ${bannerHTML}
+                    </div>
+                    <div class="grid grid-cols-5 gap-y-4 gap-x-2 py-5 px-3 bg-white border-b border-gray-200 justify-items-center items-start shadow-sm mb-2 rounded-b-2xl">
+                        ${catHTML}
+                    </div>
+                    
+                    <div class="p-4 bg-gray-50 rounded-t-2xl">
+                        <div class="flex items-center gap-3 mb-6 mt-2 ml-1">
+                            <div class="w-1.5 h-6 bg-yellow-500 rounded"></div>
+                            <h2 class="font-extrabold text-lg text-gray-900 tracking-wider uppercase">${activeCategory !== "" ? activeCategory : "LATEST COLLECTION"}</h2>
+                        </div>
+                        <div class="grid grid-cols-1 gap-8">
+                            ${prodHTML}
+                        </div>
+                    </div>
+                </div>
+            `;
+            window.scrollTo(0,0);
+
+            if(window.bannerScrollInterval) clearInterval(window.bannerScrollInterval);
+            if(banners.length > 1) {
+                setTimeout(() => {
+                    window.bannerScrollInterval = setInterval(() => {
+                        const slider = document.getElementById('bannerSlider');
+                        if(!slider) {
+                            clearInterval(window.bannerScrollInterval);
+                            return;
+                        }
+                        const maxScrollLeft = slider.scrollWidth - slider.clientWidth;
+                        if(slider.scrollLeft >= maxScrollLeft - 5) {
+                            slider.scrollTo({ left: 0, behavior: 'smooth' });
+                        } else {
+                            slider.scrollBy({ left: slider.clientWidth, behavior: 'smooth' });
+                        }
+                    }, 3000); 
+                }, 500);
+            }
         }
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+
+        function filterCategory(catName) {
+            if(activeCategory === catName) activeCategory = "";
+            else activeCategory = catName;
+            goHome();
+        }
+
+        // 2. LIKES PAGE
+        function toggleLike(btn, id) {
+            const index = likedItems.indexOf(id);
+            if (index > -1) {
+                likedItems.splice(index, 1);
+                btn.classList.remove('text-red-500'); btn.classList.add('text-gray-300');
+            } else {
+                likedItems.push(id);
+                btn.classList.remove('text-gray-300'); btn.classList.add('text-red-500');
+            }
+            localStorage.setItem('mz_likes', JSON.stringify(likedItems));
+        }
+
+        function _showLikes() {
+            showNavs();
+            let likedProducts = products.filter(p => likedItems.includes(p.id));
+            let html = "";
+
+            if (likedProducts.length === 0) {
+                html = `<div class="text-center p-10 mt-10"><i class="fa-solid fa-heart-crack text-5xl text-gray-300 mb-4"></i><h2 class="text-gray-600 font-bold text-lg">No Liked Items</h2><button onclick="history.back()" class="mt-6 bg-white border border-yellow-500 text-yellow-600 px-6 py-2 rounded-lg font-bold shadow-sm hover:bg-yellow-50">Explore Collection</button></div>`;
+            } else {
+                html = `<div class="grid grid-cols-2 gap-4">` + likedProducts.map(item => {
+                    const discountVal = item.discount ? String(item.discount).replace(/OFF/gi, '').trim() : '';
+                    return `
+                    <div class="bg-white border border-gray-200 rounded-xl shadow-[0_4px_10px_rgba(0,0,0,0.04)] relative flex flex-col justify-between overflow-hidden group">
+                        <button onclick="event.stopPropagation(); toggleLike(this, '${item.id}'); setTimeout(_showLikes, 300);" class="absolute top-2 right-2 text-red-500 z-10 text-xl bg-white/80 rounded-full w-8 h-8 flex items-center justify-center backdrop-blur-sm shadow-sm transition-colors hover:scale-110"><i class="fa-solid fa-heart"></i></button>
+                        <div onclick="viewProduct('${item.id}')" class="cursor-pointer relative overflow-hidden"><img src="${item.img}" class="w-full h-44 object-cover transform group-hover:scale-105 transition duration-500"></div>
+                        <div class="p-3 flex flex-col flex-grow border-t border-gray-100">
+                            <h3 class="text-sm font-bold truncate text-gray-800">${item.name}</h3>
+                            <div class="mt-2 flex items-center gap-1.5">
+                                <span class="discount-text text-[10px] font-extrabold flex items-center tracking-tight"><i class="fa-solid fa-arrow-down text-[8px] mr-0.5"></i>${discountVal}</span>
+                                <span class="text-gray-400 font-bold text-[10px] strike-anim tracking-tight">₹${item.mrp}</span>
+                                <span class="font-black text-gray-900 text-[16px] tracking-tight">₹${item.price}</span>
+                            </div>
+                            <div class="flex justify-between gap-1.5 mt-3">
+                                <button onclick="event.stopPropagation(); viewProduct('${item.id}')" class="flex-1 bg-white border border-yellow-500 text-yellow-600 font-bold py-1.5 rounded-[6px] text-[9px] shadow-sm flex items-center justify-center gap-1"><i class="fa-solid fa-cart-plus"></i> CART</button>
+                                <button onclick="event.stopPropagation(); viewProduct('${item.id}')" class="flex-1 bg-gradient-to-r from-yellow-500 to-yellow-400 text-white font-extrabold py-1.5 rounded-[6px] shadow-sm text-[9px]">BUY NOW</button>
+                            </div>
+                        </div>
+                    </div>
+                `}).join('') + `</div>`;
+            }
+
+            appDiv.innerHTML = `
+                <div class="fade-in p-5 pb-24 bg-gray-50 min-h-screen">
+                    <button onclick="history.back()" class="mb-4 text-gray-600 text-xl"><i class="fa-solid fa-arrow-left"></i></button>
+                    <div class="flex items-center gap-2 mb-6 border-b border-gray-200 pb-3">
+                        <div class="w-1.5 h-6 bg-red-500 rounded"></div>
+                        <h1 class="text-xl font-extrabold text-gray-800 uppercase tracking-wide">My Likes</h1>
+                    </div>
+                    ${html}
+                </div>
+            `;
+            window.scrollTo(0,0);
+        }
+
+        // 3. PROFILE PAGE
+        function _showProfile() {
+            showNavs();
+            appDiv.innerHTML = `
+                <div class="fade-in p-5 pb-24 bg-gray-50 min-h-screen">
+                    <button onclick="history.back()" class="mb-4 text-gray-600 text-xl"><i class="fa-solid fa-arrow-left"></i></button>
+                    <div class="flex items-center gap-2 mb-6 border-b border-gray-200 pb-3">
+                        <div class="w-1.5 h-6 bg-yellow-500 rounded"></div>
+                        <h1 class="text-xl font-extrabold text-gray-800 uppercase tracking-wide">My Profile</h1>
+                    </div>
+                    
+                    <div class="bg-white p-5 rounded-xl border border-gray-200 mb-6 flex items-center gap-5 shadow-sm">
+                        <div class="w-16 h-16 bg-gradient-to-tr from-yellow-400 to-yellow-300 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-md border-2 border-white">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <div class="flex-grow">
+                            <div class="flex justify-between items-center mb-1">
+                                <p class="font-extrabold text-lg text-gray-900">${currentUser.name}</p>
+                                <button onclick="editName()" class="text-yellow-600 text-xs border border-yellow-500 px-2 py-1 rounded bg-yellow-50 hover:bg-yellow-500 hover:text-white transition font-bold"><i class="fa-solid fa-pen mr-1"></i> Edit</button>
+                            </div>
+                            <p class="text-sm text-gray-500 font-medium">${currentUser.phone}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden mb-6 shadow-sm">
+                        <div onclick="document.getElementById('supportPanel').classList.toggle('hidden')" class="p-4 flex justify-between items-center cursor-pointer hover:bg-gray-50 transition">
+                            <span class="font-bold text-gray-800 flex items-center"><i class="fa-solid fa-headset text-yellow-500 text-lg mr-3"></i> Support & Help</span>
+                            <i class="fa-solid fa-chevron-down text-gray-400"></i>
+                        </div>
+                        <div id="supportPanel" class="hidden p-4 border-t border-gray-100 bg-gray-50">
+                            <div class="flex flex-col gap-3">
+                                <a href="https://wa.me/${paymentSettings.whatsapp}" target="_blank" class="flex w-full items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold py-3.5 px-4 rounded-lg shadow-md transition transform active:scale-95">
+                                    <i class="fa-brands fa-whatsapp text-2xl"></i> WhatsApp Support
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button onclick="logout()" class="w-full bg-white text-red-500 border border-red-200 font-extrabold py-3.5 rounded-xl shadow-sm hover:bg-red-50 transition transform active:scale-95 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-right-from-bracket"></i> LOGOUT
+                    </button>
+                </div>
+            `;
+            window.scrollTo(0,0);
+        }
+
+        async function editName() {
+            let newName = prompt("Enter your new name:", currentUser.name);
+            if(newName && newName.trim() !== "") {
+                currentUser.name = newName.trim();
+                localStorage.setItem('mz_currentUser', JSON.stringify(currentUser));
+                try { await db.ref('users/' + currentUser.phone).update({ name: currentUser.name }); } catch(e) {}
+                _showProfile();
+            }
+        }
+
+        // --- PRODUCT PAGE ---
+        function selectSize(size) { currentSelectedSize = size; }
+        function selectComboSize1(size) { currentComboSize1 = size; }
+        function selectComboSize2(size) { currentComboSize2 = size; }
+
+        function _viewProduct(id) {
+            showNavs();
+            const product = products.find(p => p.id === id);
+            if(!product) { goHome(); return; }
+            
+            currentSelectedSize = null; currentComboSize1 = null; currentComboSize2 = null;
+            let sizeHTML = "";
+            let hasShirt = !!product.shirtSizes && product.shirtSizes.trim() !== "";
+            let hasJeans = !!product.jeansSizes && product.jeansSizes.trim() !== "";
+
+            if (hasShirt) {
+                let sArr = product.shirtSizes.split(',').map(s => s.trim());
+                sizeHTML += `<div class="flex flex-wrap gap-2 mb-3">${sArr.map(s => `<div><input type="radio" name="comboShirt" id="cs1-${s}" value="${s}" class="hidden size-radio" onchange="selectComboSize1('${s}')"><label for="cs1-${s}" class="cursor-pointer border border-gray-300 text-gray-700 bg-white font-bold px-3 py-1.5 text-xs rounded-md shadow-sm hover:border-yellow-500 transition block text-center min-w-[40px]">${s}</label></div>`).join('')}</div>`;
+            }
+            if (hasJeans) {
+                let jArr = product.jeansSizes.split(',').map(s => s.trim());
+                sizeHTML += `<div class="flex flex-wrap gap-2 mb-3">${jArr.map(s => `<div><input type="radio" name="comboJeans" id="cs2-${s}" value="${s}" class="hidden size-radio" onchange="selectComboSize2('${s}')"><label for="cs2-${s}" class="cursor-pointer border border-gray-300 text-gray-700 bg-white font-bold px-3 py-1.5 text-xs rounded-md shadow-sm hover:border-yellow-500 transition block text-center min-w-[40px]">${s}</label></div>`).join('')}</div>`;
+            }
+            if (!hasShirt && !hasJeans) {
+                sizeHTML += `<div class="flex flex-wrap gap-3"><div><input type="radio" name="productSize" id="size-Free" value="Free Size" class="hidden size-radio" onchange="selectSize('Free Size')"><label for="size-Free" class="cursor-pointer border border-gray-300 text-gray-700 bg-white font-bold px-4 py-2 rounded-md shadow-sm hover:border-yellow-500 transition block">Free Size</label></div></div>`;
+            }
+
+            let moreProducts = products.filter(p => p.id !== id).sort(() => 0.5 - Math.random()).slice(0, 4);
+            let moreProdHTML = moreProducts.map(item => `
+                <div class="bg-white border border-gray-200 rounded-lg shadow-sm relative flex flex-col justify-between overflow-hidden cursor-pointer" onclick="viewProduct('${item.id}')">
+                    <img src="${item.img}" class="w-full h-40 object-cover hover:scale-105 transition duration-300">
+                    <div class="p-3 flex flex-col flex-grow border-t border-gray-100 bg-gray-50">
+                        <h3 class="text-[11px] font-bold truncate text-gray-800">${item.name}</h3>
+                        <span class="font-extrabold text-gray-900 text-sm mt-1">₹${item.price}</span>
+                    </div>
+                </div>
+            `).join('');
+
+            const discountVal = product.discount ? String(product.discount).replace(/OFF/gi, '').trim() : '';
+
+            appDiv.innerHTML = `
+                <div class="fade-in relative pb-24 bg-gray-50 min-h-screen">
+                    <button onclick="history.back()" class="absolute top-4 left-4 bg-white/90 border border-gray-200 text-gray-800 rounded-full w-10 h-10 z-10 flex items-center justify-center backdrop-blur-sm shadow-md hover:text-yellow-600 transition"><i class="fa-solid fa-arrow-left"></i></button>
+                    <div onclick="openImage('${product.img}')" class="relative cursor-zoom-in bg-white border-b border-gray-200 shadow-sm">
+                        <img src="${product.img}" class="w-full h-[450px] object-cover">
+                        <div class="absolute bottom-3 right-3 bg-white/90 rounded-full w-8 h-8 flex items-center justify-center text-gray-800 border border-gray-200 shadow-md"><i class="fa-solid fa-expand"></i></div>
+                    </div>
+                    
+                    <div class="p-5">
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-5 relative">
+                            <h1 class="text-xl font-extrabold text-gray-900 leading-tight pr-10">${product.name}</h1>
+                            
+                            <!-- NEW PRICE ORDER & ANIMATION (Flipkart Style) -->
+                            <div class="mt-4 flex items-center gap-2.5">
+                                <span class="discount-text text-lg font-extrabold flex items-center tracking-tight"><i class="fa-solid fa-arrow-down text-[13px] mr-1"></i>${discountVal}</span>
+                                <span class="text-gray-400 font-bold text-lg strike-anim tracking-tight">₹${product.mrp}</span>
+                                <span class="font-black text-gray-900 text-3xl ml-1 tracking-tight">₹${product.price}</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 mb-6">
+                            <h3 class="font-extrabold text-gray-800 mb-3 text-sm flex items-center gap-2"><i class="fa-solid fa-ruler-combined text-yellow-500"></i> SELECT SIZE</h3>
+                            ${sizeHTML}
+                        </div>
+
+                        <div class="flex items-center gap-2 mb-4 mt-8">
+                            <div class="w-1 h-5 bg-yellow-500 rounded"></div>
+                            <h3 class="font-extrabold text-gray-800 uppercase tracking-wide">More Products</h3>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 mb-6">
+                            ${moreProdHTML}
+                        </div>
+                    </div>
+                    
+                    <div class="fixed bottom-[64px] left-0 w-full bg-white border-t border-gray-200 p-3 max-w-md mx-auto flex gap-3 z-40 shadow-[0_-4px_15px_rgba(0,0,0,0.05)]">
+                        <button id="addBtn-${product.id}" onclick="addToCart('${product.id}')" class="w-1/2 bg-white border-2 border-yellow-500 text-yellow-600 font-extrabold py-3.5 rounded-lg hover:bg-yellow-50 transition text-[11px] shadow-sm"><i class="fa-solid fa-cart-plus mr-1"></i> ADD TO CART</button>
+                        <button onclick="handleBuyNow('${product.id}')" class="w-1/2 bg-gradient-to-r from-yellow-500 to-yellow-400 text-white font-extrabold py-3.5 rounded-lg text-center block shadow-md text-[11px] hover:shadow-lg transition">BUY NOW <i class="fa-solid fa-bolt ml-1"></i></button>
+                    </div>
+                </div>
+            `;
+            window.scrollTo(0,0);
+        }
+
+        function openImage(url) {
+            const container = document.getElementById('imageModalContainer');
+            container.innerHTML = `
+                <div class="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center fade-in backdrop-blur-md">
+                    <button onclick="closeImage()" class="absolute top-6 right-6 text-white text-xl z-[101] bg-gray-800 border-2 border-gray-600 w-10 h-10 rounded-full flex items-center justify-center shadow-lg"><i class="fa-solid fa-xmark"></i></button>
+                    <img src="${url}" class="max-w-full max-h-full object-contain p-2">
+                </div>
+            `;
+        }
+        function closeImage() { document.getElementById('imageModalContainer').innerHTML = ''; }
+
+        // --- CART SYSTEM ---
+        function _showCart() {
+            showNavs();
+            if (cart.length === 0) {
+                appDiv.innerHTML = `
+                    <div class="fade-in p-5 text-center flex flex-col items-center justify-center min-h-[70vh] bg-gray-50">
+                        <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-md mb-6 border border-gray-100">
+                            <i class="fa-solid fa-cart-shopping text-5xl text-gray-300"></i>
+                        </div>
+                        <h2 class="text-xl text-gray-800 font-extrabold mb-2">Your Cart is Empty!</h2>
+                        <p class="text-gray-500 text-sm mb-6">Looks like you haven't added anything yet.</p>
+                        <button onclick="history.back()" class="bg-gradient-to-r from-yellow-500 to-yellow-400 text-white px-8 py-3.5 rounded-lg font-extrabold shadow-md hover:shadow-lg transition transform active:scale-95">Start Shopping</button>
+                    </div>
+                `;
+                return;
+            }
+
+            let total = 0;
+            let cartHTML = cart.map((item, index) => {
+                total += item.price;
+                const discountVal = item.discount ? String(item.discount).replace(/OFF/gi, '').trim() : '';
+                return `
+                    <div class="flex gap-4 items-center bg-white p-3 rounded-xl border border-gray-200 mb-3 shadow-sm relative">
+                        <img src="${item.img}" class="w-20 h-20 object-cover rounded-lg border border-gray-100">
+                        <div class="flex-grow pr-8">
+                            <p class="font-bold text-gray-800 text-sm leading-tight mb-1">${item.name}</p>
+                            <p class="text-[11px] text-gray-500 font-medium mb-1.5">Size: <span class="text-yellow-600 font-bold bg-yellow-50 px-1 rounded">${item.size}</span></p>
+                            
+                            <div class="flex items-center gap-1.5">
+                                <span class="discount-text text-[10px] font-extrabold flex items-center tracking-tight"><i class="fa-solid fa-arrow-down text-[8px] mr-0.5"></i>${discountVal}</span>
+                                <span class="text-gray-400 font-bold text-[11px] strike-anim tracking-tight">₹${item.mrp}</span>
+                                <span class="font-black text-gray-900 text-base tracking-tight ml-0.5">₹${item.price}</span>
+                            </div>
+                        </div>
+                        <button onclick="removeFromCart(${index})" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-300 hover:text-red-500 p-2 transition bg-gray-50 rounded-full"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+            }).join('');
+
+            appDiv.innerHTML = `
+                <div class="fade-in p-5 pb-24 bg-gray-50 min-h-screen">
+                    <button onclick="history.back()" class="mb-4 text-gray-600 text-xl"><i class="fa-solid fa-arrow-left"></i></button>
+                    <div class="flex items-center gap-2 mb-6 border-b border-gray-200 pb-3">
+                        <div class="w-1.5 h-6 bg-yellow-500 rounded"></div>
+                        <h1 class="text-xl font-extrabold text-gray-800 uppercase tracking-wide">Your Cart</h1>
+                    </div>
+                    
+                    ${cartHTML}
+                    
+                    <div class="mt-6 p-5 bg-white border border-gray-200 rounded-xl shadow-sm">
+                        <div class="flex justify-between font-extrabold text-gray-900 text-lg">
+                            <span>Total Amount</span>
+                            <span class="text-yellow-600">₹${total}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="fixed bottom-[64px] left-0 w-full bg-white border-t border-gray-200 p-3 max-w-md mx-auto z-40 shadow-[0_-4px_15px_rgba(0,0,0,0.05)]">
+                        <button onclick="goToAddress('cart')" class="w-full bg-gradient-to-r from-yellow-500 to-yellow-400 text-white font-extrabold py-3.5 rounded-xl shadow-md tracking-wide hover:shadow-lg transition transform active:scale-95 text-sm">PROCEED TO CHECKOUT <i class="fa-solid fa-arrow-right ml-1"></i></button>
+                    </div>
+                </div>
+            `;
+            window.scrollTo(0,0);
+        }
+
+        function getValidatedSize(product) {
+            let hasShirt = !!product.shirtSizes && product.shirtSizes.trim() !== "";
+            let hasJeans = !!product.jeansSizes && product.jeansSizes.trim() !== "";
+            
+            if (hasShirt && hasJeans) {
+                if(!currentComboSize1 || !currentComboSize2) return null;
+                return `Top: ${currentComboSize1}, Bottom: ${currentComboSize2}`;
+            } else if (hasShirt) {
+                if(!currentComboSize1) return null;
+                return currentComboSize1;
+            } else if (hasJeans) {
+                if(!currentComboSize2) return null;
+                return currentComboSize2;
+            } else {
+                if(!currentSelectedSize) return null;
+                return currentSelectedSize;
+            }
+        }
+
+        function addToCart(id) {
+            const product = products.find(p => p.id === id);
+            const finalSize = getValidatedSize(product);
+            
+            if(!finalSize) { alert("Please select required sizes first!"); return; }
+
+            cart.push({ ...product, size: finalSize, cartId: Date.now() });
+            localStorage.setItem('mz_cart', JSON.stringify(cart));
+            updateCartBadge();
+            
+            const btn = document.getElementById(`addBtn-${id}`);
+            if(btn) {
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> ADDED';
+                btn.classList.add('bg-green-50', 'text-green-600', 'border-green-500');
+                btn.classList.remove('bg-white', 'text-yellow-600', 'border-yellow-500');
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.classList.remove('bg-green-50', 'text-green-600', 'border-green-500');
+                    btn.classList.add('bg-white', 'text-yellow-600', 'border-yellow-500');
+                }, 1500);
+            }
+        }
+
+        // --- GUEST CHECKOUT (BUY NOW DIRECTLY) ---
+        function handleBuyNow(id) {
+            const product = products.find(p => p.id === id);
+            const finalSize = getValidatedSize(product);
+
+            if(!finalSize) { alert("Please select required sizes first!"); return; }
+            currentSelectedSize = finalSize; 
+            
+            // Go Directly to address (NO LOGIN REQUIRED)
+            goToAddress(id);
+        }
+
+        function removeFromCart(index) { 
+            cart.splice(index, 1); 
+            localStorage.setItem('mz_cart', JSON.stringify(cart));
+            updateCartBadge(); 
+            _showCart(); 
+        }
+
+        function updateCartBadge() {
+            const b1 = document.getElementById('bottomCartCount');
+            const b2 = document.getElementById('topCartBadge');
+            if (cart.length > 0) { 
+                if(b1) { b1.innerText = cart.length; b1.classList.remove('hidden'); }
+                if(b2) { b2.innerText = cart.length; b2.classList.remove('hidden'); }
+            } else { 
+                if(b1) b1.classList.add('hidden'); 
+                if(b2) b2.classList.add('hidden'); 
+            }
+        }
+
+        async function fetchPinCodeDetails(pincode) {
+            const statusEl = document.getElementById('pinStatus');
+            const districtEl = document.getElementById('custDistrict');
+            const stateEl = document.getElementById('custState');
+            const villageEl = document.getElementById('custVillage');
+            
+            if (pincode.length === 6) {
+                statusEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Checking...';
+                try {
+                    let response = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
+                    let data = await response.json();
+                    
+                    if (data[0].Status === "Success") {
+                        let postOffices = data[0].PostOffice;
+                        districtEl.value = postOffices[0].District;
+                        stateEl.value = postOffices[0].State;
+                        
+                        villageEl.innerHTML = '<option value="" disabled selected>Select Village / Area</option>';
+                        postOffices.forEach(po => {
+                            villageEl.innerHTML += `<option value="${po.Name}">${po.Name}</option>`;
+                        });
+                        villageEl.classList.remove('bg-gray-100', 'text-gray-500');
+                        villageEl.classList.add('bg-white', 'text-gray-900', 'border-yellow-500');
+                        statusEl.innerHTML = '<i class="fa-solid fa-check text-green-600"></i> Found';
+                    } else {
+                        statusEl.innerHTML = '<span class="text-red-500">Invalid PIN</span>';
+                        districtEl.value = ""; stateEl.value = "";
+                        villageEl.innerHTML = '<option value="" disabled selected>Enter valid PIN first</option>';
+                        villageEl.classList.add('bg-gray-100', 'text-gray-500'); villageEl.classList.remove('bg-white', 'text-gray-900', 'border-yellow-500');
+                    }
+                } catch (e) {
+                    statusEl.innerHTML = '<span class="text-red-500">Error</span>';
+                }
+            } else {
+                statusEl.innerHTML = ''; districtEl.value = ""; stateEl.value = "";
+                villageEl.innerHTML = '<option value="" disabled selected>Enter PIN to select Village</option>';
+                villageEl.classList.add('bg-gray-100', 'text-gray-500'); villageEl.classList.remove('bg-white', 'text-gray-900', 'border-yellow-500');
+            }
+        }
+
+        // --- SPLIT CHECKOUT ---
+        function _goToAddress(source) {
+            let total = 0; let productNames = ""; let orderItems = []; let primaryImg = "";
+
+            if (source === 'cart') {
+                total = cart.reduce((sum, item) => sum + item.price, 0);
+                productNames = cart.map(i => `${i.name} (Size: ${i.size})`).join(", ");
+                primaryImg = cart[0].img;
+                orderItems = cart.map(i => ({ name: i.name, size: i.size, price: i.price, img: i.img }));
+            } else {
+                const product = products.find(p => p.id === source);
+                total = product.price;
+                productNames = `${product.name} (Size: ${currentSelectedSize})`;
+                primaryImg = product.img;
+                orderItems = [{ name: product.name, size: currentSelectedSize, price: product.price, img: product.img }];
+            }
+
+            tempCheckoutData = { names: productNames, price: total, img: primaryImg, items: orderItems };
+
+            appDiv.innerHTML = `
+                <div class="fade-in p-5 pb-24 bg-gray-50 min-h-screen">
+                    <button onclick="history.back()" class="mb-4 text-gray-600 text-xl"><i class="fa-solid fa-arrow-left"></i></button>
+                    <div class="flex items-center gap-2 mb-6 border-b border-gray-200 pb-3">
+                        <div class="w-1.5 h-6 bg-yellow-500 rounded"></div>
+                        <h1 class="text-xl font-extrabold text-gray-800 uppercase tracking-wide">Delivery Details</h1>
+                    </div>
+                    
+                    <form onsubmit="processAddressAndGoToPayment(event)" class="flex flex-col gap-4">
+                        <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col gap-3">
+                            <input type="text" id="custName" value="${currentUser ? currentUser.name : ''}" required placeholder="Full Name" class="bg-white border border-gray-300 focus:border-yellow-500 outline-none text-gray-900 p-3.5 rounded-lg w-full text-sm font-medium transition">
+                            <input type="tel" id="custPhone" value="${currentUser ? currentUser.phone : ''}" required placeholder="Phone Number" class="bg-white border border-gray-300 focus:border-yellow-500 outline-none text-gray-900 p-3.5 rounded-lg w-full text-sm font-medium transition">
+                            
+                            <div class="relative mt-2 border-t border-gray-100 pt-5">
+                                <label class="text-xs font-bold text-gray-500 mb-1 block">PIN CODE</label>
+                                <input type="number" id="custPincode" placeholder="6-Digit PIN" required pattern="[0-9]{6}" maxlength="6" onkeyup="fetchPinCodeDetails(this.value)" class="bg-white border border-gray-300 focus:border-yellow-500 outline-none text-gray-900 p-3.5 rounded-lg w-full text-sm font-bold tracking-widest transition">
+                                <p id="pinStatus" class="text-[10px] text-yellow-600 absolute right-4 top-[44px] font-bold"></p>
+                            </div>
+                            
+                            <div class="flex gap-3">
+                                <input type="text" id="custDistrict" placeholder="District" required readonly class="bg-gray-100 border border-gray-200 text-gray-500 p-3.5 rounded-lg w-1/2 text-sm font-medium focus:outline-none">
+                                <input type="text" id="custState" placeholder="State" required readonly class="bg-gray-100 border border-gray-200 text-gray-500 p-3.5 rounded-lg w-1/2 text-sm font-medium focus:outline-none">
+                            </div>
+                            
+                            <select id="custVillage" required class="bg-gray-100 border border-gray-200 text-gray-500 p-3.5 rounded-lg w-full text-sm font-medium focus:outline-none focus:border-yellow-500 transition cursor-pointer">
+                                <option value="" disabled selected>Enter PIN to select Village / Area</option>
+                            </select>
+                            
+                            <textarea id="custAddress" placeholder="Complete Address (House No, Street Area)" required class="bg-white border border-gray-300 focus:border-yellow-500 outline-none text-gray-900 p-3.5 rounded-lg w-full text-sm font-medium transition mt-2" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="fixed bottom-[64px] left-0 w-full bg-white border-t border-gray-200 p-3 max-w-md mx-auto z-40 shadow-[0_-4px_15px_rgba(0,0,0,0.05)]">
+                            <button type="submit" class="w-full bg-gradient-to-r from-yellow-500 to-yellow-400 text-white font-extrabold py-3.5 rounded-xl shadow-md tracking-wide hover:shadow-lg transition transform active:scale-95 text-sm">NEXT: PAYMENT <i class="fa-solid fa-arrow-right ml-1"></i></button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            window.scrollTo(0,0);
+        }
+
+        // --- SILENT AUTO REGISTER/LOGIN ON CHECKOUT ---
+        function processAddressAndGoToPayment(event) {
+            event.preventDefault();
+            
+            tempCheckoutData.name = document.getElementById('custName').value;
+            tempCheckoutData.phone = document.getElementById('custPhone').value;
+            const district = document.getElementById('custDistrict').value;
+            const state = document.getElementById('custState').value;
+            const village = document.getElementById('custVillage').value;
+            const pincode = document.getElementById('custPincode').value;
+            const baseAddress = document.getElementById('custAddress').value;
+            
+            if(!district || !state || !village) {
+                alert("Please enter a valid PIN Code and select your Village/Area!");
+                return;
+            }
+            tempCheckoutData.address = `${baseAddress}, ${village}, ${district}, ${state} (PIN: ${pincode})`;
+            
+            // Background Auto Login/Registration
+            if (!currentUser || currentUser.phone !== tempCheckoutData.phone) {
+                const phoneStr = tempCheckoutData.phone;
+                db.ref('users/' + phoneStr).once('value').then(snap => {
+                    if(!snap.exists()){
+                        const newUser = { name: tempCheckoutData.name, phone: phoneStr, password: "guest_user", linkedEmail: "mzfashion@gmail.com" };
+                        db.ref('users/' + phoneStr).set(newUser);
+                        currentUser = newUser;
+                    } else {
+                        currentUser = snap.val();
+                    }
+                    localStorage.setItem('mz_currentUser', JSON.stringify(currentUser));
+                });
+            }
+
+            goToPaymentScreen();
+        }
+
+        function _renderPaymentScreen() {
+            appDiv.innerHTML = `
+                <div class="fade-in p-5 pb-24 bg-gray-50 min-h-screen">
+                    <button onclick="history.back()" class="mb-4 text-gray-600 text-xl"><i class="fa-solid fa-arrow-left"></i></button>
+                    <div class="flex items-center gap-2 mb-6 border-b border-gray-200 pb-3">
+                        <div class="w-1.5 h-6 bg-yellow-500 rounded"></div>
+                        <h1 class="text-xl font-extrabold text-gray-800 uppercase tracking-wide">Select Payment</h1>
+                    </div>
+                    
+                    <div class="bg-white p-5 rounded-xl border border-gray-200 mb-6 flex justify-between items-center shadow-sm">
+                        <span class="text-gray-500 font-bold text-sm uppercase">Total to Pay</span>
+                        <span class="font-black text-2xl text-gray-900">₹${tempCheckoutData.price}</span>
+                    </div>
+                    
+                    <form onsubmit="confirmOrder(event)">
+                        <div class="mb-6">
+                            <label class="flex items-center gap-3 bg-white p-4 rounded-xl border border-gray-200 mb-3 cursor-pointer shadow-sm hover:border-yellow-500 transition">
+                                <input type="radio" id="prepaid" name="payment" value="Prepaid" onchange="renderPaymentUI()" class="accent-yellow-500 w-5 h-5 cursor-pointer">
+                                <span class="text-gray-800 font-bold text-sm w-full">Prepaid (Full Payment)</span>
+                            </label>
+                            
+                            <label class="flex items-center gap-3 bg-white p-4 rounded-xl border border-gray-200 mb-3 cursor-pointer shadow-sm hover:border-yellow-500 transition">
+                                <input type="radio" id="cod" name="payment" value="COD" onchange="renderPaymentUI()" class="accent-yellow-500 w-5 h-5 cursor-pointer" checked>
+                                <span class="text-gray-800 font-bold text-sm w-full">Cash on Delivery (C.O.D)</span>
+                            </label>
+                            
+                            <div id="paymentUI" class="mt-5 p-5 bg-white border border-yellow-300 rounded-xl shadow-md hidden"></div>
+                        </div>
+                        
+                        <div class="fixed bottom-[64px] left-0 w-full bg-white border-t border-gray-200 p-3 max-w-md mx-auto z-40 shadow-[0_-4px_15px_rgba(0,0,0,0.05)]">
+                            <button type="submit" class="w-full bg-gradient-to-r from-yellow-500 to-yellow-400 text-white font-extrabold py-3.5 rounded-xl shadow-md tracking-wide hover:shadow-lg transition transform active:scale-95 text-sm">PLACE ORDER <i class="fa-solid fa-check ml-1"></i></button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            window.scrollTo(0,0);
+            renderPaymentUI();
+        }
+
+        function renderPaymentUI() {
+            const isCOD = document.getElementById('cod').checked;
+            const uiDiv = document.getElementById('paymentUI');
+            uiDiv.classList.remove('hidden');
+            const totalAmount = tempCheckoutData.price;
+            const qrUrl = paymentSettings.qr_url;
+
+            if (!isCOD) {
+                uiDiv.innerHTML = `
+                    <p class="text-center text-sm text-gray-500 font-bold mb-2">Scan QR to pay Full Amount</p>
+                    <p class="text-center font-black text-2xl text-gray-900 mb-5">₹${totalAmount}</p>
+                    <div class="flex justify-center mb-5"><img src="${qrUrl}" class="w-36 h-36 border-4 border-gray-100 rounded-xl p-1 bg-white shadow-sm"></div>
+                    <div class="bg-red-50 border border-red-200 p-3 rounded-lg mb-3">
+                        <p class="text-[11px] text-center text-red-600 font-bold">⚠️ Please complete the payment now.</p>
+                        <p class="text-[10px] text-center text-gray-600 mt-1 font-medium">You will need to send the screenshot on the next screen to confirm your order.</p>
+                    </div>
+                `;
+            } else {
+                const tokenAmount = Math.round(totalAmount * 0.30);
+                uiDiv.innerHTML = `
+                    <div class="bg-yellow-50 border border-yellow-200 p-3 rounded-lg mb-4 text-center shadow-sm">
+                        <p class="text-[11px] text-yellow-700 font-bold">For C.O.D, 30% advance token is required.</p>
+                        <p class="font-black text-xl text-gray-900 mt-1">Token: ₹${tokenAmount}</p>
+                    </div>
+                    <div class="flex justify-center mb-5"><img src="${qrUrl}" class="w-36 h-36 border-4 border-gray-100 rounded-xl p-1 bg-white shadow-sm"></div>
+                    <div class="bg-red-50 border border-red-200 p-3 rounded-lg mb-2">
+                        <p class="text-[11px] text-center text-red-600 font-bold">⚠️ Please complete the token payment now.</p>
+                        <p class="text-[10px] text-center text-gray-600 mt-1 font-medium">You will need to send the screenshot on the next screen to confirm your order.</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function confirmOrder(event) {
+            event.preventDefault();
+            const paymentType = document.getElementById('cod').checked ? "COD" : "Prepaid";
+            const newOrder = {
+                id: Date.now().toString(), date: new Date().toLocaleString(),
+                name: tempCheckoutData.name, phone: tempCheckoutData.phone,
+                address: tempCheckoutData.address, payment: paymentType,
+                product_name: tempCheckoutData.names, price: tempCheckoutData.price,
+                img: tempCheckoutData.img, 
+                items: tempCheckoutData.items, 
+                status: "Pending Verification" 
+            };
+            appDiv.innerHTML = `<div class="min-h-[70vh] flex flex-col items-center justify-center text-yellow-500 bg-gray-50"><i class="fa-solid fa-spinner fa-spin text-5xl mb-4"></i><p class="font-bold tracking-widest text-gray-800">PLACING ORDER...</p></div>`;
+            window.scrollTo(0,0);
+            try {
+                await db.ref('orders/' + newOrder.id).set(newOrder);
+                cart = []; localStorage.setItem('mz_cart', JSON.stringify(cart)); updateCartBadge();
+                
+                const waNum = paymentSettings.whatsapp;
+                const waText = encodeURIComponent(`Hello MZ Fashion, here is my payment screenshot for Order ID: ${newOrder.id}`);
+
+                // Replace state so back button goes home instead of payment screen
+                history.replaceState({ page: 'home', param: null }, '', '#home');
+
+                appDiv.innerHTML = `
+                    <div class="fade-in flex flex-col items-center justify-center min-h-screen bg-gray-50 p-5 text-center pb-24">
+                        <div class="w-20 h-20 bg-white border-[3px] border-yellow-500 text-yellow-500 rounded-full flex items-center justify-center text-4xl mb-5 shadow-lg"><i class="fa-solid fa-clock"></i></div>
+                        <h1 class="text-2xl font-extrabold text-gray-900 uppercase">Verification Pending!</h1>
+                        <p class="text-gray-500 mt-2 text-sm font-medium">Thank you, <span class="text-gray-800 font-bold">${tempCheckoutData.name}</span>.</p>
+                        <p class="text-gray-500 mt-1 text-sm font-medium">Order ID: <b class="text-gray-900 text-xs">${newOrder.id}</b></p>
+                        
+                        <div class="bg-white border-2 border-red-100 p-5 rounded-xl mt-6 mb-6 w-full max-w-sm shadow-md">
+                            <p class="text-sm text-red-500 font-extrabold mb-4 leading-snug">⚠️ Order will NOT be dispatched until payment screenshot is received.</p>
+                            <a href="https://wa.me/${waNum}?text=${waText}" target="_blank" class="flex w-full items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-md animate-pulse transition">
+                                <i class="fa-brands fa-whatsapp text-2xl"></i> SEND SCREENSHOT NOW
+                            </a>
+                        </div>
+
+                        <button onclick="requireAuth(() => showMyOrders())" class="mt-2 bg-gradient-to-r from-yellow-500 to-yellow-400 text-white px-8 py-3.5 rounded-xl font-extrabold shadow-md transition-all w-full max-w-xs uppercase text-sm">View My Orders</button>
+                        <button onclick="goHome()" class="mt-4 bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 px-8 py-3.5 rounded-xl font-extrabold shadow-sm transition-all w-full max-w-xs uppercase text-sm">Continue Shopping</button>
+                    </div>
+                `;
+            } catch (error) { alert("Database Error!"); goHome(); }
+        }
+
+        // --- MY ORDERS PAGE ---
+        function _showMyOrders() {
+            showNavs();
+            appDiv.innerHTML = `<div class="min-h-[70vh] flex flex-col items-center justify-center text-yellow-500 bg-gray-50"><i class="fa-solid fa-spinner fa-spin text-5xl mb-4"></i><p class="font-bold tracking-widest text-gray-800">LOADING ORDERS...</p></div>`;
+            window.scrollTo(0,0);
+            db.ref('orders').orderByChild('phone').equalTo(currentUser.phone).once('value').then(snapshot => {
+                let userOrders = []; snapshot.forEach(child => { userOrders.push(child.val()); });
+                userOrders.sort((a, b) => b.id - a.id);
+                let myOrdersHTML = "";
+                if (userOrders.length > 0) {
+                    userOrders.forEach(order => {
+                        let paymentStatus = ""; let tokenAmount = 0; let remainingAmount = 0;
+                        if(order.payment === "COD") {
+                            tokenAmount = Math.round(order.price * 0.30); remainingAmount = order.price - tokenAmount;
+                            paymentStatus = `<p class="text-xs text-gray-500 mt-1 font-medium">Total: <span class="text-gray-800 font-bold">₹${order.price}</span></p><p class="text-xs text-green-600 font-bold mt-0.5">Paid Token: ₹${tokenAmount}</p><p class="text-xs text-red-500 font-bold mt-0.5">To Pay on Delivery: ₹${remainingAmount}</p>`;
+                        } else {
+                            paymentStatus = `<p class="text-xs text-gray-500 mt-1 font-medium">Total: <span class="text-gray-800 font-bold">₹${order.price}</span></p><p class="text-xs text-green-600 font-bold mt-0.5">Paid: ₹${order.price} (Full Payment)</p>`;
+                        }
+                        
+                        let statusBadge = "";
+                        let currentStatus = order.status || "Pending Verification";
+                        if(currentStatus === "Confirmed") {
+                            statusBadge = `<span class="inline-flex items-center gap-1 px-2 py-1 bg-green-50 text-green-600 text-[9px] rounded border border-green-200 uppercase font-extrabold"><i class="fa-solid fa-check"></i> Confirmed</span>`;
+                        } else if(currentStatus === "Rejected") {
+                            statusBadge = `<span class="inline-flex items-center gap-1 px-2 py-1 bg-red-50 text-red-500 text-[9px] rounded border border-red-200 uppercase font-extrabold"><i class="fa-solid fa-xmark"></i> Rejected</span>`;
+                        } else {
+                            statusBadge = `<span class="inline-flex items-center gap-1 px-2 py-1 bg-yellow-50 text-yellow-600 text-[9px] rounded border border-yellow-200 uppercase font-extrabold"><i class="fa-solid fa-clock"></i> ${currentStatus}</span>`;
+                        }
+
+                        // MULTIPLE ITEMS RENDERING LOGIC
+                        let itemsHTML = "";
+                        if (order.items && order.items.length > 0) {
+                            itemsHTML = `<div class="mt-3 flex flex-col gap-2">` + order.items.map(item => `
+                                <div class="flex items-center gap-3 bg-gray-50 p-2 rounded-lg border border-gray-100">
+                                    <img src="${item.img}" class="w-12 h-12 object-cover rounded border border-gray-200 bg-white">
+                                    <div class="flex-grow overflow-hidden">
+                                        <p class="font-bold text-gray-800 text-[11px] leading-tight break-words">${item.name}</p>
+                                        <p class="text-[10px] text-gray-500 mt-1 font-medium">Size: <span class="text-yellow-600 font-bold">${item.size}</span> | ₹${item.price}</p>
+                                    </div>
+                                </div>
+                            `).join('') + `</div>`;
+                        } else {
+                            itemsHTML = `<div class="flex items-center gap-3 bg-gray-50 p-2 rounded-lg border border-gray-100 mt-3"><img src="${order.img}" class="w-12 h-12 object-cover rounded border border-gray-200 bg-white"><div class="flex-grow overflow-hidden"><p class="font-bold text-gray-800 text-[11px] leading-tight break-words">${order.product_name}</p></div></div>`;
+                        }
+
+                        myOrdersHTML += `
+                            <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm mb-4">
+                                <div class="border-b border-gray-100 pb-3 mb-3">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <div><p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Order ID</p><p class="text-[11px] text-gray-800 font-bold mt-0.5">${order.id}</p><p class="text-[9px] text-gray-400 mt-1 font-medium">${order.date}</p></div>
+                                        <div class="text-right flex flex-col items-end">${statusBadge}<span class="inline-block mt-2 px-2 py-0.5 bg-gray-100 text-gray-600 text-[9px] font-bold rounded uppercase w-max">${order.payment}</span></div>
+                                    </div>
+                                    ${itemsHTML}
+                                </div>
+                                <div class="mb-3"><p class="text-xs text-gray-800 font-bold mb-1 flex items-center gap-1.5"><i class="fa-solid fa-location-dot text-yellow-500"></i> Deliver To</p><p class="text-[11px] text-gray-600 ml-5 font-semibold">${order.name}</p><p class="text-[11px] text-gray-500 ml-5 leading-relaxed">${order.address}</p></div>
+                                <div class="bg-gray-50 p-3 rounded-lg border border-gray-100"><p class="text-xs text-gray-800 font-bold mb-2 flex items-center gap-1.5"><i class="fa-solid fa-wallet text-yellow-500"></i> Payment Details</p>${paymentStatus}</div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    myOrdersHTML = `<div class="text-center p-10 bg-white rounded-xl border border-gray-200 mt-4 shadow-sm"><div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-100"><i class="fa-solid fa-box-open text-4xl text-gray-300"></i></div><h2 class="text-gray-800 font-extrabold text-lg">No Orders Found</h2><p class="text-gray-500 text-xs mt-1 mb-6">You haven't placed any orders yet.</p><button onclick="goHome()" class="bg-white border border-yellow-500 text-yellow-600 px-8 py-2.5 rounded-lg text-sm font-extrabold shadow-sm hover:bg-yellow-50 transition">Start Shopping</button></div>`;
+                }
+                appDiv.innerHTML = `<div class="fade-in p-5 pb-24 bg-gray-50 min-h-screen"><button onclick="history.back()" class="mb-4 text-gray-600 text-xl"><i class="fa-solid fa-arrow-left"></i></button><div class="flex items-center gap-2 mb-6 border-b border-gray-200 pb-3"><div class="w-1.5 h-6 bg-yellow-500 rounded"></div><h1 class="text-xl font-extrabold text-gray-800 uppercase tracking-wide">My Orders</h1></div>${myOrdersHTML}</div>`;
+            }).catch(() => { appDiv.innerHTML = `<div class="p-10 text-center text-red-500 font-bold">Error connecting to database.</div>`; });
+        }
+
+        // Init App 
+        initApp();
     </script>
 </body>
 </html>
