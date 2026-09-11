@@ -1,4 +1,3 @@
-// Capital 'I' को small 'i' में बदल दिया गया है
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs, addDoc, updateDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
@@ -16,7 +15,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// REACT KO FIREBASE DENE KE LIYE (Global variables)
 window.db = db;
 window.auth = auth;
 window.fs = { doc, setDoc, getDoc, collection, query, where, getDocs, addDoc, updateDoc, onSnapshot, deleteDoc };
@@ -33,7 +31,6 @@ let isIntroFinished = false;
 let isUserLoggedIn = false;
 let fetchedUserData = null;
 
-// यूज़र का लॉगिन स्टेटस चेक करना
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         isUserLoggedIn = true;
@@ -50,22 +47,17 @@ onAuthStateChanged(auth, async (user) => {
     checkAndLoad();
 });
 
-// इंट्रो स्क्रीन का टाइमर (4.5 सेकंड)
 setTimeout(() => {
     isIntroFinished = true;
     checkAndLoad();
 }, 4500);
 
-// इंट्रो के बाद सही स्क्रीन लोड करने का फंक्शन
 function checkAndLoad() {
     if (!isIntroFinished) return;
-    
-    // इंट्रो स्क्रीन हटाएँ
     intro.classList.add("hidden");
-    intro.style.display = "none"; // Safety के लिए
+    intro.style.display = "none";
     document.body.classList.remove("intro-running");
     
-    // अगर यूज़र पहले से लॉगिन है तो सीधा गेम दिखाएँ
     if (isUserLoggedIn && fetchedUserData) { 
         launchGame(fetchedUserData); 
     } else { 
@@ -73,18 +65,9 @@ function checkAndLoad() {
     }
 }
 
-// फॉर्म स्विच करने वाले बटन
-showRegisterBtn.addEventListener('click', () => { 
-    loginForm.classList.add('hidden'); 
-    registerForm.classList.remove('hidden'); 
-});
+showRegisterBtn.addEventListener('click', () => { loginForm.classList.add('hidden'); registerForm.classList.remove('hidden'); });
+showLoginBtn.addEventListener('click', () => { registerForm.classList.add('hidden'); loginForm.classList.remove('hidden'); });
 
-showLoginBtn.addEventListener('click', () => { 
-    registerForm.classList.add('hidden'); 
-    loginForm.classList.remove('hidden'); 
-});
-
-// रजिस्टर फॉर्म सबमिट
 registerForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const name = document.getElementById('regName').value;
@@ -93,32 +76,21 @@ registerForm.addEventListener('submit', async (e) => {
     const regBtn = document.getElementById('regBtn');
     
     const dummyEmail = number + "@youthearners.com"; 
-    
     try {
-        regBtn.innerText = "Registering..."; 
-        regBtn.disabled = true;
-        
+        regBtn.innerText = "Registering..."; regBtn.disabled = true;
         const userCredential = await createUserWithEmailAndPassword(auth, dummyEmail, password);
         const user = userCredential.user;
-        
         const userData = { uid: user.uid, name: name, number: number, wallet: 50 }; 
         await setDoc(doc(db, "users", user.uid), userData);
-        
         alert("Registration Successful! Bonus ₹50 added.");
-        
-        // बटन को वापस नार्मल करें (अगर पेज रिफ्रेश नहीं होता है तो)
-        regBtn.innerText = "Register"; 
-        regBtn.disabled = false;
-        
+        regBtn.innerText = "Register"; regBtn.disabled = false;
         launchGame(userData);
     } catch (error) {
         alert("Error: " + error.message);
-        regBtn.innerText = "Register"; 
-        regBtn.disabled = false;
+        regBtn.innerText = "Register"; regBtn.disabled = false;
     }
 });
 
-// लॉगिन फॉर्म सबमिट
 loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const number = document.getElementById('loginNumber').value;
@@ -126,40 +98,25 @@ loginForm.addEventListener('submit', async (e) => {
     const loginBtn = document.getElementById('loginBtn');
     
     const dummyEmail = number + "@youthearners.com";
-    
     try {
-        loginBtn.innerText = "Logging in..."; 
-        loginBtn.disabled = true;
-        
+        loginBtn.innerText = "Logging in..."; loginBtn.disabled = true;
         const userCredential = await signInWithEmailAndPassword(auth, dummyEmail, password);
         const user = userCredential.user;
-        
         const docRef = doc(db, "users", user.uid);
         const docSnap = await getDoc(docRef);
-        
         let userData = { name: "Player", number: number, wallet: 0 };
-        if (docSnap.exists()) { 
-            userData = docSnap.data(); 
-        }
-        
-        // बटन को वापस नार्मल करें
-        loginBtn.innerText = "Log In"; 
-        loginBtn.disabled = false;
-        
+        if (docSnap.exists()) userData = docSnap.data(); 
+        loginBtn.innerText = "Log In"; loginBtn.disabled = false;
         launchGame(userData);
     } catch (error) {
         alert("Login failed! Check your number and password.");
-        loginBtn.innerText = "Log In"; 
-        loginBtn.disabled = false;
+        loginBtn.innerText = "Log In"; loginBtn.disabled = false;
     }
 });
 
-// React ऐप (गेम) को स्टार्ट करने वाला फंक्शन
 function launchGame(userData) {
     authContainer.classList.add("hidden");
     gameWebsite.classList.remove("hidden");
-    
-    // React को डेटा भेजने के लिए Event Dispatch करें
     const event = new CustomEvent('gameStart', { detail: userData });
     window.dispatchEvent(event);
 }
