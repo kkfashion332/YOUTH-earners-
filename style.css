@@ -2,43 +2,85 @@
 :root { 
     --black: #000000; 
     --dark: #0a0a0a;  
-    --gold: #ffcc00; /* Neon Gold for Gaming Look */
+    --gold: #ffcc00; 
     --gold-light: #ffe600; 
     --text: #f8fafc; 
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { width: 100%; min-height: 100%; background: var(--black); color: var(--text); font-family: 'Arial', sans-serif; }
 .hidden { display: none !important; }
-.hide-scrollbar::-webkit-scrollbar { display: none; }
-.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
 /* 1. Pure Gaming Dark Background */
 .bg-premium-dark {
     background-color: var(--black);
-    background-image: radial-gradient(circle at top, rgba(255, 204, 0, 0.1) 0%, transparent 50%);
+    background-image: radial-gradient(circle at top, rgba(255, 204, 0, 0.05) 0%, transparent 60%);
     min-height: 100vh;
 }
 
-/* 2. Sharp Gaming Header (No Curves, Diagonal Accents) */
-.curved-header {
-    background: linear-gradient(180deg, #0a0a0a 0%, #000000 100%);
-    border-bottom: 2px solid var(--gold);
-    box-shadow: 0 4px 20px rgba(255, 204, 0, 0.2);
-    /* Removed border-radius to match the sharp look in the image */
+/* ==============================================================
+   NEW MZ-FASHION STYLE HEADER (IMAGE 2 DESIGN RED AREA)
+   ============================================================== */
+.mz-style-header {
+    background: linear-gradient(180deg, #111111 0%, #000000 100%);
+    border-bottom-left-radius: 25px; /* Curved Bottom */
+    border-bottom-right-radius: 25px;
+    border-bottom: 1.5px solid var(--gold); /* Gold glowing line */
+    box-shadow: 0 4px 20px rgba(255, 204, 0, 0.15);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     position: relative;
-    overflow: hidden;
     z-index: 10;
 }
-/* Diagonal Stripes in Header Background */
-.curved-header::before {
-    content: "";
-    position: absolute;
-    top: 0; left: -10%;
-    width: 30%; height: 100%;
-    background: repeating-linear-gradient(45deg, var(--gold) 0px, var(--gold) 4px, transparent 4px, transparent 8px);
-    opacity: 0.15;
-    transform: skewX(-45deg);
-    z-index: -1;
+.mz-header-left {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Removed border-radius so logo takes its natural shape */
+}
+.mz-header-left img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain; /* Keeps original aspect ratio */
+}
+.mz-header-center {
+    text-align: center;
+    flex: 1;
+    margin: 0 10px;
+}
+.mz-header-title {
+    color: #fff;
+    font-size: 20px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    margin-bottom: 2px;
+}
+.mz-header-subtitle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.mz-header-subtitle .line {
+    height: 1px;
+    width: 25px;
+    background: var(--gold);
+}
+.mz-header-subtitle .text {
+    color: var(--gold);
+    font-size: 8px;
+    font-weight: bold;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+.mz-header-right {
+    width: 45px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
 }
 
 /* 3. Gaming Match Cards (Neon Borders + Diagonal Corners) */
@@ -55,75 +97,30 @@ html, body { width: 100%; min-height: 100%; background: var(--black); color: var
     border-color: var(--gold-light); 
     box-shadow: 0 0 25px rgba(255, 204, 0, 0.4); 
 }
-/* Top-Left Diagonal Accent */
-.gold-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0;
-    width: 40px; height: 40px;
-    background: linear-gradient(135deg, var(--gold) 45%, transparent 50%);
-    z-index: 0;
-}
-/* Bottom-Right Diagonal Accent */
-.gold-card::after {
-    content: '';
-    position: absolute;
-    bottom: 0; right: 0;
-    width: 30px; height: 30px;
-    background: linear-gradient(315deg, var(--gold) 45%, transparent 50%);
-    z-index: 0;
-}
-.gold-card > * { position: relative; z-index: 1; } /* Keeps content above accents */
+.gold-card::before { content: ''; position: absolute; top: 0; left: 0; width: 40px; height: 40px; background: linear-gradient(135deg, var(--gold) 45%, transparent 50%); z-index: 0; }
+.gold-card::after { content: ''; position: absolute; bottom: 0; right: 0; width: 30px; height: 30px; background: linear-gradient(315deg, var(--gold) 45%, transparent 50%); z-index: 0; }
+.gold-card > * { position: relative; z-index: 1; }
 
 /* 4. Solid Neon Play Buttons */
 .btn-play-gold { 
-    position: relative;
-    overflow: hidden;
-    background: var(--gold); 
-    color: #000; 
-    box-shadow: 0 4px 15px rgba(255, 204, 0, 0.4); 
-    border: none; 
-    font-weight: 900;
-    z-index: 1;
-    transition: 0.3s; 
+    position: relative; overflow: hidden; background: var(--gold); color: #000; 
+    box-shadow: 0 4px 15px rgba(255, 204, 0, 0.4); border: none; font-weight: 900; z-index: 1; transition: 0.3s; 
 }
-.btn-play-gold:hover { 
-    background: var(--gold-light);
-    box-shadow: 0 4px 20px rgba(255, 204, 0, 0.6); 
-}
+.btn-play-gold:hover { background: var(--gold-light); box-shadow: 0 4px 20px rgba(255, 204, 0, 0.6); }
 .btn-play-gold:active { transform: scale(0.95); }
-
-/* Shine Effect on Buttons */
 .btn-play-gold::before {
-    content: "";
-    position: absolute;
-    top: 0; left: -100%;
-    width: 50%; height: 100%;
+    content: ""; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
     background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0) 100%);
-    transform: skewX(-25deg);
-    animation: shineSweeper 3s infinite;
-    z-index: -1;
+    transform: skewX(-25deg); animation: shineSweeper 3s infinite; z-index: -1;
 }
 
 /* Base Utility Classes */
-.text-gold-gradient {
-    color: var(--gold);
-    text-shadow: 0 0 10px rgba(255, 204, 0, 0.3);
-}
-
+.text-gold-gradient { color: var(--gold); text-shadow: 0 0 10px rgba(255, 204, 0, 0.3); }
 .spin-slow { animation: spin 3s linear infinite; }
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 .pop-in { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
 @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
-/* Animations */
-@keyframes shineSweeper {
-    0% { left: -100%; }
-    20% { left: 200%; }
-    100% { left: 200%; }
-}
-.victory-anim { animation: victoryPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-@keyframes victoryPop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes shineSweeper { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
 
 /* Fixes & Spacing */
 .pb-24 { padding-bottom: 6.5rem; }
