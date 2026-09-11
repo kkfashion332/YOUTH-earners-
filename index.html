@@ -53,7 +53,7 @@
             const [activeTab, setActiveTab] = useState('home'); 
             const [isPlaying, setIsPlaying] = useState(false); 
             
-            // LOCAL STORAGE FOR PERSISTENCE (Image and Name will NOT reset automatically)
+            // LOCAL STORAGE FOR PERSISTENCE 
             const savedAvatar = localStorage.getItem('userAvatar') || 'youth-earners-logo.png';
             const savedName = localStorage.getItem('userName') || 'Player';
             
@@ -87,29 +87,66 @@
             const fileInputRef = useRef(null);
             const playTiers = [{ entry: 5, win: 9 }, { entry: 10, win: 18 }, { entry: 15, win: 27 }, { entry: 20, win: 36 }];
 
-            // DUMMY LEADERBOARD DATA (Top 10)
-            const topPlayers = [
-                { rank: 1, name: "Rahul", amount: 25400, img: "youth-earners-logo.png" },
-                { rank: 2, name: "Aman", amount: 18200, img: "youth-earners-logo.png" },
-                { rank: 3, name: "Vikash", amount: 14800, img: "youth-earners-logo.png" },
-                { rank: 4, name: "Karan Bhai", amount: 12500, img: "youth-earners-logo.png" },
-                { rank: 5, name: "Sonu", amount: 9200, img: "youth-earners-logo.png" },
-                { rank: 6, name: "Ravi Pathan", amount: 8400, img: "youth-earners-logo.png" },
-                { rank: 7, name: "Monu", amount: 7100, img: "youth-earners-logo.png" },
-                { rank: 8, name: "Deepak", amount: 6900, img: "youth-earners-logo.png" },
-                { rank: 9, name: "Ajay", amount: 5200, img: "youth-earners-logo.png" },
-                { rank: 10, name: "Vijay", amount: 4100, img: "youth-earners-logo.png" }
-            ];
+            // ==========================================
+            // REAL LEADERBOARD LOGIC & STATES
+            // ==========================================
+            const [topPlayers, setTopPlayers] = useState([
+                { rank: 1, name: "Loading...", amount: 0, img: "youth-earners-logo.png" },
+                { rank: 2, name: "Loading...", amount: 0, img: "youth-earners-logo.png" },
+                { rank: 3, name: "Loading...", amount: 0, img: "youth-earners-logo.png" }
+            ]);
+            const [isLoadingLeaderboard, setIsLoadingLeaderboard] = useState(false);
 
+            useEffect(() => {
+                if (activeTab === 'leaderboard') {
+                    const fetchRealLeaderboard = async () => {
+                        setIsLoadingLeaderboard(true);
+                        try {
+                            // Firebase से सारे Users का डेटा ला रहे हैं
+                            const querySnapshot = await window.fs.getDocs(window.fs.collection(window.db, "users"));
+                            let playersData = [];
+                            
+                            querySnapshot.forEach((doc) => {
+                                const data = doc.data();
+                                playersData.push({
+                                    name: data.name || "Player",
+                                    amount: data.wallet || 0,
+                                    img: data.avatar || "youth-earners-logo.png"
+                                });
+                            });
+
+                            // ज्यादा पैसे वालों को ऊपर रखने के लिए Sort (Descending)
+                            playersData.sort((a, b) => b.amount - a.amount);
+
+                            // Top 10 निकालना और Rank देना
+                            playersData = playersData.slice(0, 10).map((p, index) => ({
+                                ...p,
+                                rank: index + 1
+                            }));
+
+                            // अगर Database में 3 से कम लोग हैं, तो UI खराब ना हो इसलिए डमी भर रहे हैं
+                            while (playersData.length < 3) {
+                                playersData.push({ rank: playersData.length + 1, name: "Waiting...", amount: 0, img: "youth-earners-logo.png" });
+                            }
+
+                            setTopPlayers(playersData);
+                        } catch (error) {
+                            console.error("Leaderboard Load Error:", error);
+                        }
+                        setIsLoadingLeaderboard(false);
+                    };
+                    fetchRealLeaderboard();
+                }
+            }, [activeTab]);
+
+            // ==========================================
+            // DATABASE PROFILE SYNC LOGIC
+            // ==========================================
             useEffect(() => {
                 const handleGameStart = (e) => {
                     const data = e.detail;
                     if(data) {
-                        // We strictly DO NOT override name and avatar if they exist in state/local storage
-                        setUserProfile(prev => ({ 
-                            ...prev, 
-                            number: data.number || prev.number
-                        }));
+                        setUserProfile(prev => ({ ...prev, number: data.number || prev.number }));
                         if(data.wallet !== undefined) setWallet(data.wallet);
                     }
                 };
@@ -117,12 +154,24 @@
                 return () => window.removeEventListener('gameStart', handleGameStart);
             }, []);
 
-            // AUTO-SAVE NAME TO LOCAL STORAGE
-            useEffect(() => {
-                localStorage.setItem('userName', userProfile.name);
-            }, [userProfile.name]);
+            const syncProfileToDatabase = async (updateData) => {
+                if (window.auth && window.auth.currentUser) {
+                    try {
+                        await window.fs.updateDoc(window.fs.doc(window.db, "users", window.auth.currentUser.uid), updateData);
+                    } catch (e) { console.log("DB Sync error", e); }
+                }
+            };
 
-            // AUTO-SAVE IMAGE TO LOCAL STORAGE
+            const handleNameUpdate = (e) => {
+                setUserProfile({...userProfile, name: e.target.value});
+            };
+
+            // जब यूज़र नाम टाइप करके बाहर क्लिक करेगा, तब सेव होगा
+            const handleNameBlur = () => {
+                localStorage.setItem('userName', userProfile.name);
+                syncProfileToDatabase({ name: userProfile.name });
+            };
+
             const handleImageUpload = (e) => { 
                 const file = e.target.files[0]; 
                 if (file) { 
@@ -131,6 +180,7 @@
                         const base64String = reader.result;
                         localStorage.setItem('userAvatar', base64String); 
                         setUserProfile(prev => ({ ...prev, avatar: base64String }));
+                        syncProfileToDatabase({ avatar: base64String }); // Photo Firebase में भी जाएगी
                     };
                     reader.readAsDataURL(file);
                 } 
@@ -176,7 +226,6 @@
                 setRoomId(null);
             };
 
-            // ---- REALTIME LISTENER FOR ROOM (UNTOUCHED) ----
             useEffect(() => {
                 if (!roomId) return;
                 const unsub = window.fs.onSnapshot(window.fs.doc(window.db, "rooms", roomId), async (doc) => {
@@ -206,8 +255,17 @@
                         
                         if(isWinner === true) {
                             let winnings = data.tier * 1.8;
+                            
+                            // User का वॉलेट अपडेट
                             setWallet(prev => prev + winnings);
                             setWithdrawable(prev => prev + winnings);
+                            
+                            // डेटाबेस में वॉलेट अपडेट
+                            if(window.auth.currentUser) {
+                                window.fs.updateDoc(window.fs.doc(window.db, "users", window.auth.currentUser.uid), {
+                                    wallet: wallet + winnings // Sync
+                                });
+                            }
                             setShowWinPopup(winnings); 
                         } else if(isWinner === 'draw') {
                             setWallet(prev => prev + data.tier);
@@ -240,7 +298,7 @@
                     }
                 });
                 return () => unsub();
-            }, [roomId, matchFound, playerRole]);
+            }, [roomId, matchFound, playerRole, wallet]);
 
             useEffect(() => {
                 let timer;
@@ -297,7 +355,6 @@
                     setWithdrawModal(false); setWithdrawId(''); setWithdrawAmount('');
                 } catch(e) { alert("Error submitting request!"); }
             };
-
 
             // ---------------- MATCHMAKING & IN-GAME UI ---------------- //
             if (isMatchmaking) {
@@ -390,10 +447,9 @@
             return (
                 <div className="max-w-md mx-auto bg-transparent min-h-screen relative pb-24">
                     
-                    {/* NEW MZ-STYLE HEADER (RED AREA DESIGN FROM IMAGE 2) */}
+                    {/* MZ-STYLE HEADER */}
                     <div className="mz-style-header">
                         <div className="mz-header-left">
-                            {/* Shape fixed नहीं की है, Logo अपनी असली शेप (contain) में रहेगा */}
                             <img src="youth-earners-logo.png" alt="Logo" />
                         </div>
                         <div className="mz-header-center">
@@ -452,64 +508,70 @@
                             </div>
                         )}
 
-                        {/* LEADERBOARD TAB (NEW) */}
+                        {/* LEADERBOARD TAB (WITH REAL FIREBASE DATA) */}
                         {activeTab === 'leaderboard' && (
                             <div className="space-y-6 pt-2 pop-in">
                                 <h2 className="text-2xl font-black text-[#dcae45] text-center mb-6 tracking-widest uppercase"><i className="fa-solid fa-ranking-star"></i> Top Earners</h2>
                                 
-                                {/* TOP 3 PODIUM */}
-                                <div className="flex justify-center items-end gap-2 mb-8 mt-10">
-                                    {/* Rank 2 */}
-                                    <div className="flex flex-col items-center w-28">
-                                        <div className="relative">
-                                            <img src={topPlayers[1].img} className="w-16 h-16 rounded-full object-cover border-4 border-gray-400 p-0.5 bg-black z-10 relative" />
-                                            <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-gray-400 text-black text-xs font-black px-2 py-0.5 rounded-full z-20">#2</div>
-                                        </div>
-                                        <div className="bg-[#111] w-full pt-6 pb-2 rounded-t-lg mt-[-10px] border-t-2 border-gray-400 text-center flex flex-col">
-                                            <span className="text-xs font-bold truncate px-1 text-gray-300">{topPlayers[1].name}</span>
-                                            <span className="text-sm font-black text-[#ffe29a]">₹{topPlayers[1].amount}</span>
-                                        </div>
-                                    </div>
-
-                                    {/* Rank 1 */}
-                                    <div className="flex flex-col items-center w-32 relative z-20">
-                                        <div className="relative">
-                                            <i className="fa-solid fa-crown absolute -top-6 left-1/2 transform -translate-x-1/2 text-3xl text-[#dcae45] drop-shadow-[0_0_10px_rgba(220,174,69,0.8)] z-30"></i>
-                                            <img src={topPlayers[0].img} className="w-20 h-20 rounded-full object-cover border-4 border-[#dcae45] p-0.5 bg-black z-10 relative shadow-[0_0_15px_rgba(220,174,69,0.5)]" />
-                                            <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-[#dcae45] text-black text-sm font-black px-3 py-0.5 rounded-full z-20">#1</div>
-                                        </div>
-                                        <div className="bg-gradient-to-t from-[#221a08] to-[#111] w-full pt-8 pb-3 rounded-t-xl mt-[-15px] border-t-2 border-[#dcae45] text-center flex flex-col h-[100px] justify-start shadow-[0_-5px_15px_rgba(220,174,69,0.2)]">
-                                            <span className="text-sm font-black truncate px-1 text-white">{topPlayers[0].name}</span>
-                                            <span className="text-lg font-black text-[#ffe29a]">₹{topPlayers[0].amount}</span>
-                                        </div>
-                                    </div>
-
-                                    {/* Rank 3 */}
-                                    <div className="flex flex-col items-center w-28">
-                                        <div className="relative">
-                                            <img src={topPlayers[2].img} className="w-16 h-16 rounded-full object-cover border-4 border-[#cd7f32] p-0.5 bg-black z-10 relative" />
-                                            <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-[#cd7f32] text-black text-xs font-black px-2 py-0.5 rounded-full z-20">#3</div>
-                                        </div>
-                                        <div className="bg-[#111] w-full pt-6 pb-2 rounded-t-lg mt-[-10px] border-t-2 border-[#cd7f32] text-center flex flex-col h-[70px] justify-start">
-                                            <span className="text-xs font-bold truncate px-1 text-gray-300">{topPlayers[2].name}</span>
-                                            <span className="text-sm font-black text-[#ffe29a]">₹{topPlayers[2].amount}</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Ranks 4 to 10 List */}
-                                <div className="space-y-3 pb-8">
-                                    {topPlayers.slice(3).map((player) => (
-                                        <div key={player.rank} className="flex items-center justify-between bg-[#111] border border-gray-800 p-3 rounded-xl">
-                                            <div className="flex items-center gap-4">
-                                                <span className="font-black text-gray-500 w-6 text-center">#{player.rank}</span>
-                                                <img src={player.img} className="w-10 h-10 rounded-full object-cover border border-gray-600" />
-                                                <span className="font-bold text-gray-300">{player.name}</span>
+                                {isLoadingLeaderboard ? (
+                                    <div className="text-center text-[#dcae45] font-bold mt-10 animate-pulse">Loading Leaderboard...</div>
+                                ) : (
+                                    <>
+                                        {/* TOP 3 PODIUM */}
+                                        <div className="flex justify-center items-end gap-2 mb-8 mt-10">
+                                            {/* Rank 2 */}
+                                            <div className="flex flex-col items-center w-28">
+                                                <div className="relative">
+                                                    <img src={topPlayers[1].img} className="w-16 h-16 rounded-full object-cover border-4 border-gray-400 p-0.5 bg-black z-10 relative" />
+                                                    <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-gray-400 text-black text-xs font-black px-2 py-0.5 rounded-full z-20">#2</div>
+                                                </div>
+                                                <div className="bg-[#111] w-full pt-6 pb-2 rounded-t-lg mt-[-10px] border-t-2 border-gray-400 text-center flex flex-col">
+                                                    <span className="text-xs font-bold truncate px-1 text-gray-300">{topPlayers[1].name}</span>
+                                                    <span className="text-sm font-black text-[#ffe29a]">₹{topPlayers[1].amount}</span>
+                                                </div>
                                             </div>
-                                            <div className="font-black text-[#10b981]">₹{player.amount}</div>
+
+                                            {/* Rank 1 */}
+                                            <div className="flex flex-col items-center w-32 relative z-20">
+                                                <div className="relative">
+                                                    <i className="fa-solid fa-crown absolute -top-6 left-1/2 transform -translate-x-1/2 text-3xl text-[#dcae45] drop-shadow-[0_0_10px_rgba(220,174,69,0.8)] z-30"></i>
+                                                    <img src={topPlayers[0].img} className="w-20 h-20 rounded-full object-cover border-4 border-[#dcae45] p-0.5 bg-black z-10 relative shadow-[0_0_15px_rgba(220,174,69,0.5)]" />
+                                                    <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-[#dcae45] text-black text-sm font-black px-3 py-0.5 rounded-full z-20">#1</div>
+                                                </div>
+                                                <div className="bg-gradient-to-t from-[#221a08] to-[#111] w-full pt-8 pb-3 rounded-t-xl mt-[-15px] border-t-2 border-[#dcae45] text-center flex flex-col h-[100px] justify-start shadow-[0_-5px_15px_rgba(220,174,69,0.2)]">
+                                                    <span className="text-sm font-black truncate px-1 text-white">{topPlayers[0].name}</span>
+                                                    <span className="text-lg font-black text-[#ffe29a]">₹{topPlayers[0].amount}</span>
+                                                </div>
+                                            </div>
+
+                                            {/* Rank 3 */}
+                                            <div className="flex flex-col items-center w-28">
+                                                <div className="relative">
+                                                    <img src={topPlayers[2].img} className="w-16 h-16 rounded-full object-cover border-4 border-[#cd7f32] p-0.5 bg-black z-10 relative" />
+                                                    <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-[#cd7f32] text-black text-xs font-black px-2 py-0.5 rounded-full z-20">#3</div>
+                                                </div>
+                                                <div className="bg-[#111] w-full pt-6 pb-2 rounded-t-lg mt-[-10px] border-t-2 border-[#cd7f32] text-center flex flex-col h-[70px] justify-start">
+                                                    <span className="text-xs font-bold truncate px-1 text-gray-300">{topPlayers[2].name}</span>
+                                                    <span className="text-sm font-black text-[#ffe29a]">₹{topPlayers[2].amount}</span>
+                                                </div>
+                                            </div>
                                         </div>
-                                    ))}
-                                </div>
+
+                                        {/* Ranks 4 to 10 List */}
+                                        <div className="space-y-3 pb-8">
+                                            {topPlayers.slice(3).map((player) => (
+                                                <div key={player.rank} className="flex items-center justify-between bg-[#111] border border-gray-800 p-3 rounded-xl">
+                                                    <div className="flex items-center gap-4">
+                                                        <span className="font-black text-gray-500 w-6 text-center">#{player.rank}</span>
+                                                        <img src={player.img} className="w-10 h-10 rounded-full object-cover border border-gray-600" />
+                                                        <span className="font-bold text-gray-300">{player.name}</span>
+                                                    </div>
+                                                    <div className="font-black text-[#10b981]">₹{player.amount}</div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         )}
 
@@ -538,7 +600,7 @@
                             </div>
                         )}
 
-                        {/* PROFILE SECTION (Moved to Last, merged with Settings/About) */}
+                        {/* PROFILE SECTION */}
                         {activeTab === 'profile' && (
                             <div className="space-y-6 pt-4 pop-in">
                                 <div className="text-center relative bg-[#111] border border-[#dcae45]/40 p-6 rounded-3xl shadow-[0_0_20px_rgba(220,174,69,0.1)]">
@@ -548,25 +610,22 @@
                                         <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
                                     </div>
                                     <div>
-                                        <input type="text" value={userProfile.name} onChange={(e) => setUserProfile({...userProfile, name: e.target.value})} className="bg-transparent text-white text-2xl font-black text-center border-b-2 border-gray-700 focus:border-[#dcae45] focus:outline-none pb-1 w-full max-w-[200px]" placeholder="Your Name" />
+                                        {/* Added onBlur event to save name to database when user finishes typing */}
+                                        <input type="text" value={userProfile.name} onChange={handleNameUpdate} onBlur={handleNameBlur} className="bg-transparent text-white text-2xl font-black text-center border-b-2 border-gray-700 focus:border-[#dcae45] focus:outline-none pb-1 w-full max-w-[200px]" placeholder="Your Name" />
                                         <p className="text-[#dcae45] mt-3 tracking-widest font-bold text-sm bg-black inline-block px-4 py-1.5 rounded-full border border-[#dcae45]/30"><i className="fa-solid fa-phone text-xs mr-1"></i> +91 {userProfile.number}</p>
                                     </div>
                                 </div>
 
-                                {/* SETTINGS & ABOUT SECTION INCORPORATED HERE */}
                                 <div className="mt-8 space-y-3">
                                     <h3 className="text-gray-400 font-bold uppercase tracking-widest text-xs mb-4 pl-2">Settings & Info</h3>
-                                    
                                     <button onClick={() => alert("About Youth Earners")} className="w-full flex items-center justify-between bg-[#111] border border-gray-800 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors">
                                         <div className="flex items-center gap-4 text-gray-300 font-bold"><i className="fa-solid fa-circle-info text-[#dcae45] text-xl w-6"></i> About Us</div>
                                         <i className="fa-solid fa-chevron-right text-gray-600"></i>
                                     </button>
-                                    
                                     <button onClick={() => alert("Rules")} className="w-full flex items-center justify-between bg-[#111] border border-gray-800 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors">
                                         <div className="flex items-center gap-4 text-gray-300 font-bold"><i className="fa-solid fa-book text-[#dcae45] text-xl w-6"></i> Game Rules</div>
                                         <i className="fa-solid fa-chevron-right text-gray-600"></i>
                                     </button>
-                                    
                                     <button onClick={() => { localStorage.clear(); window.location.reload(); }} className="w-full flex items-center justify-between bg-black border border-red-900/50 p-4 rounded-xl mt-4">
                                         <div className="flex items-center gap-4 text-red-500 font-bold"><i className="fa-solid fa-right-from-bracket text-xl w-6"></i> Logout</div>
                                     </button>
@@ -604,25 +663,18 @@
                         </div>
                     )}
 
-                    {/* BOTTOM NAVIGATION (Updated Order) */}
+                    {/* BOTTOM NAVIGATION */}
                     <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-[#050505] border-t border-[#dcae45]/30 flex justify-between items-center h-[70px] px-6 z-50 rounded-t-3xl shadow-[0_-10px_25px_rgba(0,0,0,0.9)] backdrop-blur-md">
-                        {/* 1. HOME */}
                         <button onClick={()=>setActiveTab('home')} className={`flex flex-col items-center gap-1 w-10 ${activeTab==='home'?'text-[#ffe29a] drop-shadow-[0_0_8px_rgba(220,174,69,0.8)]':'text-gray-500'}`}><i className="fa-solid fa-house text-xl"></i><span className="text-[10px] font-bold">Home</span></button>
-                        
-                        {/* 2. LEADERBOARD (Replaced Profile) */}
                         <button onClick={()=>setActiveTab('leaderboard')} className={`flex flex-col items-center gap-1 w-12 ${activeTab==='leaderboard'?'text-[#ffe29a] drop-shadow-[0_0_8px_rgba(220,174,69,0.8)]':'text-gray-500'}`}><i className="fa-solid fa-ranking-star text-xl"></i><span className="text-[10px] font-bold">Ranking</span></button>
                         
-                        {/* 3. WALLET (Center) */}
                         <div className="relative -top-6">
                             <button onClick={()=>setActiveTab('wallet')} className={`w-16 h-16 rounded-full flex items-center justify-center border-4 border-[#050505] shadow-[0_0_20px_rgba(220,174,69,0.6)] transition-transform ${activeTab==='wallet'?'bg-gradient-to-b from-[#ffe29a] to-[#dcae45] text-black scale-105':'bg-[#111] text-[#dcae45]'}`}>
                                 <i className="fa-solid fa-wallet text-2xl"></i>
                             </button>
                         </div>
                         
-                        {/* 4. SUPPORT */}
                         <button onClick={() => alert('Support Chat')} className="flex flex-col items-center gap-1 w-10 text-gray-500"><i className="fa-solid fa-headset text-xl"></i><span className="text-[10px] font-bold">Support</span></button>
-                        
-                        {/* 5. PROFILE (Last, replaced About) */}
                         <button onClick={()=>setActiveTab('profile')} className={`flex flex-col items-center gap-1 w-10 ${activeTab==='profile'?'text-[#ffe29a] drop-shadow-[0_0_8px_rgba(220,174,69,0.8)]':'text-gray-500'}`}><i className="fa-solid fa-user text-xl"></i><span className="text-[10px] font-bold">Profile</span></button>
                     </div>
                 </div>
