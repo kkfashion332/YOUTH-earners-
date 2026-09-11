@@ -102,7 +102,6 @@
                     const fetchRealLeaderboard = async () => {
                         setIsLoadingLeaderboard(true);
                         try {
-                            // Firebase से सारे Users का डेटा ला रहे हैं
                             const querySnapshot = await window.fs.getDocs(window.fs.collection(window.db, "users"));
                             let playersData = [];
                             
@@ -115,16 +114,13 @@
                                 });
                             });
 
-                            // ज्यादा पैसे वालों को ऊपर रखने के लिए Sort (Descending)
                             playersData.sort((a, b) => b.amount - a.amount);
 
-                            // Top 10 निकालना और Rank देना
                             playersData = playersData.slice(0, 10).map((p, index) => ({
                                 ...p,
                                 rank: index + 1
                             }));
 
-                            // अगर Database में 3 से कम लोग हैं, तो UI खराब ना हो इसलिए डमी भर रहे हैं
                             while (playersData.length < 3) {
                                 playersData.push({ rank: playersData.length + 1, name: "Waiting...", amount: 0, img: "youth-earners-logo.png" });
                             }
@@ -166,7 +162,6 @@
                 setUserProfile({...userProfile, name: e.target.value});
             };
 
-            // जब यूज़र नाम टाइप करके बाहर क्लिक करेगा, तब सेव होगा
             const handleNameBlur = () => {
                 localStorage.setItem('userName', userProfile.name);
                 syncProfileToDatabase({ name: userProfile.name });
@@ -180,7 +175,7 @@
                         const base64String = reader.result;
                         localStorage.setItem('userAvatar', base64String); 
                         setUserProfile(prev => ({ ...prev, avatar: base64String }));
-                        syncProfileToDatabase({ avatar: base64String }); // Photo Firebase में भी जाएगी
+                        syncProfileToDatabase({ avatar: base64String }); 
                     };
                     reader.readAsDataURL(file);
                 } 
@@ -190,7 +185,7 @@
             const confirmPlay = async () => {
                 if (wallet < confirmPopup.entry) {
                     alert("Low Balance! Please deposit money to play.");
-                    setConfirmPopup(null); setActiveTab('wallet'); return;
+                    setConfirmPopup(null); setDepositModal(true); return;
                 }
                 const tier = confirmPopup;
                 setConfirmPopup(null);
@@ -255,15 +250,11 @@
                         
                         if(isWinner === true) {
                             let winnings = data.tier * 1.8;
-                            
-                            // User का वॉलेट अपडेट
                             setWallet(prev => prev + winnings);
                             setWithdrawable(prev => prev + winnings);
-                            
-                            // डेटाबेस में वॉलेट अपडेट
                             if(window.auth.currentUser) {
                                 window.fs.updateDoc(window.fs.doc(window.db, "users", window.auth.currentUser.uid), {
-                                    wallet: wallet + winnings // Sync
+                                    wallet: wallet + winnings 
                                 });
                             }
                             setShowWinPopup(winnings); 
@@ -470,23 +461,35 @@
                         {/* HOME TAB */}
                         {activeTab === 'home' && (
                             <div className="space-y-6 pop-in">
-                                <div className="w-full h-56 rounded-3xl bg-gradient-to-br from-[#111] via-[#1a1508] to-[#000] border border-[#dcae45]/40 p-6 flex flex-col justify-center items-start shadow-[0_4px_25px_rgba(220,174,69,0.2)] relative overflow-hidden">
-                                    <div className="absolute right-0 top-0 w-40 h-40 bg-[#dcae45] opacity-20 blur-3xl rounded-full"></div>
-                                    <i className="fa-solid fa-trophy text-9xl text-[#dcae45]/10 absolute -right-4 -bottom-4 transform rotate-12"></i>
-                                    <div className="relative z-10 w-full mt-4">
-                                        <h3 className="font-black text-4xl mb-2 text-white">Youth <span className="text-gold-gradient">Earner's</span></h3>
-                                        <p className="text-base font-bold text-gray-300 tracking-wide mb-8">Play & Win Real Cash!</p>
-                                        
-                                        <div className="flex items-center gap-3 text-xs font-bold text-[#ffe29a] tracking-wider uppercase border-t border-[#dcae45]/20 pt-4 w-[90%]">
-                                            <span><i className="fa-solid fa-shield-halved text-[#dcae45]"></i> Safe</span>
-                                            <span className="text-gray-600">|</span>
-                                            <span><i className="fa-solid fa-bolt text-[#dcae45]"></i> Fast</span>
-                                            <span className="text-gray-600">|</span>
-                                            <span><i className="fa-solid fa-star text-[#dcae45]"></i> Trusted</span>
+                                
+                                {/* NEW RECTANGULAR WALLET CARD (Replaced the Banner) */}
+                                <div className="bg-gradient-to-r from-[#111] to-[#0a0a0a] border border-[#dcae45]/40 rounded-2xl p-5 shadow-[0_4px_15px_rgba(220,174,69,0.15)] relative overflow-hidden">
+                                    {/* Accent Glow */}
+                                    <div className="absolute -right-10 -top-10 w-32 h-32 bg-[#dcae45] opacity-10 blur-3xl rounded-full"></div>
+                                    
+                                    {/* Balance Row */}
+                                    <div className="flex justify-between items-center relative z-10">
+                                        <div>
+                                            <p className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Total Balance</p>
+                                            <h2 className="text-3xl font-black text-white">₹{wallet.toFixed(2)}</h2>
                                         </div>
+                                        <div className="w-12 h-12 rounded-full bg-black border-2 border-[#dcae45] flex items-center justify-center shadow-[0_0_10px_rgba(220,174,69,0.3)]">
+                                            <i className="fa-solid fa-wallet text-[#dcae45] text-xl"></i>
+                                        </div>
+                                    </div>
+
+                                    {/* Action Buttons Row */}
+                                    <div className="flex gap-3 mt-5 relative z-10">
+                                        <button onClick={() => setDepositModal(true)} className="flex-1 bg-[#dcae45] text-black py-2.5 rounded-xl font-black text-sm tracking-wide shadow-[0_0_10px_rgba(220,174,69,0.3)] flex justify-center items-center gap-2 hover:bg-[#ffe29a] transition">
+                                            <i className="fa-solid fa-plus-circle"></i> Add Cash
+                                        </button>
+                                        <button onClick={() => setWithdrawModal(true)} className="flex-1 bg-transparent border border-[#dcae45] text-[#ffe29a] py-2.5 rounded-xl font-bold text-sm tracking-wide hover:bg-[#111] transition flex justify-center items-center gap-2">
+                                            <i className="fa-solid fa-building-columns"></i> Withdraw
+                                        </button>
                                     </div>
                                 </div>
 
+                                {/* PLAY MATCHES SECTION */}
                                 <div className="mt-8">
                                     <h3 className="font-bold mb-4 text-white text-lg flex items-center gap-2">
                                         <i className="fa-solid fa-users text-[#dcae45]"></i> Play with Real Players
@@ -508,7 +511,7 @@
                             </div>
                         )}
 
-                        {/* LEADERBOARD TAB (WITH REAL FIREBASE DATA) */}
+                        {/* LEADERBOARD TAB */}
                         {activeTab === 'leaderboard' && (
                             <div className="space-y-6 pt-2 pop-in">
                                 <h2 className="text-2xl font-black text-[#dcae45] text-center mb-6 tracking-widest uppercase"><i className="fa-solid fa-ranking-star"></i> Top Earners</h2>
@@ -517,9 +520,7 @@
                                     <div className="text-center text-[#dcae45] font-bold mt-10 animate-pulse">Loading Leaderboard...</div>
                                 ) : (
                                     <>
-                                        {/* TOP 3 PODIUM */}
                                         <div className="flex justify-center items-end gap-2 mb-8 mt-10">
-                                            {/* Rank 2 */}
                                             <div className="flex flex-col items-center w-28">
                                                 <div className="relative">
                                                     <img src={topPlayers[1].img} className="w-16 h-16 rounded-full object-cover border-4 border-gray-400 p-0.5 bg-black z-10 relative" />
@@ -531,7 +532,6 @@
                                                 </div>
                                             </div>
 
-                                            {/* Rank 1 */}
                                             <div className="flex flex-col items-center w-32 relative z-20">
                                                 <div className="relative">
                                                     <i className="fa-solid fa-crown absolute -top-6 left-1/2 transform -translate-x-1/2 text-3xl text-[#dcae45] drop-shadow-[0_0_10px_rgba(220,174,69,0.8)] z-30"></i>
@@ -544,7 +544,6 @@
                                                 </div>
                                             </div>
 
-                                            {/* Rank 3 */}
                                             <div className="flex flex-col items-center w-28">
                                                 <div className="relative">
                                                     <img src={topPlayers[2].img} className="w-16 h-16 rounded-full object-cover border-4 border-[#cd7f32] p-0.5 bg-black z-10 relative" />
@@ -557,7 +556,6 @@
                                             </div>
                                         </div>
 
-                                        {/* Ranks 4 to 10 List */}
                                         <div className="space-y-3 pb-8">
                                             {topPlayers.slice(3).map((player) => (
                                                 <div key={player.rank} className="flex items-center justify-between bg-[#111] border border-gray-800 p-3 rounded-xl">
@@ -575,7 +573,7 @@
                             </div>
                         )}
 
-                        {/* WALLET SECTION */}
+                        {/* WALLET TAB */}
                         {activeTab === 'wallet' && (
                             <div className="space-y-6 pt-2 pop-in">
                                 <h2 className="text-2xl font-bold text-[#dcae45] text-center mb-6"><i className="fa-solid fa-vault"></i> My Wallet</h2>
@@ -600,7 +598,7 @@
                             </div>
                         )}
 
-                        {/* PROFILE SECTION */}
+                        {/* PROFILE TAB */}
                         {activeTab === 'profile' && (
                             <div className="space-y-6 pt-4 pop-in">
                                 <div className="text-center relative bg-[#111] border border-[#dcae45]/40 p-6 rounded-3xl shadow-[0_0_20px_rgba(220,174,69,0.1)]">
@@ -610,7 +608,6 @@
                                         <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
                                     </div>
                                     <div>
-                                        {/* Added onBlur event to save name to database when user finishes typing */}
                                         <input type="text" value={userProfile.name} onChange={handleNameUpdate} onBlur={handleNameBlur} className="bg-transparent text-white text-2xl font-black text-center border-b-2 border-gray-700 focus:border-[#dcae45] focus:outline-none pb-1 w-full max-w-[200px]" placeholder="Your Name" />
                                         <p className="text-[#dcae45] mt-3 tracking-widest font-bold text-sm bg-black inline-block px-4 py-1.5 rounded-full border border-[#dcae45]/30"><i className="fa-solid fa-phone text-xs mr-1"></i> +91 {userProfile.number}</p>
                                     </div>
@@ -634,7 +631,57 @@
                         )}
                     </div>
 
-                    {/* CONFIRMATION MODAL */}
+                    {/* PAYMENT DEPOSIT MODAL */}
+                    {depositModal && (
+                        <div className="fixed inset-0 bg-black/90 z-[90] flex items-center justify-center p-4 backdrop-blur-sm pop-in">
+                            <div className="bg-[#111] border border-[#dcae45] w-full max-w-sm rounded-3xl p-6 shadow-[0_0_30px_rgba(220,174,69,0.2)]">
+                                <h3 className="text-xl font-bold text-[#ffe29a] mb-4 text-center">Deposit Money</h3>
+                                <div className="bg-white p-2 rounded-xl w-40 h-40 mx-auto mb-4">
+                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=youthearners@ybl&pn=YouthEarners" className="w-full h-full" alt="QR Code" />
+                                </div>
+                                <div className="text-center mb-6">
+                                    <p className="text-gray-400 text-xs mb-1">Scan QR or Pay to UPI ID</p>
+                                    <div className="flex items-center justify-center gap-2 text-white font-bold bg-black py-2 rounded-lg border border-gray-700">
+                                        youthearners@ybl <i className="fa-solid fa-copy text-[#dcae45] cursor-pointer" onClick={() => alert('Copied!')}></i>
+                                    </div>
+                                </div>
+                                <div className="space-y-3 mb-6">
+                                    <input type="number" placeholder="Enter Amount Paid (₹)" value={depositAmount} onChange={e=>setDepositAmount(e.target.value)} className="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none" />
+                                    <input type="text" placeholder="12-Digit UTR / Ref Number" value={utrInput} onChange={e=>setUtrInput(e.target.value)} className="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none" />
+                                </div>
+                                <div className="flex gap-3">
+                                    <button onClick={() => setDepositModal(false)} className="flex-1 border border-gray-600 py-3 rounded-xl font-bold text-gray-400">Cancel</button>
+                                    <button onClick={submitDepositRequest} className="flex-1 btn-play-gold py-3 rounded-xl font-bold">Submit Proof</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* PAYMENT WITHDRAW MODAL */}
+                    {withdrawModal && (
+                        <div className="fixed inset-0 bg-black/90 z-[90] flex items-center justify-center p-4 backdrop-blur-sm pop-in">
+                            <div className="bg-[#111] border border-[#dcae45] w-full max-w-sm rounded-3xl p-6 shadow-[0_0_30px_rgba(220,174,69,0.2)]">
+                                <h3 className="text-xl font-bold text-[#ffe29a] mb-2 text-center">Withdraw Money</h3>
+                                <p className="text-center text-gray-400 text-sm mb-6">Available: <span className="text-[#10b981] font-bold">₹{withdrawable.toFixed(2)}</span></p>
+                                
+                                <div className="flex gap-2 mb-4 bg-black p-1 rounded-xl border border-gray-800">
+                                    <button onClick={() => setWithdrawType('upi')} className={`flex-1 py-2 rounded-lg font-bold text-sm ${withdrawType==='upi'?'bg-[#dcae45] text-black':'text-gray-400'}`}>UPI ID</button>
+                                    <button onClick={() => setWithdrawType('number')} className={`flex-1 py-2 rounded-lg font-bold text-sm ${withdrawType==='number'?'bg-[#dcae45] text-black':'text-gray-400'}`}>Mobile No.</button>
+                                </div>
+                                
+                                <div className="space-y-3 mb-6">
+                                    <input type="text" placeholder={withdrawType==='upi'?"Enter UPI ID":"Enter Mobile Number"} value={withdrawId} onChange={e=>setWithdrawId(e.target.value)} className="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none" />
+                                    <input type="number" placeholder="Enter Amount to Withdraw" value={withdrawAmount} onChange={e=>setWithdrawAmount(e.target.value)} className="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none" />
+                                </div>
+                                <div className="flex gap-3">
+                                    <button onClick={() => setWithdrawModal(false)} className="flex-1 border border-gray-600 py-3 rounded-xl font-bold text-gray-400">Cancel</button>
+                                    <button onClick={submitWithdrawRequest} className="flex-1 btn-play-gold py-3 rounded-xl font-bold">Withdraw</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* CONFIRM MATCH MODAL */}
                     {confirmPopup && (
                         <div className="fixed inset-0 bg-black z-[80] flex flex-col items-center justify-center p-6 pop-in">
                             <div className="w-full max-w-sm flex flex-col gap-8">
@@ -659,6 +706,19 @@
                                     <button onClick={() => setConfirmPopup(null)} className="flex-1 bg-transparent border-2 border-gray-600 text-gray-300 py-4 rounded-2xl font-bold text-lg hover:bg-gray-800 transition">Cancel</button>
                                     <button onClick={confirmPlay} className="flex-1 btn-play-gold py-4 rounded-2xl font-black text-lg text-black uppercase tracking-wide">Play Now</button>
                                 </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* VICTORY POPUP */}
+                    {showWinPopup !== null && (
+                        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/90 backdrop-blur-md victory-anim px-4">
+                            <div className="bg-gradient-to-b from-[#1a1508] to-[#000] border-2 border-[#dcae45] p-8 rounded-3xl text-center shadow-[0_0_50px_rgba(220,174,69,0.5)] w-full max-w-sm">
+                                <i className="fa-solid fa-trophy text-8xl text-[#dcae45] mb-6 drop-shadow-[0_0_20px_#ffe29a]"></i>
+                                <h2 className="text-4xl font-black text-white mb-2 tracking-widest uppercase">YOU WIN!</h2>
+                                <p className="text-gray-400 mb-6 font-bold">Amount added to Winning Wallet</p>
+                                <div className="text-6xl font-black text-[#10b981] drop-shadow-[0_0_15px_#10b981] mb-10">+₹{showWinPopup}</div>
+                                <button onClick={() => setShowWinPopup(null)} className="btn-play-gold w-full py-4 rounded-full font-black text-black text-xl uppercase tracking-wider">Awesome!</button>
                             </div>
                         </div>
                     )}
