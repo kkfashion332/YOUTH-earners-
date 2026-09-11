@@ -2,73 +2,133 @@
 :root { 
     --black: #000000; 
     --dark: #0a0a0a;  
-    --gold: #ffcc00; 
+    --gold: #ffcc00; /* Neon Gold for Gaming Look */
     --gold-light: #ffe600; 
     --text: #f8fafc; 
 }
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Arial', sans-serif; }
-html, body { width: 100%; min-height: 100%; background: var(--black); color: var(--text); }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; min-height: 100%; background: var(--black); color: var(--text); font-family: 'Arial', sans-serif; }
 .hidden { display: none !important; }
 .hide-scrollbar::-webkit-scrollbar { display: none; }
 .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* Background & Header */
-.bg-premium-dark { background-color: var(--black); background-image: radial-gradient(circle at top, rgba(255, 204, 0, 0.1) 0%, transparent 50%); min-height: 100vh; }
-.curved-header { background: linear-gradient(180deg, #0a0a0a 0%, #000000 100%); border-bottom: 2px solid var(--gold); box-shadow: 0 4px 20px rgba(255, 204, 0, 0.2); position: relative; overflow: hidden; z-index: 10; }
-.curved-header::before { content: ""; position: absolute; top: 0; left: -10%; width: 30%; height: 100%; background: repeating-linear-gradient(45deg, var(--gold) 0px, var(--gold) 4px, transparent 4px, transparent 8px); opacity: 0.15; transform: skewX(-45deg); z-index: -1; }
+/* 1. Pure Gaming Dark Background */
+.bg-premium-dark {
+    background-color: var(--black);
+    background-image: radial-gradient(circle at top, rgba(255, 204, 0, 0.1) 0%, transparent 50%);
+    min-height: 100vh;
+}
 
-/* Base Cards */
-.gold-card { background: var(--dark); border: 1px solid var(--gold); box-shadow: 0 0 15px rgba(255, 204, 0, 0.15); border-radius: 12px; position: relative; overflow: hidden; transition: all 0.3s ease; }
-.gold-card:hover { border-color: var(--gold-light); box-shadow: 0 0 25px rgba(255, 204, 0, 0.4); }
-.gold-card::before { content: ''; position: absolute; top: 0; left: 0; width: 40px; height: 40px; background: linear-gradient(135deg, var(--gold) 45%, transparent 50%); z-index: 0; }
-.gold-card::after { content: ''; position: absolute; bottom: 0; right: 0; width: 30px; height: 30px; background: linear-gradient(315deg, var(--gold) 45%, transparent 50%); z-index: 0; }
-.gold-card > * { position: relative; z-index: 1; }
+/* 2. Sharp Gaming Header (No Curves, Diagonal Accents) */
+.curved-header {
+    background: linear-gradient(180deg, #0a0a0a 0%, #000000 100%);
+    border-bottom: 2px solid var(--gold);
+    box-shadow: 0 4px 20px rgba(255, 204, 0, 0.2);
+    /* Removed border-radius to match the sharp look in the image */
+    position: relative;
+    overflow: hidden;
+    z-index: 10;
+}
+/* Diagonal Stripes in Header Background */
+.curved-header::before {
+    content: "";
+    position: absolute;
+    top: 0; left: -10%;
+    width: 30%; height: 100%;
+    background: repeating-linear-gradient(45deg, var(--gold) 0px, var(--gold) 4px, transparent 4px, transparent 8px);
+    opacity: 0.15;
+    transform: skewX(-45deg);
+    z-index: -1;
+}
 
-/* Buttons */
-.btn-play-gold { position: relative; overflow: hidden; background: var(--gold); color: #000; box-shadow: 0 4px 15px rgba(255, 204, 0, 0.4); border: none; font-weight: 900; z-index: 1; transition: 0.3s; text-transform: uppercase; }
-.btn-play-gold:hover { background: var(--gold-light); box-shadow: 0 4px 20px rgba(255, 204, 0, 0.6); }
+/* 3. Gaming Match Cards (Neon Borders + Diagonal Corners) */
+.gold-card { 
+    background: var(--dark); 
+    border: 1px solid var(--gold); 
+    box-shadow: 0 0 15px rgba(255, 204, 0, 0.15), inset 0 0 10px rgba(255, 204, 0, 0.05); 
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease; 
+}
+.gold-card:hover { 
+    border-color: var(--gold-light); 
+    box-shadow: 0 0 25px rgba(255, 204, 0, 0.4); 
+}
+/* Top-Left Diagonal Accent */
+.gold-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, var(--gold) 45%, transparent 50%);
+    z-index: 0;
+}
+/* Bottom-Right Diagonal Accent */
+.gold-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 30px; height: 30px;
+    background: linear-gradient(315deg, var(--gold) 45%, transparent 50%);
+    z-index: 0;
+}
+.gold-card > * { position: relative; z-index: 1; } /* Keeps content above accents */
+
+/* 4. Solid Neon Play Buttons */
+.btn-play-gold { 
+    position: relative;
+    overflow: hidden;
+    background: var(--gold); 
+    color: #000; 
+    box-shadow: 0 4px 15px rgba(255, 204, 0, 0.4); 
+    border: none; 
+    font-weight: 900;
+    z-index: 1;
+    transition: 0.3s; 
+}
+.btn-play-gold:hover { 
+    background: var(--gold-light);
+    box-shadow: 0 4px 20px rgba(255, 204, 0, 0.6); 
+}
 .btn-play-gold:active { transform: scale(0.95); }
-.btn-play-gold::before { content: ""; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0) 100%); transform: skewX(-25deg); animation: shineSweeper 3s infinite; z-index: -1; }
 
-/* XP & Progress Bars */
-.progress-bg { background: #222; border-radius: 10px; height: 12px; width: 100%; overflow: hidden; border: 1px solid #444; position: relative; }
-.progress-fill { background: linear-gradient(90deg, #dcae45, #ffcc00); height: 100%; border-radius: 10px; transition: width 0.5s ease; box-shadow: 0 0 10px rgba(255,204,0,0.5); }
+/* Shine Effect on Buttons */
+.btn-play-gold::before {
+    content: "";
+    position: absolute;
+    top: 0; left: -100%;
+    width: 50%; height: 100%;
+    background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0) 100%);
+    transform: skewX(-25deg);
+    animation: shineSweeper 3s infinite;
+    z-index: -1;
+}
 
-/* Leaderboard Podium */
-.podium-container { display: flex; align-items: flex-end; justify-content: center; gap: 10px; margin-top: 20px; padding-bottom: 20px; }
-.podium-item { display: flex; flex-direction: column; align-items: center; width: 30%; position: relative; }
-.podium-step { width: 100%; border-top-left-radius: 10px; border-top-right-radius: 10px; text-align: center; font-weight: 900; color: #000; padding-top: 5px; box-shadow: 0 -5px 15px rgba(0,0,0,0.5); }
-.step-1 { height: 120px; background: linear-gradient(180deg, #ffcc00, #b38f00); }
-.step-2 { height: 90px; background: linear-gradient(180deg, #e0e0e0, #888888); }
-.step-3 { height: 70px; background: linear-gradient(180deg, #cd7f32, #8b5a2b); }
-.podium-avatar { width: 50px; height: 50px; border-radius: 50%; border: 3px solid #000; margin-bottom: -15px; z-index: 2; background: #111; }
+/* Base Utility Classes */
+.text-gold-gradient {
+    color: var(--gold);
+    text-shadow: 0 0 10px rgba(255, 204, 0, 0.3);
+}
 
-/* Task & Achievement Cards */
-.task-card { background: #111; border: 1px solid #333; border-radius: 10px; padding: 12px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; transition: 0.3s; }
-.task-card:hover { border-color: var(--gold); }
-.task-completed { opacity: 0.6; border-color: #10b981; }
-.badge-item { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 10px; background: #111; border: 1px solid #333; border-radius: 10px; }
-.badge-locked { filter: grayscale(100%); opacity: 0.4; }
-
-/* Toast Notifications */
-.toast-container { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
-.toast { background: var(--dark); border: 1px solid var(--gold); color: #fff; padding: 12px 20px; border-radius: 8px; box-shadow: 0 5px 15px rgba(255,204,0,0.3); animation: slideDown 0.3s forwards; font-weight: bold; font-size: 14px; display: flex; align-items: center; gap: 10px; }
-@keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-
-/* Modals & Popups */
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 1000; display: flex; align-items: center; justify-content: center; }
-.level-up-anim { animation: levelUpPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-@keyframes levelUpPop { 0% { transform: scale(0.5) rotate(-10deg); opacity: 0; } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
-
-/* Utility & Auth */
-.text-gold-gradient { color: var(--gold); text-shadow: 0 0 10px rgba(255, 204, 0, 0.3); }
 .spin-slow { animation: spin 3s linear infinite; }
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 .pop-in { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
 @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-@keyframes shineSweeper { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
+
+/* Animations */
+@keyframes shineSweeper {
+    0% { left: -100%; }
+    20% { left: 200%; }
+    100% { left: 200%; }
+}
+.victory-anim { animation: victoryPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+@keyframes victoryPop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+/* Fixes & Spacing */
 .pb-24 { padding-bottom: 6.5rem; }
 
+/* Auth Forms */
 .auth-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at center, rgba(255,204,0,0.05), var(--black) 70%); padding: 20px; }
 .form-container { background: var(--dark); border: 2px solid var(--gold); border-radius: 15px; padding: 40px 30px; width: 100%; max-width: 400px; box-shadow: 0 0 25px rgba(255,204,0,0.15); text-align: center; }
 .auth-logo { width: 220px; margin: 0 auto 20px; mix-blend-mode: screen; }
@@ -81,6 +141,7 @@ html, body { width: 100%; min-height: 100%; background: var(--black); color: var
 .switch-form { margin-top: 20px; font-size: 14px; color: #94a3b8; }
 .switch-form span { color: var(--gold); cursor: pointer; font-weight: bold; text-decoration: underline; }
 
+/* Intro Animations */
 body.intro-running { overflow: hidden; }
 #logoIntro { position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #000; opacity: 1; transition: opacity 900ms ease; }
 #logoIntro::before { content: ""; position: absolute; width: 120vmin; height: 120vmin; border-radius: 50%; background: radial-gradient(circle, rgba(255,204,0,.1) 0%, transparent 50%); animation: glowPulse 4.5s ease-in-out infinite; }
