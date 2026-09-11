@@ -1,5 +1,6 @@
+// 'import' हमेशा small letters में होता है
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs, addDoc, updateDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -15,6 +16,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// React के इस्तेमाल के लिए Global Variables
 window.db = db;
 window.auth = auth;
 window.fs = { doc, setDoc, getDoc, collection, query, where, getDocs, addDoc, updateDoc, onSnapshot, deleteDoc };
@@ -80,7 +82,7 @@ registerForm.addEventListener('submit', async (e) => {
         regBtn.innerText = "Registering..."; regBtn.disabled = true;
         const userCredential = await createUserWithEmailAndPassword(auth, dummyEmail, password);
         const user = userCredential.user;
-        const userData = { uid: user.uid, name: name, number: number, wallet: 50 }; 
+        const userData = { uid: user.uid, name: name, number: number, wallet: 50 }; // Bonus ₹50
         await setDoc(doc(db, "users", user.uid), userData);
         alert("Registration Successful! Bonus ₹50 added.");
         regBtn.innerText = "Register"; regBtn.disabled = false;
