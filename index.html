@@ -105,7 +105,7 @@
                         osc.connect(gain);
                         gain.connect(audioCtx.destination);
                         osc.type = 'sine';
-                        osc.frequency.setValueAtTime(1200, audioCtx.currentTime); // High pitch tick
+                        osc.frequency.setValueAtTime(1200, audioCtx.currentTime); 
                         gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
                         osc.start();
                         gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.03);
@@ -209,7 +209,7 @@
             // LEADERBOARD (RANKING) FIX 
             // ==========================================
             useEffect(() => {
-                if (activeTab === 'ranking') { // Ensure this matches the button strictly
+                if (activeTab === 'ranking') { 
                     const fetchRealLeaderboard = async () => {
                         setIsLoadingLeaderboard(true);
                         try {
@@ -222,7 +222,6 @@
                             playersData.sort((a, b) => b.amount - a.amount);
                             playersData = playersData.slice(0, 10).map((p, index) => ({ ...p, rank: index + 1 }));
                             
-                            // Prevent Crash if DB is empty
                             let padData = [...playersData];
                             while (padData.length < 3) {
                                 padData.push({ rank: padData.length + 1, name: "Waiting...", amount: 0, img: "youth-earners-logo.png" });
@@ -383,11 +382,20 @@
                 await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomId), { [playerRole === 1 ? 'p1Bid' : 'p2Bid']: b });
             };
 
+            // ==========================================
+            // DEPOSIT SUBMIT (WITH MINIMUM ₹10 LIMIT)
+            // ==========================================
             const submitDepositRequest = async () => {
                 if(!utrInput || !depositAmount) return alert("Fill all details!");
+                
+                // MINIMUM ₹10 DEPOSIT VALIDATION
+                if(Number(depositAmount) < 10) {
+                    return alert("Minimum deposit amount is ₹10!");
+                }
+
                 try {
                     await window.fs.addDoc(window.fs.collection(window.db, "deposits"), {
-                        uid: window.auth.currentUser.uid, name: userProfile.name, utr: utrInput, amount: depositAmount, status: 'pending', date: new Date()
+                        uid: window.auth.currentUser.uid, name: userProfile.name, utr: utrInput, amount: Number(depositAmount), status: 'pending', date: new Date()
                     });
                     alert("Deposit proof sent to Admin! Wallet will be updated soon.");
                     setDepositModal(false); setUtrInput(''); setDepositAmount('');
@@ -555,7 +563,7 @@
                             </div>
                         )}
 
-                        {/* RANKING (LEADERBOARD) TAB FIX */}
+                        {/* RANKING TAB */}
                         {activeTab === 'ranking' && (
                             <div className="space-y-6 pt-2 pop-in">
                                 <h2 className="text-2xl font-black text-[#dcae45] text-center mb-6 tracking-widest uppercase"><i className="fa-solid fa-ranking-star"></i> Top Earners</h2>
@@ -616,7 +624,7 @@
                             </div>
                         )}
 
-                        {/* WALLET TAB WITH HISTORY (No Red Area) */}
+                        {/* WALLET TAB WITH HISTORY */}
                         {activeTab === 'wallet' && (
                             <div className="space-y-6 pt-2 pop-in">
                                 <div className="bg-gradient-to-br from-[#1a1a1a] to-[#000] p-6 rounded-3xl border border-[#dcae45]/40 shadow-[0_10px_30px_rgba(220,174,69,0.15)] relative overflow-hidden mt-4">
@@ -637,7 +645,6 @@
                                     <button onClick={() => setWithdrawModal(true)} className="flex-1 bg-transparent border-2 border-[#dcae45] py-4 rounded-2xl font-bold text-lg text-[#ffe29a] hover:bg-[#111] transition-colors"><i className="fa-solid fa-building-columns"></i> Withdraw</button>
                                 </div>
 
-                                {/* NEW: DEPOSIT & WITHDRAWAL HISTORY */}
                                 <div className="mt-8">
                                     <h3 className="text-[#dcae45] font-black uppercase tracking-widest text-sm mb-4"><i className="fa-solid fa-clock-rotate-left"></i> Transaction History</h3>
                                     <div className="bg-[#111] border border-gray-800 rounded-2xl p-4 space-y-4 max-h-[300px] overflow-y-auto hide-scrollbar">
@@ -669,7 +676,7 @@
                             </div>
                         )}
 
-                        {/* REFER & EARN TAB (With Rules) */}
+                        {/* REFER TAB */}
                         {activeTab === 'refer' && (
                             <div className="space-y-6 pt-4 pop-in">
                                 <div className="bg-[#111] border border-[#dcae45] w-full rounded-3xl p-6 shadow-[0_0_30px_rgba(220,174,69,0.2)] text-center relative overflow-hidden">
@@ -677,7 +684,6 @@
                                     <i className="fa-solid fa-gifts text-6xl text-[#dcae45] mb-4 drop-shadow-[0_0_15px_rgba(220,174,69,0.8)]"></i>
                                     <h3 className="text-3xl font-black text-[#ffe29a] mb-2 uppercase tracking-wider">Refer & Earn</h3>
                                     
-                                    {/* RULES IN RED TEXT */}
                                     <p className="text-gray-300 text-sm mb-2 font-bold">Invite friends & earn ₹10 Bonus!</p>
                                     <p className="text-red-500 font-bold text-xs mb-6 px-2 border border-red-500/30 bg-red-500/10 py-2 rounded-lg">
                                         * You will get ₹10 Bonus ONLY when your referred friend makes a minimum deposit of ₹30!
@@ -695,7 +701,7 @@
                             </div>
                         )}
 
-                        {/* PROFILE TAB (With Name Edit Fix & Support Moved Here) */}
+                        {/* PROFILE TAB (With Name Edit & Support Moved Here) */}
                         {activeTab === 'profile' && (
                             <div className="space-y-6 pt-4 pop-in">
                                 <div className="text-center relative bg-[#111] border border-[#dcae45]/40 p-6 rounded-3xl shadow-[0_0_20px_rgba(220,174,69,0.1)]">
@@ -705,7 +711,6 @@
                                         <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
                                     </div>
                                     
-                                    {/* NAME EDIT LOGIC */}
                                     <div className="mt-2 h-10">
                                         {isEditingName ? (
                                             <div className="flex items-center justify-center gap-3">
@@ -725,7 +730,6 @@
                                 <div className="mt-8 space-y-3">
                                     <h3 className="text-gray-400 font-bold uppercase tracking-widest text-xs mb-4 pl-2">Settings & Info</h3>
                                     
-                                    {/* SUPPORT MOVED TO PROFILE */}
                                     <button onClick={() => alert("Support Chat Opening...")} className="w-full flex items-center justify-between bg-[#111] border border-gray-800 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors">
                                         <div className="flex items-center gap-4 text-gray-300 font-bold"><i className="fa-solid fa-headset text-[#dcae45] text-xl w-6"></i> Support Chat</div>
                                         <i className="fa-solid fa-chevron-right text-gray-600"></i>
@@ -747,7 +751,7 @@
                         )}
                     </div>
 
-                    {/* MODALS (Deposit, Withdraw, Confirm Match, Win Popup - All Untouched and working perfect) */}
+                    {/* PAYMENT DEPOSIT MODAL */}
                     {depositModal && (
                         <div className="fixed inset-0 bg-black/90 z-[90] flex items-center justify-center p-4 backdrop-blur-sm pop-in">
                             <div className="bg-[#111] border border-[#dcae45] w-full max-w-sm rounded-3xl p-6 shadow-[0_0_30px_rgba(220,174,69,0.2)]">
@@ -762,7 +766,8 @@
                                     </div>
                                 </div>
                                 <div className="space-y-3 mb-6">
-                                    <input type="number" placeholder="Enter Amount Paid (₹)" value={depositAmount} onChange={e=>setDepositAmount(e.target.value)} className="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none" />
+                                    {/* MINIMUM 10 LOGIC UI */}
+                                    <input type="number" placeholder="Enter Amount Paid (Min: ₹10)" value={depositAmount} onChange={e=>setDepositAmount(e.target.value)} className="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none" min="10" />
                                     <input type="text" placeholder="12-Digit UTR / Ref Number" value={utrInput} onChange={e=>setUtrInput(e.target.value)} className="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none" />
                                 </div>
                                 <div className="flex gap-3">
@@ -773,6 +778,7 @@
                         </div>
                     )}
 
+                    {/* PAYMENT WITHDRAW MODAL */}
                     {withdrawModal && (
                         <div className="fixed inset-0 bg-black/90 z-[90] flex items-center justify-center p-4 backdrop-blur-sm pop-in">
                             <div className="bg-[#111] border border-[#dcae45] w-full max-w-sm rounded-3xl p-6 shadow-[0_0_30px_rgba(220,174,69,0.2)]">
@@ -794,6 +800,7 @@
                         </div>
                     )}
 
+                    {/* CONFIRM MATCH MODAL */}
                     {confirmPopup && (
                         <div className="fixed inset-0 bg-black z-[80] flex flex-col items-center justify-center p-6 pop-in">
                             <div className="w-full max-w-sm flex flex-col gap-8">
@@ -814,6 +821,7 @@
                         </div>
                     )}
 
+                    {/* VICTORY POPUP */}
                     {showWinPopup !== null && (
                         <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/90 backdrop-blur-md victory-anim px-4">
                             <div className="bg-gradient-to-b from-[#1a1508] to-[#000] border-2 border-[#dcae45] p-8 rounded-3xl text-center shadow-[0_0_50px_rgba(220,174,69,0.5)] w-full max-w-sm">
@@ -826,7 +834,7 @@
                         </div>
                     )}
 
-                    {/* BOTTOM NAVIGATION WITH RANKING FIX & REFER TAB */}
+                    {/* BOTTOM NAVIGATION */}
                     <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-[#050505] border-t border-[#dcae45]/30 flex justify-between items-center h-[70px] px-6 z-50 rounded-t-3xl shadow-[0_-10px_25px_rgba(0,0,0,0.9)] backdrop-blur-md">
                         <button onClick={()=>setActiveTab('home')} className={`flex flex-col items-center gap-1 w-10 ${activeTab==='home'?'text-[#ffe29a] drop-shadow-[0_0_8px_rgba(220,174,69,0.8)]':'text-gray-500'}`}><i className="fa-solid fa-house text-xl"></i><span className="text-[10px] font-bold">Home</span></button>
                         <button onClick={()=>setActiveTab('ranking')} className={`flex flex-col items-center gap-1 w-12 ${activeTab==='ranking'?'text-[#ffe29a] drop-shadow-[0_0_8px_rgba(220,174,69,0.8)]':'text-gray-500'}`}><i className="fa-solid fa-ranking-star text-xl"></i><span className="text-[10px] font-bold">Ranking</span></button>
