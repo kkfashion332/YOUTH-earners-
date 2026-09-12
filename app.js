@@ -1,4 +1,3 @@
-// 'import' हमेशा small letters में होता है
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs, addDoc, updateDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
@@ -16,7 +15,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// React के इस्तेमाल के लिए Global Variables
 window.db = db;
 window.auth = auth;
 window.fs = { doc, setDoc, getDoc, collection, query, where, getDocs, addDoc, updateDoc, onSnapshot, deleteDoc };
@@ -75,6 +73,7 @@ registerForm.addEventListener('submit', async (e) => {
     const name = document.getElementById('regName').value;
     const number = document.getElementById('regNumber').value;
     const password = document.getElementById('regPassword').value;
+    const referral = document.getElementById('regReferral').value;
     const regBtn = document.getElementById('regBtn');
     
     const dummyEmail = number + "@youthearners.com"; 
@@ -82,8 +81,10 @@ registerForm.addEventListener('submit', async (e) => {
         regBtn.innerText = "Registering..."; regBtn.disabled = true;
         const userCredential = await createUserWithEmailAndPassword(auth, dummyEmail, password);
         const user = userCredential.user;
-        const userData = { uid: user.uid, name: name, number: number, wallet: 50 }; // Bonus ₹50
+        
+        const userData = { uid: user.uid, name: name, number: number, wallet: 50, referralUsed: referral, avatar: 'youth-earners-logo.png' }; 
         await setDoc(doc(db, "users", user.uid), userData);
+        
         alert("Registration Successful! Bonus ₹50 added.");
         regBtn.innerText = "Register"; regBtn.disabled = false;
         launchGame(userData);
