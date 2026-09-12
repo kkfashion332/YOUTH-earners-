@@ -18,13 +18,13 @@ html, body { width: 100%; min-height: 100%; background: var(--black); color: var
 }
 
 /* ==============================================================
-   NEW MZ-FASHION STYLE HEADER (IMAGE 2 DESIGN RED AREA)
+   NEW MZ-FASHION STYLE HEADER
    ============================================================== */
 .mz-style-header {
     background: linear-gradient(180deg, #111111 0%, #000000 100%);
-    border-bottom-left-radius: 25px; /* Curved Bottom */
+    border-bottom-left-radius: 25px; 
     border-bottom-right-radius: 25px;
-    border-bottom: 1.5px solid var(--gold); /* Gold glowing line */
+    border-bottom: 1.5px solid var(--gold); 
     box-shadow: 0 4px 20px rgba(255, 204, 0, 0.15);
     padding: 12px 20px;
     display: flex;
@@ -39,12 +39,11 @@ html, body { width: 100%; min-height: 100%; background: var(--black); color: var
     display: flex;
     align-items: center;
     justify-content: center;
-    /* Removed border-radius so logo takes its natural shape */
 }
 .mz-header-left img {
     max-width: 100%;
     max-height: 100%;
-    object-fit: contain; /* Keeps original aspect ratio */
+    object-fit: contain; 
 }
 .mz-header-center {
     text-align: center;
@@ -83,7 +82,7 @@ html, body { width: 100%; min-height: 100%; background: var(--black); color: var
     align-items: center;
 }
 
-/* 3. Gaming Match Cards (Neon Borders + Diagonal Corners) */
+/* 3. Gaming Match Cards */
 .gold-card { 
     background: var(--dark); 
     border: 1px solid var(--gold); 
@@ -104,7 +103,7 @@ html, body { width: 100%; min-height: 100%; background: var(--black); color: var
 /* 4. Solid Neon Play Buttons */
 .btn-play-gold { 
     position: relative; overflow: hidden; background: var(--gold); color: #000; 
-    box-shadow: 0 4px 15px rgba(255, 204, 0, 0.4); border: none; font-weight: 900; z-index: 1; transition: 0.3s; 
+    box-shadow: 0 4px 15px rgba(255, 204, 0, 0.4); border: none; font-weight: 900; z-index: 1; transition: 0.3s; cursor: pointer;
 }
 .btn-play-gold:hover { background: var(--gold-light); box-shadow: 0 4px 20px rgba(255, 204, 0, 0.6); }
 .btn-play-gold:active { transform: scale(0.95); }
@@ -124,6 +123,8 @@ html, body { width: 100%; min-height: 100%; background: var(--black); color: var
 
 /* Fixes & Spacing */
 .pb-24 { padding-bottom: 6.5rem; }
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
 /* Auth Forms */
 .auth-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at center, rgba(255,204,0,0.05), var(--black) 70%); padding: 20px; }
