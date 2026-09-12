@@ -87,13 +87,17 @@
             const [bidInput, setBidInput] = useState('');
             
             const fileInputRef = useRef(null);
-            const playTiers = [{ entry: 5, win: 9 }, { entry: 10, win: 18 }, { entry: 15, win: 27 }, { entry: 20, win: 36 }];
+            
+            // DYNAMIC MATCH TIERS STATE
+            const [playTiers, setPlayTiers] = useState([
+                { entry: 5, win: 9 }, { entry: 10, win: 18 }, { entry: 15, win: 27 }, { entry: 20, win: 36 }
+            ]);
 
             const [topPlayers, setTopPlayers] = useState([]);
             const [isLoadingLeaderboard, setIsLoadingLeaderboard] = useState(false);
             
             // History Modal State
-            const [historyView, setHistoryView] = useState(null); // 'deposit', 'withdraw', 'match'
+            const [historyView, setHistoryView] = useState(null); 
             const [depHistory, setDepHistory] = useState([]);
             const [withHistory, setWithHistory] = useState([]);
             const [matchHistory, setMatchHistory] = useState([]);
@@ -125,6 +129,29 @@
                 };
                 document.addEventListener('click', handleGlobalClick);
                 return () => document.removeEventListener('click', handleGlobalClick);
+            }, []);
+
+            // ==========================================
+            // LIVE MATCH TIERS FROM ADMIN
+            // ==========================================
+            useEffect(() => {
+                let unsubMatches = null;
+                const fetchLiveMatches = () => {
+                    if(!window.fs || !window.db) return;
+                    try {
+                        unsubMatches = window.fs.onSnapshot(window.fs.collection(window.db, "match_tiers"), (snap) => {
+                            let m = [];
+                            snap.forEach(doc => m.push({ id: doc.id, ...doc.data() }));
+                            if(m.length > 0) {
+                                m.sort((a,b) => a.entry - b.entry);
+                                setPlayTiers(m);
+                            }
+                        });
+                    } catch(e) { console.error("Error fetching live matches:", e); }
+                };
+                // Only start listening when auth is ready or wait a second
+                setTimeout(fetchLiveMatches, 1000);
+                return () => { if(unsubMatches) unsubMatches(); };
             }, []);
 
             // ==========================================
@@ -565,11 +592,13 @@
                                     <h3 className="font-bold mb-4 text-white text-lg flex items-center gap-2">
                                         <i className="fa-solid fa-users text-[#dcae45]"></i> Play with Real Players
                                     </h3>
+                                    
+                                    {/* LIVE DYNAMIC MATCH TIERS HERE */}
                                     <div className="grid grid-cols-2 gap-4">
-                                        {playTiers.map(tier => (
-                                            <div key={tier.entry} className="gold-card rounded-2xl p-4 flex flex-col items-center text-center relative overflow-hidden">
+                                        {playTiers.map((tier, index) => (
+                                            <div key={tier.id || index} className="gold-card rounded-2xl p-4 flex flex-col items-center text-center relative overflow-hidden">
                                                 <div className="bg-black border border-[#dcae45]/30 rounded-lg px-4 py-1.5 mb-3 shadow-[0_0_10px_rgba(0,0,0,0.8)]">
-                                                    <img src="youth-earners-logo.png" style={{mixBlendMode:'screen'}} className="h-6 w-auto opacity-90" alt="game-icon" />
+                                                    <img src={tier.logo || "youth-earners-logo.png"} style={{mixBlendMode:'screen'}} className="h-6 w-auto opacity-90" alt="game-icon" />
                                                 </div>
                                                 <div className="text-xs text-gray-400 mb-1">Entry: <span className="font-bold text-white text-base">₹{tier.entry}</span></div>
                                                 <div className="text-[22px] text-[#ffe29a] font-black mb-5 drop-shadow-[0_0_10px_rgba(220,174,69,0.5)] tracking-wide">WIN: ₹{tier.win}</div>
@@ -577,6 +606,7 @@
                                             </div>
                                         ))}
                                     </div>
+                                    
                                 </div>
                             </div>
                         )}
@@ -776,7 +806,7 @@
                             </div>
                         )}
 
-                        {/* PROFILE TAB (With Name Edit Fix & Support Moved Here) */}
+                        {/* PROFILE TAB */}
                         {activeTab === 'profile' && (
                             <div className="space-y-6 pt-4 pop-in">
                                 <div className="text-center relative bg-[#111] border border-[#dcae45]/40 p-6 rounded-3xl shadow-[0_0_20px_rgba(220,174,69,0.1)]">
@@ -786,7 +816,6 @@
                                         <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
                                     </div>
                                     
-                                    {/* NAME EDIT LOGIC */}
                                     <div className="mt-2 h-10 flex justify-center items-center">
                                         {isEditingName ? (
                                             <div className="flex items-center gap-3">
@@ -872,6 +901,7 @@
                         </div>
                     )}
 
+                    {/* CONFIRM MATCH MODAL */}
                     {confirmPopup && (
                         <div className="fixed inset-0 bg-black z-[80] flex flex-col items-center justify-center p-6 pop-in">
                             <div className="w-full max-w-sm flex flex-col gap-8">
@@ -892,6 +922,7 @@
                         </div>
                     )}
 
+                    {/* VICTORY POPUP */}
                     {showWinPopup !== null && (
                         <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/90 backdrop-blur-md victory-anim px-4">
                             <div className="bg-gradient-to-b from-[#1a1508] to-[#000] border-2 border-[#dcae45] p-8 rounded-3xl text-center shadow-[0_0_50px_rgba(220,174,69,0.5)] w-full max-w-sm">
