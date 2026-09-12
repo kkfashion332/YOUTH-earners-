@@ -53,7 +53,10 @@
             const [activeTab, setActiveTab] = useState('home'); 
             const [isPlaying, setIsPlaying] = useState(false); 
             
-            const [userProfile, setUserProfile] = useState({ name: 'Player', number: '9999999999', avatar: 'youth-earners-logo.png' });
+            const savedAvatar = localStorage.getItem('userAvatar') || 'youth-earners-logo.png';
+            const savedName = localStorage.getItem('userName') || 'Player';
+            
+            const [userProfile, setUserProfile] = useState({ name: savedName, number: '9999999999', avatar: savedAvatar });
             const [isEditingName, setIsEditingName] = useState(false);
             const [editNameInput, setEditNameInput] = useState('');
 
@@ -89,7 +92,11 @@
             const [topPlayers, setTopPlayers] = useState([]);
             const [isLoadingLeaderboard, setIsLoadingLeaderboard] = useState(false);
             
-            const [txHistory, setTxHistory] = useState([]);
+            // History Modal State
+            const [historyView, setHistoryView] = useState(null); // 'deposit', 'withdraw', 'match'
+            const [depHistory, setDepHistory] = useState([]);
+            const [withHistory, setWithHistory] = useState([]);
+            const [matchHistory, setMatchHistory] = useState([]);
 
             // ==========================================
             // GLOBAL TICK SOUND EFFECT (TICK TICK)
@@ -114,9 +121,7 @@
                 };
                 
                 const handleGlobalClick = (e) => {
-                    if(e.target.closest('button') || e.target.closest('i')) {
-                        playClickSound();
-                    }
+                    if(e.target.closest('button') || e.target.closest('i')) { playClickSound(); }
                 };
                 document.addEventListener('click', handleGlobalClick);
                 return () => document.removeEventListener('click', handleGlobalClick);
@@ -235,28 +240,48 @@
             }, [activeTab]);
 
             // ==========================================
-            // WALLET HISTORY FETCHING
+            // WALLET HISTORY FETCHING (DEPOSIT, WITHDRAW, MATCH)
             // ==========================================
             useEffect(() => {
                 if (activeTab === 'wallet' && window.auth && window.auth.currentUser) {
-                    const fetchHistory = async () => {
+                    const fetchAllHistory = async () => {
+                        const uid = window.auth.currentUser.uid;
                         try {
-                            let history = [];
-                            const depQ = window.fs.query(window.fs.collection(window.db, "deposits"), window.fs.where("uid", "==", window.auth.currentUser.uid));
-                            const depSnap = await window.fs.getDocs(depQ);
-                            depSnap.forEach(doc => history.push({ ...doc.data(), txType: 'Deposit' }));
+                            const dQ = window.fs.query(window.fs.collection(window.db, "deposits"), window.fs.where("uid", "==", uid));
+                            const dSnap = await window.fs.getDocs(dQ);
+                            let dData = []; dSnap.forEach(d => dData.push(d.data()));
+                            dData.sort((a,b) => b.date?.toDate() - a.date?.toDate());
+                            setDepHistory(dData);
 
-                            const withQ = window.fs.query(window.fs.collection(window.db, "withdrawals"), window.fs.where("uid", "==", window.auth.currentUser.uid));
-                            const withSnap = await window.fs.getDocs(withQ);
-                            withSnap.forEach(doc => history.push({ ...doc.data(), txType: 'Withdrawal' }));
+                            const wQ = window.fs.query(window.fs.collection(window.db, "withdrawals"), window.fs.where("uid", "==", uid));
+                            const wSnap = await window.fs.getDocs(wQ);
+                            let wData = []; wSnap.forEach(w => wData.push(w.data()));
+                            wData.sort((a,b) => b.date?.toDate() - a.date?.toDate());
+                            setWithHistory(wData);
 
-                            history.sort((a, b) => b.date?.toDate() - a.date?.toDate());
-                            setTxHistory(history);
+                            const mQ1 = window.fs.query(window.fs.collection(window.db, "rooms"), window.fs.where("p1.uid", "==", uid), window.fs.where("status", "==", "finished"));
+                            const mQ2 = window.fs.query(window.fs.collection(window.db, "rooms"), window.fs.where("p2.uid", "==", uid), window.fs.where("status", "==", "finished"));
+                            const [mSnap1, mSnap2] = await Promise.all([window.fs.getDocs(mQ1), window.fs.getDocs(mQ2)]);
+                            let mData = [];
+                            mSnap1.forEach(m => mData.push({...m.data(), id: m.id}));
+                            mSnap2.forEach(m => mData.push({...m.data(), id: m.id}));
+                            
+                            const uniqueMData = Array.from(new Set(mData.map(a => a.id))).map(id => mData.find(a => a.id === id));
+                            const processedMatches = uniqueMData.map(match => {
+                                const isP1 = match.p1.uid === uid;
+                                let isWinner = false;
+                                if(match.p1Wins > match.p2Wins || (match.p1Wins === match.p2Wins && match.p1Tokens > match.p2Tokens)) { isWinner = isP1; } 
+                                else if(match.p2Wins > match.p1Wins || (match.p2Wins === match.p1Wins && match.p2Tokens > match.p1Tokens)) { isWinner = !isP1; } 
+                                else { isWinner = 'draw'; }
+                                return { ...match, isWinner, date: match.createdAt || new Date() };
+                            });
+                            processedMatches.sort((a,b) => b.date?.toDate ? b.date.toDate() - a.date.toDate() : 0);
+                            setMatchHistory(processedMatches);
                         } catch(e) { console.error("Error fetching history", e); }
                     };
-                    fetchHistory();
+                    fetchAllHistory();
                 }
-            }, [activeTab]);
+            }, [activeTab, historyView]); // Re-fetch when entering wallet or closing a view
 
             // ---- FIREBASE MATCHMAKING LOGIC ----
             const confirmPlay = async () => {
@@ -283,7 +308,8 @@
                         const docRef = await window.fs.addDoc(window.fs.collection(window.db, "rooms"), {
                             tier: tier.entry, status: 'waiting',
                             p1: { uid: window.auth.currentUser.uid, name: userProfile.name, img: userProfile.avatar },
-                            p1Bid: null, p2Bid: null, round: 1, p1Tokens: 500, p2Tokens: 500, p1Wins: 0, p2Wins: 0, lastResult: null
+                            p1Bid: null, p2Bid: null, round: 1, p1Tokens: 500, p2Tokens: 500, p1Wins: 0, p2Wins: 0, lastResult: null,
+                            createdAt: new Date() // Added date for history sorting
                         });
                         setRoomId(docRef.id); setPlayerRole(1);
                     }
@@ -382,17 +408,9 @@
                 await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomId), { [playerRole === 1 ? 'p1Bid' : 'p2Bid']: b });
             };
 
-            // ==========================================
-            // DEPOSIT SUBMIT (WITH MINIMUM ₹10 LIMIT)
-            // ==========================================
             const submitDepositRequest = async () => {
                 if(!utrInput || !depositAmount) return alert("Fill all details!");
-                
-                // MINIMUM ₹10 DEPOSIT VALIDATION
-                if(Number(depositAmount) < 10) {
-                    return alert("Minimum deposit amount is ₹10!");
-                }
-
+                if(Number(depositAmount) < 10) return alert("Minimum deposit amount is ₹10!");
                 try {
                     await window.fs.addDoc(window.fs.collection(window.db, "deposits"), {
                         uid: window.auth.currentUser.uid, name: userProfile.name, utr: utrInput, amount: Number(depositAmount), status: 'pending', date: new Date()
@@ -624,8 +642,8 @@
                             </div>
                         )}
 
-                        {/* WALLET TAB WITH HISTORY */}
-                        {activeTab === 'wallet' && (
+                        {/* WALLET TAB WITH VERTICAL HISTORY OPTIONS */}
+                        {activeTab === 'wallet' && !historyView && (
                             <div className="space-y-6 pt-2 pop-in">
                                 <div className="bg-gradient-to-br from-[#1a1a1a] to-[#000] p-6 rounded-3xl border border-[#dcae45]/40 shadow-[0_10px_30px_rgba(220,174,69,0.15)] relative overflow-hidden mt-4">
                                     <div className="text-gray-400 text-sm font-semibold uppercase tracking-widest">Total Balance</div>
@@ -645,33 +663,90 @@
                                     <button onClick={() => setWithdrawModal(true)} className="flex-1 bg-transparent border-2 border-[#dcae45] py-4 rounded-2xl font-bold text-lg text-[#ffe29a] hover:bg-[#111] transition-colors"><i className="fa-solid fa-building-columns"></i> Withdraw</button>
                                 </div>
 
-                                <div className="mt-8">
-                                    <h3 className="text-[#dcae45] font-black uppercase tracking-widest text-sm mb-4"><i className="fa-solid fa-clock-rotate-left"></i> Transaction History</h3>
-                                    <div className="bg-[#111] border border-gray-800 rounded-2xl p-4 space-y-4 max-h-[300px] overflow-y-auto hide-scrollbar">
-                                        {txHistory.length === 0 ? (
-                                            <p className="text-gray-500 text-center text-xs font-bold py-4">No recent transactions found.</p>
-                                        ) : (
-                                            txHistory.map((tx, idx) => (
-                                                <div key={idx} className="flex justify-between items-center border-b border-gray-800 pb-3 last:border-0 last:pb-0">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${tx.txType === 'Deposit' ? 'bg-[#10b981]/20 text-[#10b981]' : 'bg-rose-500/20 text-rose-500'}`}>
-                                                            <i className={`fa-solid ${tx.txType === 'Deposit' ? 'fa-arrow-down' : 'fa-arrow-up'}`}></i>
-                                                        </div>
-                                                        <div>
-                                                            <p className="text-sm font-bold text-gray-200">{tx.txType}</p>
-                                                            <p className="text-[10px] text-gray-500 font-bold uppercase">{tx.status}</p>
-                                                        </div>
-                                                    </div>
-                                                    <div className="text-right">
-                                                        <p className={`text-sm font-black ${tx.txType === 'Deposit' ? 'text-[#10b981]' : 'text-rose-500'}`}>
-                                                            {tx.txType === 'Deposit' ? '+' : '-'}₹{tx.amount}
-                                                        </p>
-                                                        <p className="text-[10px] text-gray-500">{tx.date ? new Date(tx.date.toDate()).toLocaleDateString() : 'Just now'}</p>
-                                                    </div>
+                                {/* VERTICAL HISTORY OPTIONS */}
+                                <div className="mt-8 space-y-3">
+                                    <button onClick={() => setHistoryView('deposit')} className="w-full flex items-center justify-between bg-[#111] border border-gray-800 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors">
+                                        <div className="flex items-center gap-4 text-gray-300 font-bold">
+                                            <div className="w-8 h-8 rounded-full bg-[#10b981]/10 text-[#10b981] flex items-center justify-center"><i className="fa-solid fa-arrow-down"></i></div>
+                                            Deposit History
+                                        </div>
+                                        <i className="fa-solid fa-chevron-right text-gray-600"></i>
+                                    </button>
+                                    <button onClick={() => setHistoryView('withdraw')} className="w-full flex items-center justify-between bg-[#111] border border-gray-800 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors">
+                                        <div className="flex items-center gap-4 text-gray-300 font-bold">
+                                            <div className="w-8 h-8 rounded-full bg-rose-500/10 text-rose-500 flex items-center justify-center"><i className="fa-solid fa-arrow-up"></i></div>
+                                            Withdrawal History
+                                        </div>
+                                        <i className="fa-solid fa-chevron-right text-gray-600"></i>
+                                    </button>
+                                    <button onClick={() => setHistoryView('match')} className="w-full flex items-center justify-between bg-[#111] border border-gray-800 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors">
+                                        <div className="flex items-center gap-4 text-gray-300 font-bold">
+                                            <div className="w-8 h-8 rounded-full bg-[#3b82f6]/10 text-[#3b82f6] flex items-center justify-center"><i className="fa-solid fa-gamepad"></i></div>
+                                            Match History
+                                        </div>
+                                        <i className="fa-solid fa-chevron-right text-gray-600"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* HISTORY MODAL VIEWS */}
+                        {activeTab === 'wallet' && historyView && (
+                            <div className="fixed inset-0 bg-[#050505] z-[80] flex flex-col pop-in pb-20 pt-4">
+                                <div className="flex items-center p-4 border-b border-[#dcae45]/30 bg-[#111]">
+                                    <button onClick={() => setHistoryView(null)} className="text-[#dcae45] text-xl px-2"><i className="fa-solid fa-arrow-left"></i></button>
+                                    <h2 className="text-xl font-black text-white ml-4 tracking-widest uppercase">
+                                        {historyView === 'deposit' ? 'Deposit History' : historyView === 'withdraw' ? 'Withdrawal History' : 'Match History'}
+                                    </h2>
+                                </div>
+                                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                                    {historyView === 'deposit' && depHistory.map((tx, idx) => (
+                                        <div key={idx} className="bg-[#111] border border-gray-800 p-4 rounded-xl">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <div>
+                                                    <span className="text-[#10b981] font-black text-lg">+₹{tx.amount}</span>
+                                                    <span className={`ml-3 text-[10px] font-bold uppercase px-2 py-1 rounded-full ${tx.status === 'pending' ? 'bg-yellow-500/20 text-yellow-500' : tx.status === 'approved' ? 'bg-[#10b981]/20 text-[#10b981]' : 'bg-red-500/20 text-red-500'}`}>{tx.status}</span>
                                                 </div>
-                                            ))
-                                        )}
-                                    </div>
+                                                <div className="text-[10px] text-gray-500 font-bold text-right">{tx.date ? new Date(tx.date.toDate()).toLocaleString() : 'N/A'}</div>
+                                            </div>
+                                            <div className="text-xs text-gray-400 font-bold">UTR: <span className="text-gray-200">{tx.utr}</span></div>
+                                        </div>
+                                    ))}
+                                    
+                                    {historyView === 'withdraw' && withHistory.map((tx, idx) => (
+                                        <div key={idx} className="bg-[#111] border border-gray-800 p-4 rounded-xl">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <div>
+                                                    <span className="text-rose-500 font-black text-lg">-₹{tx.amount}</span>
+                                                    <span className={`ml-3 text-[10px] font-bold uppercase px-2 py-1 rounded-full ${tx.status === 'pending' ? 'bg-yellow-500/20 text-yellow-500' : tx.status === 'approved' ? 'bg-[#10b981]/20 text-[#10b981]' : 'bg-red-500/20 text-red-500'}`}>{tx.status}</span>
+                                                </div>
+                                                <div className="text-[10px] text-gray-500 font-bold text-right">{tx.date ? new Date(tx.date.toDate()).toLocaleString() : 'N/A'}</div>
+                                            </div>
+                                            <div className="text-xs text-gray-400 font-bold uppercase">{tx.type}: <span className="text-gray-200">{tx.id}</span></div>
+                                        </div>
+                                    ))}
+                                    
+                                    {historyView === 'match' && matchHistory.map((match, idx) => (
+                                        <div key={idx} className={`bg-[#111] border border-gray-800 p-4 rounded-xl relative overflow-hidden`}>
+                                            <div className={`absolute top-0 left-0 w-1 h-full ${match.isWinner === true ? 'bg-[#10b981]' : match.isWinner === false ? 'bg-rose-500' : 'bg-gray-500'}`}></div>
+                                            <div className="flex justify-between items-center mb-2 pl-2">
+                                                <span className={`font-black uppercase text-lg ${match.isWinner === true ? 'text-[#10b981]' : match.isWinner === false ? 'text-rose-500' : 'text-gray-400'}`}>
+                                                    {match.isWinner === true ? 'VICTORY' : match.isWinner === false ? 'DEFEAT' : 'DRAW'}
+                                                </span>
+                                                <div className="text-[10px] text-gray-500 font-bold text-right">
+                                                    {match.date ? new Date(match.date.toDate ? match.date.toDate() : match.date).toLocaleString() : 'N/A'}
+                                                </div>
+                                            </div>
+                                            <div className="flex justify-between text-xs font-bold pl-2">
+                                                <span className="text-gray-400">Entry: <span className="text-white">₹{match.tier}</span></span>
+                                                <span className="text-gray-400">Win Amount: <span className="text-[#ffe29a]">₹{match.isWinner === true ? (match.tier * 1.8).toFixed(2) : '0'}</span></span>
+                                            </div>
+                                        </div>
+                                    ))}
+
+                                    {historyView === 'deposit' && depHistory.length === 0 && <div className="text-center text-gray-500 font-bold mt-10">No Deposit History Found.</div>}
+                                    {historyView === 'withdraw' && withHistory.length === 0 && <div className="text-center text-gray-500 font-bold mt-10">No Withdrawal History Found.</div>}
+                                    {historyView === 'match' && matchHistory.length === 0 && <div className="text-center text-gray-500 font-bold mt-10">No Match History Found.</div>}
                                 </div>
                             </div>
                         )}
@@ -701,7 +776,7 @@
                             </div>
                         )}
 
-                        {/* PROFILE TAB (With Name Edit & Support Moved Here) */}
+                        {/* PROFILE TAB (With Name Edit Fix & Support Moved Here) */}
                         {activeTab === 'profile' && (
                             <div className="space-y-6 pt-4 pop-in">
                                 <div className="text-center relative bg-[#111] border border-[#dcae45]/40 p-6 rounded-3xl shadow-[0_0_20px_rgba(220,174,69,0.1)]">
@@ -711,14 +786,15 @@
                                         <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
                                     </div>
                                     
-                                    <div className="mt-2 h-10">
+                                    {/* NAME EDIT LOGIC */}
+                                    <div className="mt-2 h-10 flex justify-center items-center">
                                         {isEditingName ? (
-                                            <div className="flex items-center justify-center gap-3">
+                                            <div className="flex items-center gap-3">
                                                 <input type="text" value={editNameInput} onChange={(e) => setEditNameInput(e.target.value)} className="bg-transparent text-white text-2xl font-black text-center border-b-2 border-[#dcae45] focus:outline-none w-[180px]" autoFocus />
                                                 <button onClick={saveProfileName} className="text-[#10b981] bg-[#10b981]/20 w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition"><i className="fa-solid fa-check"></i></button>
                                             </div>
                                         ) : (
-                                            <div className="flex items-center justify-center gap-3">
+                                            <div className="flex items-center gap-3">
                                                 <h2 className="text-2xl font-black text-white">{userProfile.name}</h2>
                                                 <button onClick={() => setIsEditingName(true)} className="text-gray-400 hover:text-[#dcae45] transition"><i className="fa-solid fa-pen"></i></button>
                                             </div>
@@ -729,12 +805,10 @@
 
                                 <div className="mt-8 space-y-3">
                                     <h3 className="text-gray-400 font-bold uppercase tracking-widest text-xs mb-4 pl-2">Settings & Info</h3>
-                                    
                                     <button onClick={() => alert("Support Chat Opening...")} className="w-full flex items-center justify-between bg-[#111] border border-gray-800 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors">
                                         <div className="flex items-center gap-4 text-gray-300 font-bold"><i className="fa-solid fa-headset text-[#dcae45] text-xl w-6"></i> Support Chat</div>
                                         <i className="fa-solid fa-chevron-right text-gray-600"></i>
                                     </button>
-
                                     <button onClick={() => alert("About Youth Earners")} className="w-full flex items-center justify-between bg-[#111] border border-gray-800 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors">
                                         <div className="flex items-center gap-4 text-gray-300 font-bold"><i className="fa-solid fa-circle-info text-[#dcae45] text-xl w-6"></i> About Us</div>
                                         <i className="fa-solid fa-chevron-right text-gray-600"></i>
@@ -751,7 +825,7 @@
                         )}
                     </div>
 
-                    {/* PAYMENT DEPOSIT MODAL */}
+                    {/* PAYMENT MODALS */}
                     {depositModal && (
                         <div className="fixed inset-0 bg-black/90 z-[90] flex items-center justify-center p-4 backdrop-blur-sm pop-in">
                             <div className="bg-[#111] border border-[#dcae45] w-full max-w-sm rounded-3xl p-6 shadow-[0_0_30px_rgba(220,174,69,0.2)]">
@@ -766,7 +840,6 @@
                                     </div>
                                 </div>
                                 <div className="space-y-3 mb-6">
-                                    {/* MINIMUM 10 LOGIC UI */}
                                     <input type="number" placeholder="Enter Amount Paid (Min: ₹10)" value={depositAmount} onChange={e=>setDepositAmount(e.target.value)} className="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none" min="10" />
                                     <input type="text" placeholder="12-Digit UTR / Ref Number" value={utrInput} onChange={e=>setUtrInput(e.target.value)} className="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none" />
                                 </div>
@@ -778,7 +851,6 @@
                         </div>
                     )}
 
-                    {/* PAYMENT WITHDRAW MODAL */}
                     {withdrawModal && (
                         <div className="fixed inset-0 bg-black/90 z-[90] flex items-center justify-center p-4 backdrop-blur-sm pop-in">
                             <div className="bg-[#111] border border-[#dcae45] w-full max-w-sm rounded-3xl p-6 shadow-[0_0_30px_rgba(220,174,69,0.2)]">
