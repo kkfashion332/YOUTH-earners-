@@ -82,10 +82,12 @@ registerForm.addEventListener('submit', async (e) => {
         const userCredential = await createUserWithEmailAndPassword(auth, dummyEmail, password);
         const user = userCredential.user;
         
-        const userData = { uid: user.uid, name: name, number: number, wallet: 50, referralUsed: referral, avatar: 'youth-earners-logo.png' }; 
+        // UPDATE: Bonus amount changed from 50 to 9 here
+        const userData = { uid: user.uid, name: name, number: number, wallet: 9, referralUsed: referral, avatar: 'youth-earners-logo.png' }; 
         await setDoc(doc(db, "users", user.uid), userData);
         
-        alert("Registration Successful! Bonus ₹50 added.");
+        // UPDATE: Alert message changed
+        alert("Registration Successful! Bonus ₹9 added.");
         regBtn.innerText = "Register"; regBtn.disabled = false;
         launchGame(userData);
     } catch (error) {
