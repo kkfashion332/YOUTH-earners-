@@ -6,7 +6,6 @@
     <title>Youth Earner's - Pro</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -37,6 +36,7 @@
                 <div class="input-group"><input type="text" id="regName" placeholder="Full Name" required></div>
                 <div class="input-group"><input type="tel" id="regNumber" placeholder="Enter your mobile number" pattern="[0-9]{10}" maxlength="10" required></div>
                 <div class="input-group"><input type="password" id="regPassword" placeholder="Password (content 6 digit)" minlength="6" required></div>
+                <div class="input-group"><input type="text" id="regReferral" placeholder="Referral Code (Optional)"></div>
                 <button type="submit" id="regBtn" class="auth-btn">Register</button>
                 <p class="switch-form">Already have an account? <span id="showLogin">Log In</span></p>
             </form>
@@ -53,10 +53,10 @@
             const [activeTab, setActiveTab] = useState('home'); 
             const [isPlaying, setIsPlaying] = useState(false); 
             
-            const savedAvatar = localStorage.getItem('userAvatar') || 'youth-earners-logo.png';
-            const savedName = localStorage.getItem('userName') || 'Player';
-            
-            const [userProfile, setUserProfile] = useState({ name: savedName, number: '9999999999', avatar: savedAvatar });
+            const [userProfile, setUserProfile] = useState({ name: 'Player', number: '9999999999', avatar: 'youth-earners-logo.png' });
+            const [isEditingName, setIsEditingName] = useState(false);
+            const [editNameInput, setEditNameInput] = useState('');
+
             const [wallet, setWallet] = useState(0);
             const [withdrawable, setWithdrawable] = useState(0);
             
@@ -68,10 +68,8 @@
             const [matchFound, setMatchFound] = useState(false);
             const [opponent, setOpponent] = useState({ name: 'Searching...', img: 'youth-earners-logo.png' });
             
-            // Modals
             const [depositModal, setDepositModal] = useState(false);
             const [withdrawModal, setWithdrawModal] = useState(false);
-            const [showReferModal, setShowReferModal] = useState(false);
             
             const [utrInput, setUtrInput] = useState('');
             const [depositAmount, setDepositAmount] = useState('');
@@ -88,46 +86,60 @@
             const fileInputRef = useRef(null);
             const playTiers = [{ entry: 5, win: 9 }, { entry: 10, win: 18 }, { entry: 15, win: 27 }, { entry: 20, win: 36 }];
 
-            const [topPlayers, setTopPlayers] = useState([{ rank: 1, name: "Loading...", amount: 0, img: "youth-earners-logo.png" }]);
+            const [topPlayers, setTopPlayers] = useState([]);
             const [isLoadingLeaderboard, setIsLoadingLeaderboard] = useState(false);
+            
+            const [txHistory, setTxHistory] = useState([]);
 
             // ==========================================
-            // REAL LEADERBOARD LOGIC 
+            // GLOBAL TICK SOUND EFFECT (TICK TICK)
             // ==========================================
             useEffect(() => {
-                if (activeTab === 'leaderboard') {
-                    const fetchRealLeaderboard = async () => {
-                        setIsLoadingLeaderboard(true);
-                        try {
-                            const querySnapshot = await window.fs.getDocs(window.fs.collection(window.db, "users"));
-                            let playersData = [];
-                            querySnapshot.forEach((doc) => {
-                                const data = doc.data();
-                                playersData.push({ name: data.name || "Player", amount: data.wallet || 0, img: data.avatar || "youth-earners-logo.png" });
-                            });
-                            playersData.sort((a, b) => b.amount - a.amount);
-                            playersData = playersData.slice(0, 10).map((p, index) => ({ ...p, rank: index + 1 }));
-                            while (playersData.length < 3) playersData.push({ rank: playersData.length + 1, name: "Waiting...", amount: 0, img: "youth-earners-logo.png" });
-                            setTopPlayers(playersData);
-                        } catch (error) { console.error("Leaderboard Load Error:", error); }
-                        setIsLoadingLeaderboard(false);
-                    };
-                    fetchRealLeaderboard();
-                }
-            }, [activeTab]);
+                let audioCtx = null;
+                const playClickSound = () => {
+                    try {
+                        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                        if (audioCtx.state === 'suspended') audioCtx.resume();
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(1200, audioCtx.currentTime); // High pitch tick
+                        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                        osc.start();
+                        gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.03);
+                        osc.stop(audioCtx.currentTime + 0.03);
+                    } catch(e){}
+                };
+                
+                const handleGlobalClick = (e) => {
+                    if(e.target.closest('button') || e.target.closest('i')) {
+                        playClickSound();
+                    }
+                };
+                document.addEventListener('click', handleGlobalClick);
+                return () => document.removeEventListener('click', handleGlobalClick);
+            }, []);
 
             // ==========================================
-            // DATABASE SYNC & LIVE WALLET LISTENER
+            // DATABASE SYNC & PERMANENT PROFILE FIX
             // ==========================================
             useEffect(() => {
                 let unsubWallet = null;
                 const handleGameStart = (e) => {
                     const data = e.detail;
                     if(data) {
-                        setUserProfile(prev => ({ ...prev, number: data.number || prev.number }));
+                        const dbAvatar = data.avatar || localStorage.getItem('userAvatar') || 'youth-earners-logo.png';
+                        const dbName = data.name || localStorage.getItem('userName') || 'Player';
+                        
+                        localStorage.setItem('userAvatar', dbAvatar);
+                        localStorage.setItem('userName', dbName);
+                        
+                        setUserProfile(prev => ({ ...prev, name: dbName, number: data.number || prev.number, avatar: dbAvatar }));
+                        setEditNameInput(dbName);
                         if(data.wallet !== undefined) setWallet(data.wallet);
                         
-                        // NEW: LIVE WALLET LISTENER - बिना रिफ्रेश किए पैसा अपडेट होगा
                         if(window.auth && window.auth.currentUser) {
                             unsubWallet = window.fs.onSnapshot(
                                 window.fs.doc(window.db, "users", window.auth.currentUser.uid), 
@@ -155,12 +167,14 @@
                 }
             };
 
-            const handleNameUpdate = (e) => setUserProfile({...userProfile, name: e.target.value});
-            const handleNameBlur = () => { localStorage.setItem('userName', userProfile.name); syncProfileToDatabase({ name: userProfile.name }); };
+            const saveProfileName = () => {
+                if(!editNameInput.trim()) return;
+                setUserProfile(prev => ({...prev, name: editNameInput}));
+                localStorage.setItem('userName', editNameInput);
+                syncProfileToDatabase({ name: editNameInput });
+                setIsEditingName(false);
+            };
 
-            // ==========================================
-            // NEW: IMAGE COMPRESSION LOGIC (Anti-Crash)
-            // ==========================================
             const handleImageUpload = (e) => { 
                 const file = e.target.files[0]; 
                 if (file) { 
@@ -170,21 +184,13 @@
                         img.src = event.target.result;
                         img.onload = () => {
                             const canvas = document.createElement("canvas");
-                            const MAX_SIZE = 250; // Size fix to prevent 1MB limit crash
-                            let width = img.width;
-                            let height = img.height;
-                            
-                            if (width > height) {
-                                if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
-                            } else {
-                                if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
-                            }
-                            
+                            const MAX_SIZE = 250; 
+                            let width = img.width; let height = img.height;
+                            if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } 
+                            else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
                             canvas.width = width; canvas.height = height;
-                            const ctx = canvas.getContext("2d");
-                            ctx.drawImage(img, 0, 0, width, height);
-                            
-                            const compressedBase64 = canvas.toDataURL("image/jpeg", 0.7); // 70% Quality
+                            const ctx = canvas.getContext("2d"); ctx.drawImage(img, 0, 0, width, height);
+                            const compressedBase64 = canvas.toDataURL("image/jpeg", 0.7); 
                             localStorage.setItem('userAvatar', compressedBase64); 
                             setUserProfile(prev => ({ ...prev, avatar: compressedBase64 }));
                             syncProfileToDatabase({ avatar: compressedBase64 }); 
@@ -195,10 +201,63 @@
             };
 
             const logoutUser = async () => {
-                if(window.auth) { await window.auth.signOut(); } // TRUE LOGOUT
-                localStorage.clear();
-                window.location.reload();
+                if(window.auth) { await window.auth.signOut(); } 
+                localStorage.clear(); window.location.reload();
             };
+
+            // ==========================================
+            // LEADERBOARD (RANKING) FIX 
+            // ==========================================
+            useEffect(() => {
+                if (activeTab === 'ranking') { // Ensure this matches the button strictly
+                    const fetchRealLeaderboard = async () => {
+                        setIsLoadingLeaderboard(true);
+                        try {
+                            const querySnapshot = await window.fs.getDocs(window.fs.collection(window.db, "users"));
+                            let playersData = [];
+                            querySnapshot.forEach((doc) => {
+                                const data = doc.data();
+                                playersData.push({ name: data.name || "Player", amount: data.wallet || 0, img: data.avatar || "youth-earners-logo.png" });
+                            });
+                            playersData.sort((a, b) => b.amount - a.amount);
+                            playersData = playersData.slice(0, 10).map((p, index) => ({ ...p, rank: index + 1 }));
+                            
+                            // Prevent Crash if DB is empty
+                            let padData = [...playersData];
+                            while (padData.length < 3) {
+                                padData.push({ rank: padData.length + 1, name: "Waiting...", amount: 0, img: "youth-earners-logo.png" });
+                            }
+                            setTopPlayers(padData);
+                        } catch (error) { console.error("Leaderboard Load Error:", error); }
+                        setIsLoadingLeaderboard(false);
+                    };
+                    fetchRealLeaderboard();
+                }
+            }, [activeTab]);
+
+            // ==========================================
+            // WALLET HISTORY FETCHING
+            // ==========================================
+            useEffect(() => {
+                if (activeTab === 'wallet' && window.auth && window.auth.currentUser) {
+                    const fetchHistory = async () => {
+                        try {
+                            let history = [];
+                            const depQ = window.fs.query(window.fs.collection(window.db, "deposits"), window.fs.where("uid", "==", window.auth.currentUser.uid));
+                            const depSnap = await window.fs.getDocs(depQ);
+                            depSnap.forEach(doc => history.push({ ...doc.data(), txType: 'Deposit' }));
+
+                            const withQ = window.fs.query(window.fs.collection(window.db, "withdrawals"), window.fs.where("uid", "==", window.auth.currentUser.uid));
+                            const withSnap = await window.fs.getDocs(withQ);
+                            withSnap.forEach(doc => history.push({ ...doc.data(), txType: 'Withdrawal' }));
+
+                            history.sort((a, b) => b.date?.toDate() - a.date?.toDate());
+                            setTxHistory(history);
+                        } catch(e) { console.error("Error fetching history", e); }
+                    };
+                    fetchHistory();
+                }
+            }, [activeTab]);
 
             // ---- FIREBASE MATCHMAKING LOGIC ----
             const confirmPlay = async () => {
@@ -372,12 +431,7 @@
                                 <span className="font-bold mt-4 text-lg">{opponent.name}</span>
                             </div>
                         </div>
-                        
-                        {!matchFound && (
-                            <button onClick={cancelMatchmaking} className="absolute bottom-20 px-8 py-3 rounded-full border-2 border-red-500 text-red-500 font-bold hover:bg-red-500 hover:text-white transition-colors">
-                                Cancel Search
-                            </button>
-                        )}
+                        {!matchFound && ( <button onClick={cancelMatchmaking} className="absolute bottom-20 px-8 py-3 rounded-full border-2 border-red-500 text-red-500 font-bold hover:bg-red-500 hover:text-white transition-colors"> Cancel Search </button> )}
                     </div>
                 );
             }
@@ -441,9 +495,7 @@
                 <div className="max-w-md mx-auto bg-transparent min-h-screen relative pb-24">
                     
                     <div className="mz-style-header">
-                        <div className="mz-header-left">
-                            <img src="youth-earners-logo.png" alt="Logo" />
-                        </div>
+                        <div className="mz-header-left"><img src="youth-earners-logo.png" alt="Logo" /></div>
                         <div className="mz-header-center">
                             <h1 className="mz-header-title">YOUTH EARNERS</h1>
                             <div className="mz-header-subtitle">
@@ -503,8 +555,8 @@
                             </div>
                         )}
 
-                        {/* LEADERBOARD TAB */}
-                        {activeTab === 'leaderboard' && (
+                        {/* RANKING (LEADERBOARD) TAB FIX */}
+                        {activeTab === 'ranking' && (
                             <div className="space-y-6 pt-2 pop-in">
                                 <h2 className="text-2xl font-black text-[#dcae45] text-center mb-6 tracking-widest uppercase"><i className="fa-solid fa-ranking-star"></i> Top Earners</h2>
                                 {isLoadingLeaderboard ? (
@@ -514,35 +566,35 @@
                                         <div className="flex justify-center items-end gap-2 mb-8 mt-10">
                                             <div className="flex flex-col items-center w-28">
                                                 <div className="relative">
-                                                    <img src={topPlayers[1].img} className="w-16 h-16 rounded-full object-cover border-4 border-gray-400 p-0.5 bg-black z-10 relative" />
+                                                    <img src={topPlayers[1]?.img} className="w-16 h-16 rounded-full object-cover border-4 border-gray-400 p-0.5 bg-black z-10 relative" />
                                                     <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-gray-400 text-black text-xs font-black px-2 py-0.5 rounded-full z-20">#2</div>
                                                 </div>
                                                 <div className="bg-[#111] w-full pt-6 pb-2 rounded-t-lg mt-[-10px] border-t-2 border-gray-400 text-center flex flex-col">
-                                                    <span className="text-xs font-bold truncate px-1 text-gray-300">{topPlayers[1].name}</span>
-                                                    <span className="text-sm font-black text-[#ffe29a]">₹{topPlayers[1].amount}</span>
+                                                    <span className="text-xs font-bold truncate px-1 text-gray-300">{topPlayers[1]?.name}</span>
+                                                    <span className="text-sm font-black text-[#ffe29a]">₹{topPlayers[1]?.amount}</span>
                                                 </div>
                                             </div>
 
                                             <div className="flex flex-col items-center w-32 relative z-20">
                                                 <div className="relative">
                                                     <i className="fa-solid fa-crown absolute -top-6 left-1/2 transform -translate-x-1/2 text-3xl text-[#dcae45] drop-shadow-[0_0_10px_rgba(220,174,69,0.8)] z-30"></i>
-                                                    <img src={topPlayers[0].img} className="w-20 h-20 rounded-full object-cover border-4 border-[#dcae45] p-0.5 bg-black z-10 relative shadow-[0_0_15px_rgba(220,174,69,0.5)]" />
+                                                    <img src={topPlayers[0]?.img} className="w-20 h-20 rounded-full object-cover border-4 border-[#dcae45] p-0.5 bg-black z-10 relative shadow-[0_0_15px_rgba(220,174,69,0.5)]" />
                                                     <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-[#dcae45] text-black text-sm font-black px-3 py-0.5 rounded-full z-20">#1</div>
                                                 </div>
                                                 <div className="bg-gradient-to-t from-[#221a08] to-[#111] w-full pt-8 pb-3 rounded-t-xl mt-[-15px] border-t-2 border-[#dcae45] text-center flex flex-col h-[100px] justify-start shadow-[0_-5px_15px_rgba(220,174,69,0.2)]">
-                                                    <span className="text-sm font-black truncate px-1 text-white">{topPlayers[0].name}</span>
-                                                    <span className="text-lg font-black text-[#ffe29a]">₹{topPlayers[0].amount}</span>
+                                                    <span className="text-sm font-black truncate px-1 text-white">{topPlayers[0]?.name}</span>
+                                                    <span className="text-lg font-black text-[#ffe29a]">₹{topPlayers[0]?.amount}</span>
                                                 </div>
                                             </div>
 
                                             <div className="flex flex-col items-center w-28">
                                                 <div className="relative">
-                                                    <img src={topPlayers[2].img} className="w-16 h-16 rounded-full object-cover border-4 border-[#cd7f32] p-0.5 bg-black z-10 relative" />
+                                                    <img src={topPlayers[2]?.img} className="w-16 h-16 rounded-full object-cover border-4 border-[#cd7f32] p-0.5 bg-black z-10 relative" />
                                                     <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-[#cd7f32] text-black text-xs font-black px-2 py-0.5 rounded-full z-20">#3</div>
                                                 </div>
                                                 <div className="bg-[#111] w-full pt-6 pb-2 rounded-t-lg mt-[-10px] border-t-2 border-[#cd7f32] text-center flex flex-col h-[70px] justify-start">
-                                                    <span className="text-xs font-bold truncate px-1 text-gray-300">{topPlayers[2].name}</span>
-                                                    <span className="text-sm font-black text-[#ffe29a]">₹{topPlayers[2].amount}</span>
+                                                    <span className="text-xs font-bold truncate px-1 text-gray-300">{topPlayers[2]?.name}</span>
+                                                    <span className="text-sm font-black text-[#ffe29a]">₹{topPlayers[2]?.amount}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -564,13 +616,11 @@
                             </div>
                         )}
 
-                        {/* WALLET TAB */}
+                        {/* WALLET TAB WITH HISTORY (No Red Area) */}
                         {activeTab === 'wallet' && (
                             <div className="space-y-6 pt-2 pop-in">
-                                <h2 className="text-2xl font-bold text-[#dcae45] text-center mb-6"><i className="fa-solid fa-vault"></i> My Wallet</h2>
-                                
-                                <div className="bg-gradient-to-br from-[#1a1a1a] to-[#000] p-6 rounded-3xl border border-[#dcae45]/40 shadow-[0_10px_30px_rgba(220,174,69,0.15)] relative overflow-hidden">
-                                    <div className="text-gray-400 text-sm font-semibold">Total Balance</div>
+                                <div className="bg-gradient-to-br from-[#1a1a1a] to-[#000] p-6 rounded-3xl border border-[#dcae45]/40 shadow-[0_10px_30px_rgba(220,174,69,0.15)] relative overflow-hidden mt-4">
+                                    <div className="text-gray-400 text-sm font-semibold uppercase tracking-widest">Total Balance</div>
                                     <div className="text-5xl font-black text-white my-2 tracking-wide">₹{wallet.toFixed(2)}</div>
                                 </div>
 
@@ -586,10 +636,66 @@
                                     <button onClick={() => setDepositModal(true)} className="flex-1 btn-play-gold py-4 rounded-2xl font-bold text-lg shadow-[0_0_15px_rgba(220,174,69,0.4)]"><i className="fa-solid fa-plus-circle"></i> Add Money</button>
                                     <button onClick={() => setWithdrawModal(true)} className="flex-1 bg-transparent border-2 border-[#dcae45] py-4 rounded-2xl font-bold text-lg text-[#ffe29a] hover:bg-[#111] transition-colors"><i className="fa-solid fa-building-columns"></i> Withdraw</button>
                                 </div>
+
+                                {/* NEW: DEPOSIT & WITHDRAWAL HISTORY */}
+                                <div className="mt-8">
+                                    <h3 className="text-[#dcae45] font-black uppercase tracking-widest text-sm mb-4"><i className="fa-solid fa-clock-rotate-left"></i> Transaction History</h3>
+                                    <div className="bg-[#111] border border-gray-800 rounded-2xl p-4 space-y-4 max-h-[300px] overflow-y-auto hide-scrollbar">
+                                        {txHistory.length === 0 ? (
+                                            <p className="text-gray-500 text-center text-xs font-bold py-4">No recent transactions found.</p>
+                                        ) : (
+                                            txHistory.map((tx, idx) => (
+                                                <div key={idx} className="flex justify-between items-center border-b border-gray-800 pb-3 last:border-0 last:pb-0">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${tx.txType === 'Deposit' ? 'bg-[#10b981]/20 text-[#10b981]' : 'bg-rose-500/20 text-rose-500'}`}>
+                                                            <i className={`fa-solid ${tx.txType === 'Deposit' ? 'fa-arrow-down' : 'fa-arrow-up'}`}></i>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-sm font-bold text-gray-200">{tx.txType}</p>
+                                                            <p className="text-[10px] text-gray-500 font-bold uppercase">{tx.status}</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <p className={`text-sm font-black ${tx.txType === 'Deposit' ? 'text-[#10b981]' : 'text-rose-500'}`}>
+                                                            {tx.txType === 'Deposit' ? '+' : '-'}₹{tx.amount}
+                                                        </p>
+                                                        <p className="text-[10px] text-gray-500">{tx.date ? new Date(tx.date.toDate()).toLocaleDateString() : 'Just now'}</p>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
                             </div>
                         )}
 
-                        {/* PROFILE TAB (With Refer & Earn) */}
+                        {/* REFER & EARN TAB (With Rules) */}
+                        {activeTab === 'refer' && (
+                            <div className="space-y-6 pt-4 pop-in">
+                                <div className="bg-[#111] border border-[#dcae45] w-full rounded-3xl p-6 shadow-[0_0_30px_rgba(220,174,69,0.2)] text-center relative overflow-hidden">
+                                    <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#dcae45] opacity-10 blur-3xl rounded-full"></div>
+                                    <i className="fa-solid fa-gifts text-6xl text-[#dcae45] mb-4 drop-shadow-[0_0_15px_rgba(220,174,69,0.8)]"></i>
+                                    <h3 className="text-3xl font-black text-[#ffe29a] mb-2 uppercase tracking-wider">Refer & Earn</h3>
+                                    
+                                    {/* RULES IN RED TEXT */}
+                                    <p className="text-gray-300 text-sm mb-2 font-bold">Invite friends & earn ₹10 Bonus!</p>
+                                    <p className="text-red-500 font-bold text-xs mb-6 px-2 border border-red-500/30 bg-red-500/10 py-2 rounded-lg">
+                                        * You will get ₹10 Bonus ONLY when your referred friend makes a minimum deposit of ₹30!
+                                    </p>
+                                    
+                                    <div className="bg-black border-2 border-dashed border-[#dcae45] p-4 rounded-xl mb-6">
+                                        <p className="text-xs text-gray-500 mb-1 uppercase tracking-widest font-bold">Your Invite Code</p>
+                                        <div className="flex items-center justify-between px-2">
+                                            <span className="text-3xl font-black text-white tracking-widest">YE-{userProfile.number.slice(-4) || '9999'}</span>
+                                            <i className="fa-solid fa-copy text-[#dcae45] text-2xl cursor-pointer hover:scale-110 transition" onClick={()=>alert("Invite Code Copied!")}></i>
+                                        </div>
+                                    </div>
+                                    <button onClick={() => alert("Share Link Copied!")} className="w-full btn-play-gold py-4 rounded-xl font-black uppercase text-lg">Share Now</button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* PROFILE TAB (With Name Edit Fix & Support Moved Here) */}
                         {activeTab === 'profile' && (
                             <div className="space-y-6 pt-4 pop-in">
                                 <div className="text-center relative bg-[#111] border border-[#dcae45]/40 p-6 rounded-3xl shadow-[0_0_20px_rgba(220,174,69,0.1)]">
@@ -598,31 +704,41 @@
                                         <button onClick={() => fileInputRef.current.click()} className="absolute bottom-0 right-0 bg-[#dcae45] text-black w-10 h-10 flex items-center justify-center rounded-full border-2 border-black shadow-lg"><i className="fa-solid fa-camera text-lg"></i></button>
                                         <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
                                     </div>
-                                    <div>
-                                        <input type="text" value={userProfile.name} onChange={handleNameUpdate} onBlur={handleNameBlur} className="bg-transparent text-white text-2xl font-black text-center border-b-2 border-gray-700 focus:border-[#dcae45] focus:outline-none pb-1 w-full max-w-[200px]" placeholder="Your Name" />
-                                        <p className="text-[#dcae45] mt-3 tracking-widest font-bold text-sm bg-black inline-block px-4 py-1.5 rounded-full border border-[#dcae45]/30"><i className="fa-solid fa-phone text-xs mr-1"></i> +91 {userProfile.number}</p>
+                                    
+                                    {/* NAME EDIT LOGIC */}
+                                    <div className="mt-2 h-10">
+                                        {isEditingName ? (
+                                            <div className="flex items-center justify-center gap-3">
+                                                <input type="text" value={editNameInput} onChange={(e) => setEditNameInput(e.target.value)} className="bg-transparent text-white text-2xl font-black text-center border-b-2 border-[#dcae45] focus:outline-none w-[180px]" autoFocus />
+                                                <button onClick={saveProfileName} className="text-[#10b981] bg-[#10b981]/20 w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition"><i className="fa-solid fa-check"></i></button>
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center justify-center gap-3">
+                                                <h2 className="text-2xl font-black text-white">{userProfile.name}</h2>
+                                                <button onClick={() => setIsEditingName(true)} className="text-gray-400 hover:text-[#dcae45] transition"><i className="fa-solid fa-pen"></i></button>
+                                            </div>
+                                        )}
                                     </div>
+                                    <p className="text-[#dcae45] mt-3 tracking-widest font-bold text-sm bg-black inline-block px-4 py-1.5 rounded-full border border-[#dcae45]/30"><i className="fa-solid fa-phone text-xs mr-1"></i> +91 {userProfile.number}</p>
                                 </div>
 
                                 <div className="mt-8 space-y-3">
                                     <h3 className="text-gray-400 font-bold uppercase tracking-widest text-xs mb-4 pl-2">Settings & Info</h3>
                                     
-                                    {/* NEW REFER & EARN BUTTON */}
-                                    <button onClick={() => setShowReferModal(true)} className="w-full flex items-center justify-between bg-gradient-to-r from-[#dcae45] to-[#ffe29a] p-4 rounded-xl shadow-lg text-black hover:scale-[1.02] transition-transform">
-                                        <div className="flex items-center gap-4 font-black"><i className="fa-solid fa-users text-xl w-6"></i> Refer & Earn</div>
-                                        <i className="fa-solid fa-gift text-lg"></i>
+                                    {/* SUPPORT MOVED TO PROFILE */}
+                                    <button onClick={() => alert("Support Chat Opening...")} className="w-full flex items-center justify-between bg-[#111] border border-gray-800 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors">
+                                        <div className="flex items-center gap-4 text-gray-300 font-bold"><i className="fa-solid fa-headset text-[#dcae45] text-xl w-6"></i> Support Chat</div>
+                                        <i className="fa-solid fa-chevron-right text-gray-600"></i>
                                     </button>
 
                                     <button onClick={() => alert("About Youth Earners")} className="w-full flex items-center justify-between bg-[#111] border border-gray-800 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors">
                                         <div className="flex items-center gap-4 text-gray-300 font-bold"><i className="fa-solid fa-circle-info text-[#dcae45] text-xl w-6"></i> About Us</div>
                                         <i className="fa-solid fa-chevron-right text-gray-600"></i>
                                     </button>
-                                    <button onClick={() => alert("Rules")} className="w-full flex items-center justify-between bg-[#111] border border-gray-800 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors">
+                                    <button onClick={() => alert("1. Add Money to play.\n2. Do not quit in between.\n3. Refer friends for minimum ₹30 deposit.")} className="w-full flex items-center justify-between bg-[#111] border border-gray-800 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors">
                                         <div className="flex items-center gap-4 text-gray-300 font-bold"><i className="fa-solid fa-book text-[#dcae45] text-xl w-6"></i> Game Rules</div>
                                         <i className="fa-solid fa-chevron-right text-gray-600"></i>
                                     </button>
-                                    
-                                    {/* REAL LOGOUT BUTTON FIX */}
                                     <button onClick={logoutUser} className="w-full flex items-center justify-between bg-black border border-red-900/50 p-4 rounded-xl mt-4 hover:bg-red-950/30 transition-colors">
                                         <div className="flex items-center gap-4 text-red-500 font-bold"><i className="fa-solid fa-right-from-bracket text-xl w-6"></i> Logout</div>
                                     </button>
@@ -631,29 +747,7 @@
                         )}
                     </div>
 
-                    {/* NEW REFER & EARN MODAL */}
-                    {showReferModal && (
-                        <div className="fixed inset-0 bg-black/90 z-[90] flex items-center justify-center p-4 backdrop-blur-sm pop-in">
-                            <div className="bg-[#111] border border-[#dcae45] w-full max-w-sm rounded-3xl p-6 shadow-[0_0_30px_rgba(220,174,69,0.2)] text-center relative overflow-hidden">
-                                <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#dcae45] opacity-10 blur-3xl rounded-full"></div>
-                                <i className="fa-solid fa-gifts text-6xl text-[#dcae45] mb-4 drop-shadow-[0_0_15px_rgba(220,174,69,0.8)]"></i>
-                                <h3 className="text-3xl font-black text-[#ffe29a] mb-2 uppercase tracking-wider">Refer & Earn</h3>
-                                <p className="text-gray-300 text-sm mb-6 font-bold">Invite friends & earn <span className="text-[#10b981]">2% Commission</span> on every match they play for LIFE!</p>
-                                
-                                <div className="bg-black border-2 border-dashed border-[#dcae45] p-4 rounded-xl mb-6">
-                                    <p className="text-xs text-gray-500 mb-1 uppercase tracking-widest font-bold">Your Invite Code</p>
-                                    <div className="flex items-center justify-between px-2">
-                                        <span className="text-3xl font-black text-white tracking-widest">YE-{userProfile.number.slice(-4) || '9999'}</span>
-                                        <i className="fa-solid fa-copy text-[#dcae45] text-2xl cursor-pointer hover:scale-110 transition" onClick={()=>alert("Invite Code Copied!")}></i>
-                                    </div>
-                                </div>
-                                
-                                <button onClick={() => setShowReferModal(false)} className="w-full btn-play-gold py-4 rounded-xl font-black uppercase text-lg">Awesome</button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* PAYMENT DEPOSIT MODAL */}
+                    {/* MODALS (Deposit, Withdraw, Confirm Match, Win Popup - All Untouched and working perfect) */}
                     {depositModal && (
                         <div className="fixed inset-0 bg-black/90 z-[90] flex items-center justify-center p-4 backdrop-blur-sm pop-in">
                             <div className="bg-[#111] border border-[#dcae45] w-full max-w-sm rounded-3xl p-6 shadow-[0_0_30px_rgba(220,174,69,0.2)]">
@@ -679,18 +773,15 @@
                         </div>
                     )}
 
-                    {/* PAYMENT WITHDRAW MODAL */}
                     {withdrawModal && (
                         <div className="fixed inset-0 bg-black/90 z-[90] flex items-center justify-center p-4 backdrop-blur-sm pop-in">
                             <div className="bg-[#111] border border-[#dcae45] w-full max-w-sm rounded-3xl p-6 shadow-[0_0_30px_rgba(220,174,69,0.2)]">
                                 <h3 className="text-xl font-bold text-[#ffe29a] mb-2 text-center">Withdraw Money</h3>
                                 <p className="text-center text-gray-400 text-sm mb-6">Available: <span className="text-[#10b981] font-bold">₹{withdrawable.toFixed(2)}</span></p>
-                                
                                 <div className="flex gap-2 mb-4 bg-black p-1 rounded-xl border border-gray-800">
                                     <button onClick={() => setWithdrawType('upi')} className={`flex-1 py-2 rounded-lg font-bold text-sm ${withdrawType==='upi'?'bg-[#dcae45] text-black':'text-gray-400'}`}>UPI ID</button>
                                     <button onClick={() => setWithdrawType('number')} className={`flex-1 py-2 rounded-lg font-bold text-sm ${withdrawType==='number'?'bg-[#dcae45] text-black':'text-gray-400'}`}>Mobile No.</button>
                                 </div>
-                                
                                 <div className="space-y-3 mb-6">
                                     <input type="text" placeholder={withdrawType==='upi'?"Enter UPI ID":"Enter Mobile Number"} value={withdrawId} onChange={e=>setWithdrawId(e.target.value)} className="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none" />
                                     <input type="number" placeholder="Enter Amount to Withdraw" value={withdrawAmount} onChange={e=>setWithdrawAmount(e.target.value)} className="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none" />
@@ -703,7 +794,6 @@
                         </div>
                     )}
 
-                    {/* CONFIRM MATCH MODAL */}
                     {confirmPopup && (
                         <div className="fixed inset-0 bg-black z-[80] flex flex-col items-center justify-center p-6 pop-in">
                             <div className="w-full max-w-sm flex flex-col gap-8">
@@ -711,19 +801,11 @@
                                     <i className="fa-solid fa-coins"></i>
                                 </div>
                                 <h2 className="text-3xl font-black text-center text-white tracking-widest uppercase">Confirm Match</h2>
-                                
                                 <div className="bg-[#111] border border-[#dcae45] rounded-3xl p-8 flex flex-col gap-6 text-center shadow-[0_0_20px_rgba(220,174,69,0.2)]">
-                                    <div>
-                                        <div className="text-gray-400 text-sm mb-1 uppercase tracking-wider">Entry Amount</div>
-                                        <div className="text-white font-black text-4xl">₹{confirmPopup.entry}</div>
-                                    </div>
+                                    <div><div className="text-gray-400 text-sm mb-1 uppercase tracking-wider">Entry Amount</div><div className="text-white font-black text-4xl">₹{confirmPopup.entry}</div></div>
                                     <hr className="border-gray-800" />
-                                    <div>
-                                        <div className="text-gray-400 text-sm mb-1 uppercase tracking-wider">Winning Amount</div>
-                                        <div className="text-[#ffe29a] font-black text-5xl drop-shadow-[0_0_10px_rgba(220,174,69,0.8)]">₹{confirmPopup.win}</div>
-                                    </div>
+                                    <div><div className="text-gray-400 text-sm mb-1 uppercase tracking-wider">Winning Amount</div><div className="text-[#ffe29a] font-black text-5xl drop-shadow-[0_0_10px_rgba(220,174,69,0.8)]">₹{confirmPopup.win}</div></div>
                                 </div>
-                                
                                 <div className="flex gap-4 w-full mt-4">
                                     <button onClick={() => setConfirmPopup(null)} className="flex-1 bg-transparent border-2 border-gray-600 text-gray-300 py-4 rounded-2xl font-bold text-lg hover:bg-gray-800 transition">Cancel</button>
                                     <button onClick={confirmPlay} className="flex-1 btn-play-gold py-4 rounded-2xl font-black text-lg text-black uppercase tracking-wide">Play Now</button>
@@ -732,7 +814,6 @@
                         </div>
                     )}
 
-                    {/* VICTORY POPUP */}
                     {showWinPopup !== null && (
                         <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/90 backdrop-blur-md victory-anim px-4">
                             <div className="bg-gradient-to-b from-[#1a1508] to-[#000] border-2 border-[#dcae45] p-8 rounded-3xl text-center shadow-[0_0_50px_rgba(220,174,69,0.5)] w-full max-w-sm">
@@ -745,10 +826,10 @@
                         </div>
                     )}
 
-                    {/* BOTTOM NAVIGATION */}
+                    {/* BOTTOM NAVIGATION WITH RANKING FIX & REFER TAB */}
                     <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-[#050505] border-t border-[#dcae45]/30 flex justify-between items-center h-[70px] px-6 z-50 rounded-t-3xl shadow-[0_-10px_25px_rgba(0,0,0,0.9)] backdrop-blur-md">
                         <button onClick={()=>setActiveTab('home')} className={`flex flex-col items-center gap-1 w-10 ${activeTab==='home'?'text-[#ffe29a] drop-shadow-[0_0_8px_rgba(220,174,69,0.8)]':'text-gray-500'}`}><i className="fa-solid fa-house text-xl"></i><span className="text-[10px] font-bold">Home</span></button>
-                        <button onClick={()=>setActiveTab('leaderboard')} className={`flex flex-col items-center gap-1 w-12 ${activeTab==='leaderboard'?'text-[#ffe29a] drop-shadow-[0_0_8px_rgba(220,174,69,0.8)]':'text-gray-500'}`}><i className="fa-solid fa-ranking-star text-xl"></i><span className="text-[10px] font-bold">Ranking</span></button>
+                        <button onClick={()=>setActiveTab('ranking')} className={`flex flex-col items-center gap-1 w-12 ${activeTab==='ranking'?'text-[#ffe29a] drop-shadow-[0_0_8px_rgba(220,174,69,0.8)]':'text-gray-500'}`}><i className="fa-solid fa-ranking-star text-xl"></i><span className="text-[10px] font-bold">Ranking</span></button>
                         
                         <div className="relative -top-6">
                             <button onClick={()=>setActiveTab('wallet')} className={`w-16 h-16 rounded-full flex items-center justify-center border-4 border-[#050505] shadow-[0_0_20px_rgba(220,174,69,0.6)] transition-transform ${activeTab==='wallet'?'bg-gradient-to-b from-[#ffe29a] to-[#dcae45] text-black scale-105':'bg-[#111] text-[#dcae45]'}`}>
@@ -756,7 +837,7 @@
                             </button>
                         </div>
                         
-                        <button onClick={() => alert('Support Chat')} className="flex flex-col items-center gap-1 w-10 text-gray-500"><i className="fa-solid fa-headset text-xl"></i><span className="text-[10px] font-bold">Support</span></button>
+                        <button onClick={()=>setActiveTab('refer')} className={`flex flex-col items-center gap-1 w-10 ${activeTab==='refer'?'text-[#ffe29a] drop-shadow-[0_0_8px_rgba(220,174,69,0.8)]':'text-gray-500'}`}><i className="fa-solid fa-gift text-xl"></i><span className="text-[10px] font-bold">Refer</span></button>
                         <button onClick={()=>setActiveTab('profile')} className={`flex flex-col items-center gap-1 w-10 ${activeTab==='profile'?'text-[#ffe29a] drop-shadow-[0_0_8px_rgba(220,174,69,0.8)]':'text-gray-500'}`}><i className="fa-solid fa-user text-xl"></i><span className="text-[10px] font-bold">Profile</span></button>
                     </div>
                 </div>
