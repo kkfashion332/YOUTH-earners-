@@ -88,23 +88,18 @@
             
             const fileInputRef = useRef(null);
             
-            // DYNAMIC MATCH TIERS STATE
-            const [playTiers, setPlayTiers] = useState([
-                { entry: 5, win: 9 }, { entry: 10, win: 18 }, { entry: 15, win: 27 }, { entry: 20, win: 36 }
-            ]);
-
+            const [playTiers, setPlayTiers] = useState([{ entry: 5, win: 9 }, { entry: 10, win: 18 }, { entry: 15, win: 27 }, { entry: 20, win: 36 }]);
             const [topPlayers, setTopPlayers] = useState([]);
             const [isLoadingLeaderboard, setIsLoadingLeaderboard] = useState(false);
             
-            // History Modal State
             const [historyView, setHistoryView] = useState(null); 
             const [depHistory, setDepHistory] = useState([]);
             const [withHistory, setWithHistory] = useState([]);
             const [matchHistory, setMatchHistory] = useState([]);
 
-            // ==========================================
-            // GLOBAL TICK SOUND EFFECT (TICK TICK)
-            // ==========================================
+            // SETTINGS FROM ADMIN
+            const [adminSettings, setAdminSettings] = useState({ upiId: 'youthearners@nyes', qrUrl: 'payment-qr.png' });
+
             useEffect(() => {
                 let audioCtx = null;
                 const playClickSound = () => {
@@ -113,50 +108,35 @@
                         if (audioCtx.state === 'suspended') audioCtx.resume();
                         const osc = audioCtx.createOscillator();
                         const gain = audioCtx.createGain();
-                        osc.connect(gain);
-                        gain.connect(audioCtx.destination);
-                        osc.type = 'sine';
-                        osc.frequency.setValueAtTime(1200, audioCtx.currentTime); 
+                        osc.connect(gain); gain.connect(audioCtx.destination);
+                        osc.type = 'sine'; osc.frequency.setValueAtTime(1200, audioCtx.currentTime); 
                         gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                        osc.start();
-                        gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.03);
+                        osc.start(); gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.03);
                         osc.stop(audioCtx.currentTime + 0.03);
                     } catch(e){}
                 };
-                
-                const handleGlobalClick = (e) => {
-                    if(e.target.closest('button') || e.target.closest('i')) { playClickSound(); }
-                };
+                const handleGlobalClick = (e) => { if(e.target.closest('button') || e.target.closest('i')) playClickSound(); };
                 document.addEventListener('click', handleGlobalClick);
                 return () => document.removeEventListener('click', handleGlobalClick);
             }, []);
 
-            // ==========================================
-            // LIVE MATCH TIERS FROM ADMIN
-            // ==========================================
             useEffect(() => {
                 let unsubMatches = null;
-                const fetchLiveMatches = () => {
-                    if(!window.fs || !window.db) return;
-                    try {
+                const fetchLiveSettingsAndMatches = async () => {
+                    if(window.fs && window.db) {
                         unsubMatches = window.fs.onSnapshot(window.fs.collection(window.db, "match_tiers"), (snap) => {
-                            let m = [];
-                            snap.forEach(doc => m.push({ id: doc.id, ...doc.data() }));
-                            if(m.length > 0) {
-                                m.sort((a,b) => a.entry - b.entry);
-                                setPlayTiers(m);
-                            }
+                            let m = []; snap.forEach(doc => m.push({ id: doc.id, ...doc.data() }));
+                            if(m.length > 0) { m.sort((a,b) => a.entry - b.entry); setPlayTiers(m); }
                         });
-                    } catch(e) { console.error("Error fetching live matches:", e); }
+                        
+                        const docSnap = await window.fs.getDoc(window.fs.doc(window.db, "admin_settings", "payment"));
+                        if(docSnap.exists()) setAdminSettings(docSnap.data());
+                    } else { setTimeout(fetchLiveSettingsAndMatches, 500); }
                 };
-                // Only start listening when auth is ready or wait a second
-                setTimeout(fetchLiveMatches, 1000);
+                fetchLiveSettingsAndMatches();
                 return () => { if(unsubMatches) unsubMatches(); };
             }, []);
 
-            // ==========================================
-            // DATABASE SYNC & PERMANENT PROFILE FIX
-            // ==========================================
             useEffect(() => {
                 let unsubWallet = null;
                 const handleGameStart = (e) => {
@@ -164,32 +144,23 @@
                     if(data) {
                         const dbAvatar = data.avatar || localStorage.getItem('userAvatar') || 'youth-earners-logo.png';
                         const dbName = data.name || localStorage.getItem('userName') || 'Player';
-                        
-                        localStorage.setItem('userAvatar', dbAvatar);
-                        localStorage.setItem('userName', dbName);
-                        
+                        localStorage.setItem('userAvatar', dbAvatar); localStorage.setItem('userName', dbName);
                         setUserProfile(prev => ({ ...prev, name: dbName, number: data.number || prev.number, avatar: dbAvatar }));
                         setEditNameInput(dbName);
                         if(data.wallet !== undefined) setWallet(data.wallet);
                         
                         if(window.auth && window.auth.currentUser) {
-                            unsubWallet = window.fs.onSnapshot(
-                                window.fs.doc(window.db, "users", window.auth.currentUser.uid), 
-                                (docSnap) => {
-                                    if(docSnap.exists()){
-                                        const dbData = docSnap.data();
-                                        if(dbData.wallet !== undefined) setWallet(dbData.wallet);
-                                    }
+                            unsubWallet = window.fs.onSnapshot(window.fs.doc(window.db, "users", window.auth.currentUser.uid), (docSnap) => {
+                                if(docSnap.exists()){
+                                    const dbData = docSnap.data();
+                                    if(dbData.wallet !== undefined) setWallet(dbData.wallet);
                                 }
-                            );
+                            });
                         }
                     }
                 };
                 window.addEventListener('gameStart', handleGameStart);
-                return () => { 
-                    window.removeEventListener('gameStart', handleGameStart);
-                    if(unsubWallet) unsubWallet();
-                };
+                return () => { window.removeEventListener('gameStart', handleGameStart); if(unsubWallet) unsubWallet(); };
             }, []);
 
             const syncProfileToDatabase = async (updateData) => {
@@ -212,12 +183,10 @@
                 if (file) { 
                     const reader = new FileReader();
                     reader.onload = (event) => {
-                        const img = new Image();
-                        img.src = event.target.result;
+                        const img = new Image(); img.src = event.target.result;
                         img.onload = () => {
                             const canvas = document.createElement("canvas");
-                            const MAX_SIZE = 250; 
-                            let width = img.width; let height = img.height;
+                            const MAX_SIZE = 250; let width = img.width; let height = img.height;
                             if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } 
                             else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
                             canvas.width = width; canvas.height = height;
@@ -232,14 +201,8 @@
                 } 
             };
 
-            const logoutUser = async () => {
-                if(window.auth) { await window.auth.signOut(); } 
-                localStorage.clear(); window.location.reload();
-            };
+            const logoutUser = async () => { if(window.auth) { await window.auth.signOut(); } localStorage.clear(); window.location.reload(); };
 
-            // ==========================================
-            // LEADERBOARD (RANKING) FIX 
-            // ==========================================
             useEffect(() => {
                 if (activeTab === 'ranking') { 
                     const fetchRealLeaderboard = async () => {
@@ -253,22 +216,16 @@
                             });
                             playersData.sort((a, b) => b.amount - a.amount);
                             playersData = playersData.slice(0, 10).map((p, index) => ({ ...p, rank: index + 1 }));
-                            
                             let padData = [...playersData];
-                            while (padData.length < 3) {
-                                padData.push({ rank: padData.length + 1, name: "Waiting...", amount: 0, img: "youth-earners-logo.png" });
-                            }
+                            while (padData.length < 3) { padData.push({ rank: padData.length + 1, name: "Waiting...", amount: 0, img: "youth-earners-logo.png" }); }
                             setTopPlayers(padData);
-                        } catch (error) { console.error("Leaderboard Load Error:", error); }
+                        } catch (error) {}
                         setIsLoadingLeaderboard(false);
                     };
                     fetchRealLeaderboard();
                 }
             }, [activeTab]);
 
-            // ==========================================
-            // WALLET HISTORY FETCHING (DEPOSIT, WITHDRAW, MATCH)
-            // ==========================================
             useEffect(() => {
                 if (activeTab === 'wallet' && window.auth && window.auth.currentUser) {
                     const fetchAllHistory = async () => {
@@ -304,21 +261,18 @@
                             });
                             processedMatches.sort((a,b) => b.date?.toDate ? b.date.toDate() - a.date.toDate() : 0);
                             setMatchHistory(processedMatches);
-                        } catch(e) { console.error("Error fetching history", e); }
+                        } catch(e) { }
                     };
                     fetchAllHistory();
                 }
             }, [activeTab, historyView]);
 
-            // ---- FIREBASE MATCHMAKING LOGIC ----
             const confirmPlay = async () => {
                 if (wallet < confirmPopup.entry) {
                     alert("Low Balance! Please deposit money to play.");
                     setConfirmPopup(null); setDepositModal(true); return;
                 }
-                const tier = confirmPopup;
-                setConfirmPopup(null);
-                setMatchFound(false); setMatchTime(20); setIsMatchmaking(true); setCurrentBet(tier.entry);
+                const tier = confirmPopup; setConfirmPopup(null); setMatchFound(false); setMatchTime(20); setIsMatchmaking(true); setCurrentBet(tier.entry);
 
                 try {
                     const q = window.fs.query(window.fs.collection(window.db, "rooms"), window.fs.where("tier", "==", tier.entry), window.fs.where("status", "==", "waiting"));
@@ -326,17 +280,12 @@
 
                     if (!querySnapshot.empty) {
                         const roomDoc = querySnapshot.docs[0];
-                        await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomDoc.id), {
-                            status: 'playing',
-                            p2: { uid: window.auth.currentUser.uid, name: userProfile.name, img: userProfile.avatar }
-                        });
+                        await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomDoc.id), { status: 'playing', p2: { uid: window.auth.currentUser.uid, name: userProfile.name, img: userProfile.avatar } });
                         setRoomId(roomDoc.id); setPlayerRole(2);
                     } else {
                         const docRef = await window.fs.addDoc(window.fs.collection(window.db, "rooms"), {
-                            tier: tier.entry, status: 'waiting',
-                            p1: { uid: window.auth.currentUser.uid, name: userProfile.name, img: userProfile.avatar },
-                            p1Bid: null, p2Bid: null, round: 1, p1Tokens: 500, p2Tokens: 500, p1Wins: 0, p2Wins: 0, lastResult: null,
-                            createdAt: new Date()
+                            tier: tier.entry, status: 'waiting', p1: { uid: window.auth.currentUser.uid, name: userProfile.name, img: userProfile.avatar },
+                            p1Bid: null, p2Bid: null, round: 1, p1Tokens: 500, p2Tokens: 500, p1Wins: 0, p2Wins: 0, lastResult: null, createdAt: new Date()
                         });
                         setRoomId(docRef.id); setPlayerRole(1);
                     }
@@ -352,16 +301,11 @@
             useEffect(() => {
                 if (!roomId) return;
                 const unsub = window.fs.onSnapshot(window.fs.doc(window.db, "rooms", roomId), async (doc) => {
-                    const data = doc.data();
-                    if(!data) return;
-                    setRoomData(data);
+                    const data = doc.data(); if(!data) return; setRoomData(data);
 
                     if(data.status === 'playing' && !matchFound) {
                         setMatchFound(true); setOpponent(playerRole === 1 ? data.p2 : data.p1);
-                        setTimeout(() => {
-                            setWallet(prev => prev - data.tier); 
-                            setIsMatchmaking(false); setIsPlaying(true); setBidInput('');
-                        }, 3000);
+                        setTimeout(() => { setWallet(prev => prev - data.tier); setIsMatchmaking(false); setIsPlaying(true); setBidInput(''); }, 3000);
                     }
 
                     if(data.status === 'finished') {
@@ -373,32 +317,25 @@
                         
                         if(isWinner === true) {
                             let winnings = data.tier * 1.8;
-                            setWallet(prev => prev + winnings);
-                            setWithdrawable(prev => prev + winnings);
-                            if(window.auth.currentUser) {
-                                window.fs.updateDoc(window.fs.doc(window.db, "users", window.auth.currentUser.uid), { wallet: wallet + winnings });
-                            }
+                            setWallet(prev => prev + winnings); setWithdrawable(prev => prev + winnings);
+                            if(window.auth.currentUser) { window.fs.updateDoc(window.fs.doc(window.db, "users", window.auth.currentUser.uid), { wallet: wallet + winnings }); }
                             setShowWinPopup(winnings); 
                         } else if(isWinner === 'draw') {
-                            setWallet(prev => prev + data.tier);
-                            alert("Match Draw! Entry fee refunded.");
+                            setWallet(prev => prev + data.tier); alert("Match Draw! Entry fee refunded.");
                         }
                     }
 
                     if(data.status === 'playing' && data.p1Bid !== null && data.p2Bid !== null && !data.lastResult) {
                         if(playerRole === 1) {
                             let p1T = data.p1Tokens - data.p1Bid; let p2T = data.p2Tokens - data.p2Bid;
-                            let p1W = data.p1Wins; let p2W = data.p2Wins;
-                            let winner = "DRAW";
+                            let p1W = data.p1Wins; let p2W = data.p2Wins; let winner = "DRAW";
                             if(data.p1Bid > data.p2Bid) { winner = data.p1.name; p1W++; }
                             else if(data.p2Bid > data.p1Bid) { winner = data.p2.name; p2W++; }
                             
                             let nextRound = data.round + 1;
                             await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomId), {
-                                p1Tokens: p1T, p2Tokens: p2T, p1Wins: p1W, p2Wins: p2W,
-                                lastResult: { p1Bid: data.p1Bid, p2Bid: data.p2Bid, winner }
+                                p1Tokens: p1T, p2Tokens: p2T, p1Wins: p1W, p2Wins: p2W, lastResult: { p1Bid: data.p1Bid, p2Bid: data.p2Bid, winner }
                             });
-
                             setTimeout(async () => {
                                 if(nextRound > 3) { await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomId), { status: 'finished' }); } 
                                 else { await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomId), { p1Bid: null, p2Bid: null, round: nextRound, lastResult: null }); }
@@ -415,8 +352,7 @@
                     timer = setInterval(async () => {
                         setMatchTime(prev => {
                             if(prev <= 1) {
-                                clearInterval(timer); setIsMatchmaking(false);
-                                alert("No real player found right now. Try again!");
+                                clearInterval(timer); setIsMatchmaking(false); alert("No real player found right now. Try again!");
                                 if(playerRole === 1 && roomId) { window.fs.deleteDoc(window.fs.doc(window.db, "rooms", roomId)); }
                                 setRoomId(null); return 0;
                             }
@@ -435,14 +371,72 @@
                 await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomId), { [playerRole === 1 ? 'p1Bid' : 'p2Bid']: b });
             };
 
+            // ==========================================
+            // INSTANT AUTO UTR VERIFICATION SYSTEM
+            // ==========================================
             const submitDepositRequest = async () => {
                 if(!utrInput || !depositAmount) return alert("Fill all details!");
-                if(Number(depositAmount) < 10) return alert("Minimum deposit amount is ₹10!");
+                const amt = Number(depositAmount);
+                if(amt < 10) return alert("Minimum deposit amount is ₹10!");
+                
                 try {
-                    await window.fs.addDoc(window.fs.collection(window.db, "deposits"), {
-                        uid: window.auth.currentUser.uid, name: userProfile.name, utr: utrInput, amount: Number(depositAmount), status: 'pending', date: new Date()
-                    });
-                    alert("Deposit proof sent to Admin! Wallet will be updated soon.");
+                    let autoVerified = false;
+                    
+                    // Check if Admin added this UTR & Amount in Auto UTRs
+                    const qUtr = window.fs.query(window.fs.collection(window.db, "auto_utrs"), window.fs.where("utr", "==", utrInput), window.fs.where("used", "==", false));
+                    const utrSnap = await window.fs.getDocs(qUtr);
+                    
+                    if (!utrSnap.empty) {
+                        const matchedUtrDoc = utrSnap.docs[0];
+                        const matchedUtrData = matchedUtrDoc.data();
+                        
+                        if (Number(matchedUtrData.amount) === amt) {
+                            autoVerified = true;
+                            // 1. Mark UTR as used
+                            await window.fs.updateDoc(window.fs.doc(window.db, "auto_utrs", matchedUtrDoc.id), { used: true });
+                            
+                            // 2. Add Money to User Wallet
+                            const newWalletBal = wallet + amt;
+                            setWallet(newWalletBal);
+                            await window.fs.updateDoc(window.fs.doc(window.db, "users", window.auth.currentUser.uid), { wallet: newWalletBal });
+                            
+                            // 3. Add to deposits as 'approved'
+                            await window.fs.addDoc(window.fs.collection(window.db, "deposits"), {
+                                uid: window.auth.currentUser.uid, name: userProfile.name, utr: utrInput, amount: amt, status: 'approved', date: new Date()
+                            });
+                            
+                            // 4. Handle Auto Referral (₹30 Check)
+                            if (amt >= 30 && userProfile.referralUsed) {
+                                const userRef = window.fs.doc(window.db, "users", window.auth.currentUser.uid);
+                                const userSnap = await window.fs.getDoc(userRef);
+                                const uData = userSnap.data();
+                                if (!uData.referralRewardGiven) {
+                                    const usersSnap = await window.fs.getDocs(window.fs.collection(window.db, "users"));
+                                    let referrerDoc = null; let referrerData = null;
+                                    usersSnap.forEach(uDoc => {
+                                        const u = uDoc.data();
+                                        const expectedCode = "YE-" + (u.number ? u.number.slice(-4) : "9999");
+                                        if(expectedCode === userProfile.referralUsed) { referrerDoc = uDoc; referrerData = u; }
+                                    });
+
+                                    if(referrerDoc && referrerData) {
+                                        await window.fs.updateDoc(window.fs.doc(window.db, "users", referrerDoc.id), { wallet: Number(referrerData.wallet || 0) + 10 });
+                                        await window.fs.updateDoc(userRef, { referralRewardGiven: true });
+                                    }
+                                }
+                            }
+                            alert("Payment Auto-Verified Successfully! Wallet Updated Instantly.");
+                        }
+                    }
+                    
+                    if(!autoVerified) {
+                        // Normal Manual Pending Request
+                        await window.fs.addDoc(window.fs.collection(window.db, "deposits"), {
+                            uid: window.auth.currentUser.uid, name: userProfile.name, utr: utrInput, amount: amt, status: 'pending', date: new Date()
+                        });
+                        alert("Deposit proof sent to Admin! Wallet will be updated soon.");
+                    }
+                    
                     setDepositModal(false); setUtrInput(''); setDepositAmount('');
                 } catch(e) { alert("Error submitting request!"); }
             };
@@ -461,7 +455,6 @@
                 } catch(e) { alert("Error submitting request!"); }
             };
 
-            // ---------------- MATCHMAKING & IN-GAME UI ---------------- //
             if (isMatchmaking) {
                 return (
                     <div className="fixed inset-0 z-[100] bg-[#050505] text-white flex flex-col items-center pt-20 px-6">
@@ -543,7 +536,6 @@
                 );
             }
 
-            // ---------------- MAIN APP UI ---------------- //
             return (
                 <div className="max-w-md mx-auto bg-transparent min-h-screen relative pb-24">
                     
@@ -593,7 +585,6 @@
                                         <i className="fa-solid fa-users text-[#dcae45]"></i> Play with Real Players
                                     </h3>
                                     
-                                    {/* LIVE DYNAMIC MATCH TIERS HERE */}
                                     <div className="grid grid-cols-2 gap-4">
                                         {playTiers.map((tier, index) => (
                                             <div key={tier.id || index} className="gold-card rounded-2xl p-4 flex flex-col items-center text-center relative overflow-hidden">
@@ -693,28 +684,15 @@
                                     <button onClick={() => setWithdrawModal(true)} className="flex-1 bg-transparent border-2 border-[#dcae45] py-4 rounded-2xl font-bold text-lg text-[#ffe29a] hover:bg-[#111] transition-colors"><i className="fa-solid fa-building-columns"></i> Withdraw</button>
                                 </div>
 
-                                {/* VERTICAL HISTORY OPTIONS */}
                                 <div className="mt-8 space-y-3">
                                     <button onClick={() => setHistoryView('deposit')} className="w-full flex items-center justify-between bg-[#111] border border-gray-800 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors">
-                                        <div className="flex items-center gap-4 text-gray-300 font-bold">
-                                            <div className="w-8 h-8 rounded-full bg-[#10b981]/10 text-[#10b981] flex items-center justify-center"><i className="fa-solid fa-arrow-down"></i></div>
-                                            Deposit History
-                                        </div>
-                                        <i className="fa-solid fa-chevron-right text-gray-600"></i>
+                                        <div className="flex items-center gap-4 text-gray-300 font-bold"><div className="w-8 h-8 rounded-full bg-[#10b981]/10 text-[#10b981] flex items-center justify-center"><i className="fa-solid fa-arrow-down"></i></div>Deposit History</div><i className="fa-solid fa-chevron-right text-gray-600"></i>
                                     </button>
                                     <button onClick={() => setHistoryView('withdraw')} className="w-full flex items-center justify-between bg-[#111] border border-gray-800 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors">
-                                        <div className="flex items-center gap-4 text-gray-300 font-bold">
-                                            <div className="w-8 h-8 rounded-full bg-rose-500/10 text-rose-500 flex items-center justify-center"><i className="fa-solid fa-arrow-up"></i></div>
-                                            Withdrawal History
-                                        </div>
-                                        <i className="fa-solid fa-chevron-right text-gray-600"></i>
+                                        <div className="flex items-center gap-4 text-gray-300 font-bold"><div className="w-8 h-8 rounded-full bg-rose-500/10 text-rose-500 flex items-center justify-center"><i className="fa-solid fa-arrow-up"></i></div>Withdrawal History</div><i className="fa-solid fa-chevron-right text-gray-600"></i>
                                     </button>
                                     <button onClick={() => setHistoryView('match')} className="w-full flex items-center justify-between bg-[#111] border border-gray-800 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors">
-                                        <div className="flex items-center gap-4 text-gray-300 font-bold">
-                                            <div className="w-8 h-8 rounded-full bg-[#3b82f6]/10 text-[#3b82f6] flex items-center justify-center"><i className="fa-solid fa-gamepad"></i></div>
-                                            Match History
-                                        </div>
-                                        <i className="fa-solid fa-chevron-right text-gray-600"></i>
+                                        <div className="flex items-center gap-4 text-gray-300 font-bold"><div className="w-8 h-8 rounded-full bg-[#3b82f6]/10 text-[#3b82f6] flex items-center justify-center"><i className="fa-solid fa-gamepad"></i></div>Match History</div><i className="fa-solid fa-chevron-right text-gray-600"></i>
                                     </button>
                                 </div>
                             </div>
@@ -725,18 +703,13 @@
                             <div className="fixed inset-0 bg-[#050505] z-[80] flex flex-col pop-in pb-20 pt-4">
                                 <div className="flex items-center p-4 border-b border-[#dcae45]/30 bg-[#111]">
                                     <button onClick={() => setHistoryView(null)} className="text-[#dcae45] text-xl px-2"><i className="fa-solid fa-arrow-left"></i></button>
-                                    <h2 className="text-xl font-black text-white ml-4 tracking-widest uppercase">
-                                        {historyView === 'deposit' ? 'Deposit History' : historyView === 'withdraw' ? 'Withdrawal History' : 'Match History'}
-                                    </h2>
+                                    <h2 className="text-xl font-black text-white ml-4 tracking-widest uppercase">{historyView === 'deposit' ? 'Deposit History' : historyView === 'withdraw' ? 'Withdrawal History' : 'Match History'}</h2>
                                 </div>
                                 <div className="flex-1 overflow-y-auto p-4 space-y-4">
                                     {historyView === 'deposit' && depHistory.map((tx, idx) => (
                                         <div key={idx} className="bg-[#111] border border-gray-800 p-4 rounded-xl">
                                             <div className="flex justify-between items-start mb-2">
-                                                <div>
-                                                    <span className="text-[#10b981] font-black text-lg">+₹{tx.amount}</span>
-                                                    <span className={`ml-3 text-[10px] font-bold uppercase px-2 py-1 rounded-full ${tx.status === 'pending' ? 'bg-yellow-500/20 text-yellow-500' : tx.status === 'approved' ? 'bg-[#10b981]/20 text-[#10b981]' : 'bg-red-500/20 text-red-500'}`}>{tx.status}</span>
-                                                </div>
+                                                <div><span className="text-[#10b981] font-black text-lg">+₹{tx.amount}</span><span className={`ml-3 text-[10px] font-bold uppercase px-2 py-1 rounded-full ${tx.status === 'pending' ? 'bg-yellow-500/20 text-yellow-500' : tx.status === 'approved' ? 'bg-[#10b981]/20 text-[#10b981]' : 'bg-red-500/20 text-red-500'}`}>{tx.status}</span></div>
                                                 <div className="text-[10px] text-gray-500 font-bold text-right">{tx.date ? new Date(tx.date.toDate()).toLocaleString() : 'N/A'}</div>
                                             </div>
                                             <div className="text-xs text-gray-400 font-bold">UTR: <span className="text-gray-200">{tx.utr}</span></div>
@@ -746,10 +719,7 @@
                                     {historyView === 'withdraw' && withHistory.map((tx, idx) => (
                                         <div key={idx} className="bg-[#111] border border-gray-800 p-4 rounded-xl">
                                             <div className="flex justify-between items-start mb-2">
-                                                <div>
-                                                    <span className="text-rose-500 font-black text-lg">-₹{tx.amount}</span>
-                                                    <span className={`ml-3 text-[10px] font-bold uppercase px-2 py-1 rounded-full ${tx.status === 'pending' ? 'bg-yellow-500/20 text-yellow-500' : tx.status === 'approved' ? 'bg-[#10b981]/20 text-[#10b981]' : 'bg-red-500/20 text-red-500'}`}>{tx.status}</span>
-                                                </div>
+                                                <div><span className="text-rose-500 font-black text-lg">-₹{tx.amount}</span><span className={`ml-3 text-[10px] font-bold uppercase px-2 py-1 rounded-full ${tx.status === 'pending' ? 'bg-yellow-500/20 text-yellow-500' : tx.status === 'approved' ? 'bg-[#10b981]/20 text-[#10b981]' : 'bg-red-500/20 text-red-500'}`}>{tx.status}</span></div>
                                                 <div className="text-[10px] text-gray-500 font-bold text-right">{tx.date ? new Date(tx.date.toDate()).toLocaleString() : 'N/A'}</div>
                                             </div>
                                             <div className="text-xs text-gray-400 font-bold uppercase">{tx.type}: <span className="text-gray-200">{tx.id}</span></div>
@@ -760,12 +730,8 @@
                                         <div key={idx} className={`bg-[#111] border border-gray-800 p-4 rounded-xl relative overflow-hidden`}>
                                             <div className={`absolute top-0 left-0 w-1 h-full ${match.isWinner === true ? 'bg-[#10b981]' : match.isWinner === false ? 'bg-rose-500' : 'bg-gray-500'}`}></div>
                                             <div className="flex justify-between items-center mb-2 pl-2">
-                                                <span className={`font-black uppercase text-lg ${match.isWinner === true ? 'text-[#10b981]' : match.isWinner === false ? 'text-rose-500' : 'text-gray-400'}`}>
-                                                    {match.isWinner === true ? 'VICTORY' : match.isWinner === false ? 'DEFEAT' : 'DRAW'}
-                                                </span>
-                                                <div className="text-[10px] text-gray-500 font-bold text-right">
-                                                    {match.date ? new Date(match.date.toDate ? match.date.toDate() : match.date).toLocaleString() : 'N/A'}
-                                                </div>
+                                                <span className={`font-black uppercase text-lg ${match.isWinner === true ? 'text-[#10b981]' : match.isWinner === false ? 'text-rose-500' : 'text-gray-400'}`}>{match.isWinner === true ? 'VICTORY' : match.isWinner === false ? 'DEFEAT' : 'DRAW'}</span>
+                                                <div className="text-[10px] text-gray-500 font-bold text-right">{match.date ? new Date(match.date.toDate ? match.date.toDate() : match.date).toLocaleString() : 'N/A'}</div>
                                             </div>
                                             <div className="flex justify-between text-xs font-bold pl-2">
                                                 <span className="text-gray-400">Entry: <span className="text-white">₹{match.tier}</span></span>
@@ -790,9 +756,7 @@
                                     <h3 className="text-3xl font-black text-[#ffe29a] mb-2 uppercase tracking-wider">Refer & Earn</h3>
                                     
                                     <p className="text-gray-300 text-sm mb-2 font-bold">Invite friends & earn ₹10 Bonus!</p>
-                                    <p className="text-red-500 font-bold text-xs mb-6 px-2 border border-red-500/30 bg-red-500/10 py-2 rounded-lg">
-                                        * You will get ₹10 Bonus ONLY when your referred friend makes a minimum deposit of ₹30!
-                                    </p>
+                                    <p className="text-red-500 font-bold text-xs mb-6 px-2 border border-red-500/30 bg-red-500/10 py-2 rounded-lg">* You will get ₹10 Bonus ONLY when your referred friend makes a minimum deposit of ₹30!</p>
                                     
                                     <div className="bg-black border-2 border-dashed border-[#dcae45] p-4 rounded-xl mb-6">
                                         <p className="text-xs text-gray-500 mb-1 uppercase tracking-widest font-bold">Your Invite Code</p>
@@ -835,16 +799,13 @@
                                 <div className="mt-8 space-y-3">
                                     <h3 className="text-gray-400 font-bold uppercase tracking-widest text-xs mb-4 pl-2">Settings & Info</h3>
                                     <button onClick={() => alert("Support Chat Opening...")} className="w-full flex items-center justify-between bg-[#111] border border-gray-800 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors">
-                                        <div className="flex items-center gap-4 text-gray-300 font-bold"><i className="fa-solid fa-headset text-[#dcae45] text-xl w-6"></i> Support Chat</div>
-                                        <i className="fa-solid fa-chevron-right text-gray-600"></i>
+                                        <div className="flex items-center gap-4 text-gray-300 font-bold"><i className="fa-solid fa-headset text-[#dcae45] text-xl w-6"></i> Support Chat</div><i className="fa-solid fa-chevron-right text-gray-600"></i>
                                     </button>
                                     <button onClick={() => alert("About Youth Earners")} className="w-full flex items-center justify-between bg-[#111] border border-gray-800 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors">
-                                        <div className="flex items-center gap-4 text-gray-300 font-bold"><i className="fa-solid fa-circle-info text-[#dcae45] text-xl w-6"></i> About Us</div>
-                                        <i className="fa-solid fa-chevron-right text-gray-600"></i>
+                                        <div className="flex items-center gap-4 text-gray-300 font-bold"><i className="fa-solid fa-circle-info text-[#dcae45] text-xl w-6"></i> About Us</div><i className="fa-solid fa-chevron-right text-gray-600"></i>
                                     </button>
                                     <button onClick={() => alert("1. Add Money to play.\n2. Do not quit in between.\n3. Refer friends for minimum ₹30 deposit.")} className="w-full flex items-center justify-between bg-[#111] border border-gray-800 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors">
-                                        <div className="flex items-center gap-4 text-gray-300 font-bold"><i className="fa-solid fa-book text-[#dcae45] text-xl w-6"></i> Game Rules</div>
-                                        <i className="fa-solid fa-chevron-right text-gray-600"></i>
+                                        <div className="flex items-center gap-4 text-gray-300 font-bold"><i className="fa-solid fa-book text-[#dcae45] text-xl w-6"></i> Game Rules</div><i className="fa-solid fa-chevron-right text-gray-600"></i>
                                     </button>
                                     <button onClick={logoutUser} className="w-full flex items-center justify-between bg-black border border-red-900/50 p-4 rounded-xl mt-4 hover:bg-red-950/30 transition-colors">
                                         <div className="flex items-center gap-4 text-red-500 font-bold"><i className="fa-solid fa-right-from-bracket text-xl w-6"></i> Logout</div>
@@ -854,18 +815,18 @@
                         )}
                     </div>
 
-                    {/* PAYMENT MODALS */}
+                    {/* PAYMENT DEPOSIT MODAL (DYNAMIC QR AND UPI) */}
                     {depositModal && (
                         <div className="fixed inset-0 bg-black/90 z-[90] flex items-center justify-center p-4 backdrop-blur-sm pop-in">
                             <div className="bg-[#111] border border-[#dcae45] w-full max-w-sm rounded-3xl p-6 shadow-[0_0_30px_rgba(220,174,69,0.2)]">
                                 <h3 className="text-xl font-bold text-[#ffe29a] mb-4 text-center">Deposit Money</h3>
                                 <div className="bg-white p-2 rounded-xl w-40 h-40 mx-auto mb-4">
-                                    <img src="payment-qr.png" className="w-full h-full object-contain" alt="QR Code" />
+                                    <img src={adminSettings.qrUrl} className="w-full h-full object-contain" alt="Payment QR Code" />
                                 </div>
                                 <div className="text-center mb-6">
                                     <p className="text-gray-400 text-xs mb-1">Scan QR or Pay to UPI ID</p>
                                     <div className="flex items-center justify-center gap-2 text-white font-bold bg-black py-2 rounded-lg border border-gray-700">
-                                        youthearners@nyes <i className="fa-solid fa-copy text-[#dcae45] cursor-pointer" onClick={() => alert('UPI ID Copied!')}></i>
+                                        {adminSettings.upiId} <i className="fa-solid fa-copy text-[#dcae45] cursor-pointer" onClick={() => alert('UPI ID Copied!')}></i>
                                     </div>
                                 </div>
                                 <div className="space-y-3 mb-6">
@@ -939,13 +900,11 @@
                     <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-[#050505] border-t border-[#dcae45]/30 flex justify-between items-center h-[70px] px-6 z-50 rounded-t-3xl shadow-[0_-10px_25px_rgba(0,0,0,0.9)] backdrop-blur-md">
                         <button onClick={()=>setActiveTab('home')} className={`flex flex-col items-center gap-1 w-10 ${activeTab==='home'?'text-[#ffe29a] drop-shadow-[0_0_8px_rgba(220,174,69,0.8)]':'text-gray-500'}`}><i className="fa-solid fa-house text-xl"></i><span className="text-[10px] font-bold">Home</span></button>
                         <button onClick={()=>setActiveTab('ranking')} className={`flex flex-col items-center gap-1 w-12 ${activeTab==='ranking'?'text-[#ffe29a] drop-shadow-[0_0_8px_rgba(220,174,69,0.8)]':'text-gray-500'}`}><i className="fa-solid fa-ranking-star text-xl"></i><span className="text-[10px] font-bold">Ranking</span></button>
-                        
                         <div className="relative -top-6">
                             <button onClick={()=>setActiveTab('wallet')} className={`w-16 h-16 rounded-full flex items-center justify-center border-4 border-[#050505] shadow-[0_0_20px_rgba(220,174,69,0.6)] transition-transform ${activeTab==='wallet'?'bg-gradient-to-b from-[#ffe29a] to-[#dcae45] text-black scale-105':'bg-[#111] text-[#dcae45]'}`}>
                                 <i className="fa-solid fa-wallet text-2xl"></i>
                             </button>
                         </div>
-                        
                         <button onClick={()=>setActiveTab('refer')} className={`flex flex-col items-center gap-1 w-10 ${activeTab==='refer'?'text-[#ffe29a] drop-shadow-[0_0_8px_rgba(220,174,69,0.8)]':'text-gray-500'}`}><i className="fa-solid fa-gift text-xl"></i><span className="text-[10px] font-bold">Refer</span></button>
                         <button onClick={()=>setActiveTab('profile')} className={`flex flex-col items-center gap-1 w-10 ${activeTab==='profile'?'text-[#ffe29a] drop-shadow-[0_0_8px_rgba(220,174,69,0.8)]':'text-gray-500'}`}><i className="fa-solid fa-user text-xl"></i><span className="text-[10px] font-bold">Profile</span></button>
                     </div>
