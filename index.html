@@ -97,15 +97,12 @@
             const [withHistory, setWithHistory] = useState([]);
             const [matchHistory, setMatchHistory] = useState([]);
 
-            // NOTIFICATION STATE
             const [notifications, setNotifications] = useState([]);
             const [showNotifications, setShowNotifications] = useState(false);
             const [unreadCount, setUnreadCount] = useState(0);
 
-            // SETTINGS FROM ADMIN
             const [adminSettings, setAdminSettings] = useState({ upiId: 'youthearners@nyes', qrUrl: 'payment-qr.png' });
 
-            // SAFE DATE FORMATTER (FIX FOR HISTORY CRASH)
             const formatSafeDate = (dateObj) => {
                 if (!dateObj) return 'N/A';
                 try {
@@ -164,15 +161,20 @@
                         localStorage.setItem('userAvatar', dbAvatar); localStorage.setItem('userName', dbName);
                         setUserProfile(prev => ({ ...prev, name: dbName, number: data.number || prev.number, avatar: dbAvatar }));
                         setEditNameInput(dbName);
+                        
+                        // INITIAL LOAD FIX FOR WALLET & WITHDRAWABLE
                         if(data.wallet !== undefined) setWallet(data.wallet);
+                        if(data.withdrawable !== undefined) setWithdrawable(data.withdrawable);
                         
                         if(window.auth && window.auth.currentUser) {
                             const uid = window.auth.currentUser.uid;
                             
+                            // REAL-TIME WALLET & WITHDRAWABLE SYNC
                             unsubWallet = window.fs.onSnapshot(window.fs.doc(window.db, "users", uid), (docSnap) => {
                                 if(docSnap.exists()){
                                     const dbData = docSnap.data();
                                     if(dbData.wallet !== undefined) setWallet(dbData.wallet);
+                                    if(dbData.withdrawable !== undefined) setWithdrawable(dbData.withdrawable);
                                 }
                             });
 
@@ -269,7 +271,6 @@
                 }
             }, [activeTab]);
 
-            // UPDATED HISTORY FETCH FUNCTION WITH SAFE DATES
             useEffect(() => {
                 if (activeTab === 'wallet' && window.auth && window.auth.currentUser) {
                     const fetchAllHistory = async () => {
@@ -305,7 +306,7 @@
                             });
                             processedMatches.sort((a,b) => (b.date?.toDate ? b.date.toDate() : new Date(b.date)) - (a.date?.toDate ? a.date.toDate() : new Date(a.date)));
                             setMatchHistory(processedMatches);
-                        } catch(e) { console.log("History error", e); }
+                        } catch(e) { }
                     };
                     fetchAllHistory();
                 }
@@ -349,7 +350,20 @@
 
                     if(data.status === 'playing' && !matchFound) {
                         setMatchFound(true); setOpponent(playerRole === 1 ? data.p2 : data.p1);
-                        setTimeout(() => { setWallet(prev => prev - data.tier); setIsMatchmaking(false); setIsPlaying(true); setBidInput(''); }, 3000);
+                        setTimeout(() => { 
+                            // Deduct entry fee properly in DB
+                            const entryFee = data.tier;
+                            if(window.auth.currentUser) {
+                                const userRef = window.fs.doc(window.db, "users", window.auth.currentUser.uid);
+                                window.fs.getDoc(userRef).then(uSnap => {
+                                    if(uSnap.exists()){
+                                        let dbW = uSnap.data().wallet || 0;
+                                        window.fs.updateDoc(userRef, { wallet: dbW - entryFee });
+                                    }
+                                });
+                            }
+                            setIsMatchmaking(false); setIsPlaying(true); setBidInput(''); 
+                        }, 3000);
                     }
 
                     if(data.status === 'finished') {
@@ -361,11 +375,33 @@
                         
                         if(isWinner === true) {
                             let winnings = data.tier * 1.8;
-                            setWallet(prev => prev + winnings); setWithdrawable(prev => prev + winnings);
-                            if(window.auth.currentUser) { window.fs.updateDoc(window.fs.doc(window.db, "users", window.auth.currentUser.uid), { wallet: wallet + winnings }); }
+                            
+                            // WINNING FIX: UPDATE BOTH WALLET AND WITHDRAWABLE IN DATABASE
+                            if(window.auth.currentUser) { 
+                                const userRef = window.fs.doc(window.db, "users", window.auth.currentUser.uid);
+                                window.fs.getDoc(userRef).then(uSnap => {
+                                    if(uSnap.exists()){
+                                        let dbW = uSnap.data().wallet || 0;
+                                        let dbWith = uSnap.data().withdrawable || 0;
+                                        window.fs.updateDoc(userRef, { 
+                                            wallet: dbW + winnings,
+                                            withdrawable: dbWith + winnings
+                                        });
+                                    }
+                                });
+                            }
                             setShowWinPopup(winnings); 
                         } else if(isWinner === 'draw') {
-                            setWallet(prev => prev + data.tier); alert("Match Draw! Entry fee refunded.");
+                            if(window.auth.currentUser) {
+                                const userRef = window.fs.doc(window.db, "users", window.auth.currentUser.uid);
+                                window.fs.getDoc(userRef).then(uSnap => {
+                                    if(uSnap.exists()){
+                                        let dbW = uSnap.data().wallet || 0;
+                                        window.fs.updateDoc(userRef, { wallet: dbW + data.tier });
+                                    }
+                                });
+                            }
+                            alert("Match Draw! Entry fee refunded.");
                         }
                     }
 
@@ -388,7 +424,7 @@
                     }
                 });
                 return () => unsub();
-            }, [roomId, matchFound, playerRole, wallet]);
+            }, [roomId, matchFound, playerRole]);
 
             useEffect(() => {
                 let timer;
@@ -433,19 +469,19 @@
                             autoVerified = true;
                             await window.fs.updateDoc(window.fs.doc(window.db, "auto_utrs", matchedUtrDoc.id), { used: true });
                             
-                            const newWalletBal = wallet + amt;
-                            setWallet(newWalletBal);
-                            await window.fs.updateDoc(window.fs.doc(window.db, "users", window.auth.currentUser.uid), { wallet: newWalletBal });
+                            const userRef = window.fs.doc(window.db, "users", window.auth.currentUser.uid);
+                            const uSnap = await window.fs.getDoc(userRef);
+                            if(uSnap.exists()){
+                                let dbW = uSnap.data().wallet || 0;
+                                await window.fs.updateDoc(userRef, { wallet: dbW + amt });
+                            }
                             
                             await window.fs.addDoc(window.fs.collection(window.db, "deposits"), {
                                 uid: window.auth.currentUser.uid, name: userProfile.name, utr: utrInput, amount: amt, status: 'approved', date: new Date()
                             });
                             
                             if (amt >= 30 && userProfile.referralUsed) {
-                                const userRef = window.fs.doc(window.db, "users", window.auth.currentUser.uid);
-                                const userSnap = await window.fs.getDoc(userRef);
-                                const uData = userSnap.data();
-                                if (!uData.referralRewardGiven) {
+                                if (!uSnap.data().referralRewardGiven) {
                                     const usersSnap = await window.fs.getDocs(window.fs.collection(window.db, "users"));
                                     let referrerDoc = null; let referrerData = null;
                                     usersSnap.forEach(uDoc => {
@@ -477,13 +513,28 @@
 
             const submitWithdrawRequest = async () => {
                 if(!withdrawId || !withdrawAmount) return alert("Fill all details!");
-                if(withdrawAmount > withdrawable) return alert("You don't have enough Winning Balance!");
+                const wAmt = Number(withdrawAmount);
+                if(wAmt > withdrawable) return alert("You don't have enough Winning Balance!");
+                
                 try {
                     await window.fs.addDoc(window.fs.collection(window.db, "withdrawals"), {
-                        uid: window.auth.currentUser.uid, name: userProfile.name, type: withdrawType, id: withdrawId, amount: withdrawAmount, status: 'pending', date: new Date()
+                        uid: window.auth.currentUser.uid, name: userProfile.name, type: withdrawType, id: withdrawId, amount: wAmt, status: 'pending', date: new Date()
                     });
-                    setWithdrawable(prev => prev - withdrawAmount);
-                    setWallet(prev => prev - withdrawAmount);
+                    
+                    // WITHDRAWAL FIX: DEDUCT MONEY FROM DATABASE WALLET & WITHDRAWABLE
+                    if(window.auth.currentUser) {
+                        const userRef = window.fs.doc(window.db, "users", window.auth.currentUser.uid);
+                        const uSnap = await window.fs.getDoc(userRef);
+                        if(uSnap.exists()){
+                            let dbW = uSnap.data().wallet || 0;
+                            let dbWith = uSnap.data().withdrawable || 0;
+                            await window.fs.updateDoc(userRef, { 
+                                wallet: dbW - wAmt, 
+                                withdrawable: dbWith - wAmt 
+                            });
+                        }
+                    }
+
                     alert("Withdrawal request sent successfully!");
                     setWithdrawModal(false); setWithdrawId(''); setWithdrawAmount('');
                 } catch(e) { alert("Error submitting request!"); }
@@ -737,7 +788,6 @@
                             </div>
                         )}
 
-                        {/* HISTORY VIEWS (UPDATED WITH SAFE DATE) */}
                         {activeTab === 'wallet' && historyView && (
                             <div className="fixed inset-0 bg-[#050505] z-[80] flex flex-col pop-in pb-20 pt-4">
                                 <div className="flex items-center p-4 border-b border-[#dcae45]/30 bg-[#111]">
@@ -778,11 +828,6 @@
                                             </div>
                                         </div>
                                     ))}
-
-                                    {/* Empty States */}
-                                    {historyView === 'deposit' && depHistory.length === 0 && <div className="text-center text-gray-500 font-bold mt-10">No Deposit History Found.</div>}
-                                    {historyView === 'withdraw' && withHistory.length === 0 && <div className="text-center text-gray-500 font-bold mt-10">No Withdrawal History Found.</div>}
-                                    {historyView === 'match' && matchHistory.length === 0 && <div className="text-center text-gray-500 font-bold mt-10">No Match History Found.</div>}
                                 </div>
                             </div>
                         )}
