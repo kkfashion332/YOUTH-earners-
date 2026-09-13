@@ -15,13 +15,16 @@
         .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #dcae45; border-radius: 10px; }
     </style>
 </head>
-<body class="intro-running bg-premium-dark text-white">
+<body class="intro-running bg-[#050505] text-white">
 
-    <div id="logoIntro" aria-label="Youth Earner's logo introduction">
-        <div class="intro-stage">
-            <div class="logo-wrap"><img class="intro-logo" src="youth-earners-logo.png" alt="Youth Earner's" /></div>
-            <div class="intro-line"></div>
-            <p class="intro-title">Youth Earner's</p>
+    <!-- FIXED: CENTERED INTRO SCREEN (GUARANTEED TO HIDE) -->
+    <div id="logoIntro" class="fixed inset-0 bg-[#050505] z-[99999] flex flex-col items-center justify-center transition-opacity duration-500">
+        <div class="text-center">
+            <div class="w-32 h-32 mx-auto mb-6 rounded-full shadow-[0_0_30px_rgba(220,174,69,0.5)] p-2 bg-black border-2 border-[#dcae45] animate-pulse">
+                <img class="w-full h-full object-contain rounded-full" src="youth-earners-logo.png" alt="Youth Earner's" />
+            </div>
+            <div class="w-16 h-1 bg-[#dcae45] mx-auto mb-4 rounded-full"></div>
+            <p class="text-3xl font-black text-[#ffe29a] tracking-[0.2em] uppercase drop-shadow-[0_0_10px_rgba(220,174,69,0.8)]">Youth Earner's</p>
         </div>
     </div>
 
@@ -77,59 +80,180 @@
         </div>
     </div>
 
-    <div id="authContainer" class="hidden auth-wrapper">
-        <div class="form-container">
-            <img class="auth-logo" src="youth-earners-logo.png" alt="Logo" />
+    <!-- AUTHENTICATION UI -->
+    <div id="authContainer" class="hidden auth-wrapper min-h-screen flex items-center justify-center p-4">
+        <div class="form-container bg-[#111] border border-[#dcae45]/50 p-8 rounded-3xl w-full max-w-sm shadow-[0_0_30px_rgba(220,174,69,0.15)] relative">
+            <img class="w-24 h-24 mx-auto mb-6 rounded-full border-2 border-[#dcae45] p-1 bg-black" src="youth-earners-logo.png" alt="Logo" />
             
-            <form id="loginForm" class="auth-form">
-                <h2>Welcome Back</h2>
-                <div class="input-group"><input type="tel" id="loginNumber" placeholder="Enter your mobile number" pattern="[0-9]{10}" maxlength="10" required></div>
-                <div class="input-group"><input type="password" id="loginPassword" placeholder="Password (content 6 digit)" minlength="6" required></div>
+            <form id="loginForm" class="auth-form flex flex-col gap-4">
+                <h2 class="text-2xl font-black text-center text-white mb-2 uppercase tracking-widest">Welcome Back</h2>
+                <input type="tel" id="loginNumber" placeholder="Mobile Number" pattern="[0-9]{10}" maxlength="10" required class="w-full bg-black border border-gray-700 p-4 rounded-xl text-white focus:border-[#dcae45] outline-none">
+                <input type="password" id="loginPassword" placeholder="Password (Min 6 digits)" minlength="6" required class="w-full bg-black border border-gray-700 p-4 rounded-xl text-white focus:border-[#dcae45] outline-none">
                 
-                <!-- NEW: Horizontal 18+ and T&C Checkboxes -->
-                <div class="flex gap-3 mt-3 mb-4">
-                    <div class="flex-1 flex items-center justify-center gap-2 bg-black/50 p-2 border border-gray-700 rounded-lg">
+                <!-- Horizontal Checkboxes for Login -->
+                <div class="flex gap-2 mt-2">
+                    <div class="flex-1 flex items-center justify-center gap-2 bg-black p-3 border border-gray-700 rounded-xl">
                         <input type="checkbox" id="logAgeCheck" required class="w-4 h-4 accent-[#dcae45] cursor-pointer">
                         <label for="logAgeCheck" class="text-[10px] text-gray-300 font-bold cursor-pointer uppercase">I am 18+</label>
                     </div>
-                    <div class="flex-1 flex items-center justify-center gap-2 bg-black/50 p-2 border border-gray-700 rounded-lg">
+                    <div class="flex-1 flex items-center justify-center gap-2 bg-black p-3 border border-gray-700 rounded-xl">
                         <input type="checkbox" id="logTcCheck" required class="w-4 h-4 accent-[#dcae45] cursor-pointer">
-                        <label for="logTcCheck" class="text-[10px] text-gray-300 cursor-pointer uppercase font-bold">Agree to <span onclick="document.getElementById('tcModal').classList.remove('hidden');" class="text-[#dcae45] underline font-black">T&C</span></label>
+                        <label for="logTcCheck" class="text-[10px] text-gray-300 cursor-pointer uppercase font-bold">Agree <span onclick="document.getElementById('tcModal').classList.remove('hidden');" class="text-[#dcae45] underline font-black">T&C</span></label>
                     </div>
                 </div>
 
-                <button type="submit" id="loginBtn" class="auth-btn">Log In</button>
-                <p class="switch-form">New user? <span id="showRegister">Sign in (Register)</span></p>
+                <button type="submit" id="loginBtn" class="w-full bg-[#dcae45] text-black font-black py-4 rounded-xl text-lg tracking-widest mt-2 uppercase shadow-[0_0_15px_rgba(220,174,69,0.3)] hover:bg-[#ffe29a] transition">Log In</button>
+                <p class="text-center text-sm text-gray-400 mt-2">New user? <span id="showRegister" class="text-[#dcae45] font-bold cursor-pointer hover:underline">Register here</span></p>
             </form>
 
-            <form id="registerForm" class="auth-form hidden">
-                <h2>Create Account</h2>
-                <div class="input-group"><input type="text" id="regName" placeholder="Full Name" required></div>
-                <div class="input-group"><input type="tel" id="regNumber" placeholder="Enter your mobile number" pattern="[0-9]{10}" maxlength="10" required></div>
-                <div class="input-group"><input type="password" id="regPassword" placeholder="Password (content 6 digit)" minlength="6" required></div>
-                <div class="input-group"><input type="text" id="regReferral" placeholder="Referral Code (Optional)"></div>
+            <form id="registerForm" class="auth-form hidden flex flex-col gap-4">
+                <h2 class="text-2xl font-black text-center text-white mb-2 uppercase tracking-widest">Create Account</h2>
+                <input type="text" id="regName" placeholder="Full Name" required class="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none">
+                <input type="tel" id="regNumber" placeholder="Mobile Number" pattern="[0-9]{10}" maxlength="10" required class="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none">
+                <input type="password" id="regPassword" placeholder="Password (Min 6 digits)" minlength="6" required class="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none">
+                <input type="text" id="regReferral" placeholder="Referral Code (Optional)" class="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none">
                 
-                <!-- NEW: Horizontal 18+ and T&C Checkboxes -->
-                <div class="flex gap-3 mt-3 mb-4">
-                    <div class="flex-1 flex items-center justify-center gap-2 bg-black/50 p-2 border border-gray-700 rounded-lg">
+                <!-- Horizontal Checkboxes for Register -->
+                <div class="flex gap-2 mt-2">
+                    <div class="flex-1 flex items-center justify-center gap-2 bg-black p-3 border border-gray-700 rounded-xl">
                         <input type="checkbox" id="regAgeCheck" required class="w-4 h-4 accent-[#dcae45] cursor-pointer">
                         <label for="regAgeCheck" class="text-[10px] text-gray-300 font-bold cursor-pointer uppercase">I am 18+</label>
                     </div>
-                    <div class="flex-1 flex items-center justify-center gap-2 bg-black/50 p-2 border border-gray-700 rounded-lg">
+                    <div class="flex-1 flex items-center justify-center gap-2 bg-black p-3 border border-gray-700 rounded-xl">
                         <input type="checkbox" id="regTcCheck" required class="w-4 h-4 accent-[#dcae45] cursor-pointer">
-                        <label for="regTcCheck" class="text-[10px] text-gray-300 cursor-pointer uppercase font-bold">Agree to <span onclick="document.getElementById('tcModal').classList.remove('hidden');" class="text-[#dcae45] underline font-black">T&C</span></label>
+                        <label for="regTcCheck" class="text-[10px] text-gray-300 cursor-pointer uppercase font-bold">Agree <span onclick="document.getElementById('tcModal').classList.remove('hidden');" class="text-[#dcae45] underline font-black">T&C</span></label>
                     </div>
                 </div>
 
-                <button type="submit" id="regBtn" class="auth-btn">Register</button>
-                <p class="switch-form">Already have an account? <span id="showLogin">Log In</span></p>
+                <button type="submit" id="regBtn" class="w-full bg-[#dcae45] text-black font-black py-4 rounded-xl text-lg tracking-widest mt-2 uppercase shadow-[0_0_15px_rgba(220,174,69,0.3)] hover:bg-[#ffe29a] transition">Register</button>
+                <p class="text-center text-sm text-gray-400 mt-2">Already have an account? <span id="showLogin" class="text-[#dcae45] font-bold cursor-pointer hover:underline">Log In</span></p>
             </form>
         </div>
     </div>
 
+    <!-- MAIN REACT APP CONTAINER -->
     <main id="website" class="hidden"><div id="root"></div></main>
 
-    <script type="module" src="app.js"></script>
+    <!-- INTEGRATED FIREBASE & AUTH LOGIC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs, updateDoc, addDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA4pTWtUMbZFhrMORZibUhV7gpPRy6DreY",
+            authDomain: "youth-earners-d34ca.firebaseapp.com",
+            projectId: "youth-earners-d34ca",
+            storageBucket: "youth-earners-d34ca.firebasestorage.app",
+            messagingSenderId: "568087034965",
+            appId: "1:568087034965:web:b4f79488d22db53af128dc"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        window.auth = auth;
+        window.db = db;
+        window.fs = { collection, query, where, getDocs, doc, getDoc, updateDoc, addDoc, deleteDoc, onSnapshot, setDoc };
+
+        const initRecaptcha = () => {
+            if (!window.recaptchaVerifier) {
+                window.recaptchaVerifier = new RecaptchaVerifier(auth, 'loginBtn', { 'size': 'invisible' });
+            }
+        };
+
+        // NEW LOGIC: GUARANTEED LOGO HIDE INDEPENDENT OF FIREBASE
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const intro = document.getElementById('logoIntro');
+                if(intro) {
+                    intro.style.opacity = '0'; // Smooth fade out
+                    setTimeout(() => {
+                        intro.style.display = 'none';
+                        document.body.classList.remove('intro-running');
+                    }, 500);
+                }
+            }, 2000);
+        });
+
+        // Listen for Login State
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                document.getElementById('authContainer').classList.add('hidden');
+                document.getElementById('website').classList.remove('hidden');
+                try {
+                    const docSnap = await getDoc(doc(db, "users", user.uid));
+                    if (docSnap.exists()) {
+                        window.dispatchEvent(new CustomEvent('gameStart', { detail: docSnap.data() }));
+                    }
+                } catch(e) { console.log(e); }
+            } else {
+                document.getElementById('authContainer').classList.remove('hidden');
+                document.getElementById('website').classList.add('hidden');
+            }
+        });
+
+        // Toggle Login/Register Forms
+        document.getElementById('showRegister').addEventListener('click', () => {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('registerForm').classList.remove('hidden');
+        });
+
+        document.getElementById('showLogin').addEventListener('click', () => {
+            document.getElementById('registerForm').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+        });
+
+        // Login Handler
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const num = document.getElementById('loginNumber').value;
+            const pwd = document.getElementById('loginPassword').value;
+            
+            try {
+                const querySnapshot = await window.fs.getDocs(window.fs.query(window.fs.collection(db, "users"), window.fs.where("number", "==", num), window.fs.where("pwd", "==", pwd)));
+                if (!querySnapshot.empty) {
+                    alert("Login Successful! Note: Secure OTP login requires paid SMS plan.");
+                    location.reload(); 
+                } else {
+                    alert("Invalid Number or Password!");
+                }
+            } catch(err) {
+                console.log(err);
+                alert("Error logging in");
+            }
+        });
+
+        // Registration Handler
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('regName').value;
+            const num = document.getElementById('regNumber').value;
+            const pwd = document.getElementById('regPassword').value;
+            const ref = document.getElementById('regReferral').value;
+
+            initRecaptcha();
+            try {
+                const confirmationResult = await signInWithPhoneNumber(auth, `+91${num}`, window.recaptchaVerifier);
+                const code = prompt("Enter OTP sent to your number:");
+                if (code) {
+                    const result = await confirmationResult.confirm(code);
+                    const user = result.user;
+                    await setDoc(doc(db, "users", user.uid), {
+                        name, number: num, pwd, wallet: 0, withdrawable: 0, referralUsed: ref, 
+                        avatar: 'youth-earners-logo.png', joined: new Date()
+                    });
+                    alert("Registration Successful!");
+                }
+            } catch (error) {
+                console.log(error);
+                alert("OTP Verification Failed! Try again.");
+            }
+        });
+    </script>
+
+    <!-- REACT APP LOGIC -->
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
@@ -167,7 +291,6 @@
             const [roomId, setRoomId] = useState(null);
             const [playerRole, setPlayerRole] = useState(null); 
             const [roomData, setRoomData] = useState(null);
-            const [currentBet, setCurrentBet] = useState(0);
             const [bidInput, setBidInput] = useState('');
             
             const fileInputRef = useRef(null);
@@ -197,26 +320,6 @@
             };
 
             useEffect(() => {
-                let audioCtx = null;
-                const playClickSound = () => {
-                    try {
-                        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                        if (audioCtx.state === 'suspended') audioCtx.resume();
-                        const osc = audioCtx.createOscillator();
-                        const gain = audioCtx.createGain();
-                        osc.connect(gain); gain.connect(audioCtx.destination);
-                        osc.type = 'sine'; osc.frequency.setValueAtTime(1200, audioCtx.currentTime); 
-                        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                        osc.start(); gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.03);
-                        osc.stop(audioCtx.currentTime + 0.03);
-                    } catch(e){}
-                };
-                const handleGlobalClick = (e) => { if(e.target.closest('button') || e.target.closest('i')) playClickSound(); };
-                document.addEventListener('click', handleGlobalClick);
-                return () => document.removeEventListener('click', handleGlobalClick);
-            }, []);
-
-            useEffect(() => {
                 let unsubMatches = null;
                 const fetchLiveSettingsAndMatches = async () => {
                     if(window.fs && window.db) {
@@ -224,7 +327,6 @@
                             let m = []; snap.forEach(doc => m.push({ id: doc.id, ...doc.data() }));
                             if(m.length > 0) { m.sort((a,b) => a.entry - b.entry); setPlayTiers(m); }
                         });
-                        
                         const docSnap = await window.fs.getDoc(window.fs.doc(window.db, "admin_settings", "payment"));
                         if(docSnap.exists()) setAdminSettings(docSnap.data());
                     } else { setTimeout(fetchLiveSettingsAndMatches, 500); }
@@ -251,7 +353,6 @@
                         
                         if(window.auth && window.auth.currentUser) {
                             const uid = window.auth.currentUser.uid;
-                            
                             unsubWallet = window.fs.onSnapshot(window.fs.doc(window.db, "users", uid), (docSnap) => {
                                 if(docSnap.exists()){
                                     const dbData = docSnap.data();
@@ -259,52 +360,24 @@
                                     if(dbData.withdrawable !== undefined) setWithdrawable(dbData.withdrawable);
                                 }
                             });
-
                             const nQ = window.fs.query(window.fs.collection(window.db, "notifications"), window.fs.where("uid", "==", uid));
                             unsubNotif = window.fs.onSnapshot(nQ, (snap) => {
-                                let notifs = [];
-                                let unread = 0;
-                                snap.forEach(doc => {
-                                    const nData = doc.data();
-                                    notifs.push({ id: doc.id, ...nData });
-                                    if(!nData.read) unread++;
-                                });
+                                let notifs = []; let unread = 0;
+                                snap.forEach(doc => { const nData = doc.data(); notifs.push({ id: doc.id, ...nData }); if(!nData.read) unread++; });
                                 notifs.sort((a,b) => (b.date?.toDate() || 0) - (a.date?.toDate() || 0));
-                                setNotifications(notifs);
-                                setUnreadCount(unread);
+                                setNotifications(notifs); setUnreadCount(unread);
                             });
                         }
                     }
                 };
                 window.addEventListener('gameStart', handleGameStart);
-                return () => { 
-                    window.removeEventListener('gameStart', handleGameStart); 
-                    if(unsubWallet) unsubWallet(); 
-                    if(unsubNotif) unsubNotif();
-                };
+                return () => { window.removeEventListener('gameStart', handleGameStart); if(unsubWallet) unsubWallet(); if(unsubNotif) unsubNotif(); };
             }, []);
 
-            const markAsRead = async (id) => {
-                try {
-                    await window.fs.updateDoc(window.fs.doc(window.db, "notifications", id), { read: true });
-                } catch(e) {}
-            };
-
-            const syncProfileToDatabase = async (updateData) => {
-                if (window.auth && window.auth.currentUser) {
-                    try { await window.fs.updateDoc(window.fs.doc(window.db, "users", window.auth.currentUser.uid), updateData); } 
-                    catch (e) {}
-                }
-            };
-
-            const saveProfileName = () => {
-                if(!editNameInput.trim()) return;
-                setUserProfile(prev => ({...prev, name: editNameInput}));
-                localStorage.setItem('userName', editNameInput);
-                syncProfileToDatabase({ name: editNameInput });
-                setIsEditingName(false);
-            };
-
+            const markAsRead = async (id) => { try { await window.fs.updateDoc(window.fs.doc(window.db, "notifications", id), { read: true }); } catch(e) {} };
+            const syncProfileToDatabase = async (updateData) => { if (window.auth && window.auth.currentUser) { try { await window.fs.updateDoc(window.fs.doc(window.db, "users", window.auth.currentUser.uid), updateData); } catch (e) {} } };
+            const saveProfileName = () => { if(!editNameInput.trim()) return; setUserProfile(prev => ({...prev, name: editNameInput})); localStorage.setItem('userName', editNameInput); syncProfileToDatabase({ name: editNameInput }); setIsEditingName(false); };
+            
             const handleImageUpload = (e) => { 
                 const file = e.target.files[0]; 
                 if (file) { 
@@ -314,14 +387,11 @@
                         img.onload = () => {
                             const canvas = document.createElement("canvas");
                             const MAX_SIZE = 250; let width = img.width; let height = img.height;
-                            if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } 
-                            else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
+                            if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
                             canvas.width = width; canvas.height = height;
                             const ctx = canvas.getContext("2d"); ctx.drawImage(img, 0, 0, width, height);
                             const compressedBase64 = canvas.toDataURL("image/jpeg", 0.7); 
-                            localStorage.setItem('userAvatar', compressedBase64); 
-                            setUserProfile(prev => ({ ...prev, avatar: compressedBase64 }));
-                            syncProfileToDatabase({ avatar: compressedBase64 }); 
+                            localStorage.setItem('userAvatar', compressedBase64); setUserProfile(prev => ({ ...prev, avatar: compressedBase64 })); syncProfileToDatabase({ avatar: compressedBase64 }); 
                         };
                     };
                     reader.readAsDataURL(file);
@@ -379,8 +449,7 @@
                             
                             const uniqueMData = Array.from(new Set(mData.map(a => a.id))).map(id => mData.find(a => a.id === id));
                             const processedMatches = uniqueMData.map(match => {
-                                const isP1 = match.p1.uid === uid;
-                                let isWinner = false;
+                                const isP1 = match.p1.uid === uid; let isWinner = false;
                                 if(match.p1Wins > match.p2Wins || (match.p1Wins === match.p2Wins && match.p1Tokens > match.p2Tokens)) { isWinner = isP1; } 
                                 else if(match.p2Wins > match.p1Wins || (match.p2Wins === match.p1Wins && match.p2Tokens > match.p1Tokens)) { isWinner = !isP1; } 
                                 else { isWinner = 'draw'; }
@@ -394,34 +463,9 @@
                 }
             }, [activeTab, historyView]);
 
-            const confirmPlay = async () => {
-                if (wallet < confirmPopup.entry) {
-                    alert("Low Balance! Please deposit money to play.");
-                    setConfirmPopup(null); setDepositModal(true); return;
-                }
-                const tier = confirmPopup; setConfirmPopup(null); setMatchFound(false); setMatchTime(20); setIsMatchmaking(true); setCurrentBet(tier.entry);
-
-                try {
-                    const q = window.fs.query(window.fs.collection(window.db, "rooms"), window.fs.where("tier", "==", tier.entry), window.fs.where("status", "==", "waiting"));
-                    const querySnapshot = await window.fs.getDocs(q);
-
-                    if (!querySnapshot.empty) {
-                        const roomDoc = querySnapshot.docs[0];
-                        await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomDoc.id), { status: 'playing', p2: { uid: window.auth.currentUser.uid, name: userProfile.name, img: userProfile.avatar } });
-                        setRoomId(roomDoc.id); setPlayerRole(2);
-                    } else {
-                        const docRef = await window.fs.addDoc(window.fs.collection(window.db, "rooms"), {
-                            tier: tier.entry, status: 'waiting', p1: { uid: window.auth.currentUser.uid, name: userProfile.name, img: userProfile.avatar },
-                            p1Bid: null, p2Bid: null, round: 1, p1Tokens: 500, p2Tokens: 500, p1Wins: 0, p2Wins: 0, lastResult: null, createdAt: new Date()
-                        });
-                        setRoomId(docRef.id); setPlayerRole(1);
-                    }
-                } catch(e) { alert("Error connecting to server!"); setIsMatchmaking(false); }
-            };
-
-            // NEW: PRACTICE MODE LOGIC
+            // SMART BOT PRACTICE MATCH LOGIC
             const startPractice = async (type) => {
-                setConfirmPopup(null); setMatchFound(false); setMatchTime(type === 'bot' ? 3 : 20); setIsMatchmaking(true); setCurrentBet(0);
+                setConfirmPopup(null); setMatchFound(false); setMatchTime(type === 'bot' ? 3 : 20); setIsMatchmaking(true);
                 
                 if (type === 'bot') {
                     setPlayerRole(1);
@@ -434,9 +478,9 @@
                                 tier: 0, round: 1, p1Tokens: 500, p2Tokens: 500, p1Wins: 0, p2Wins: 0,
                                 p1: { name: userProfile.name, img: userProfile.avatar },
                                 p2: { name: 'System Bot', img: 'https://cdn-icons-png.flaticon.com/512/4712/4712010.png' },
-                                lastResult: null, isBotMatch: true
+                                lastResult: null, isBotMatch: true, p1Bid: null, p2Bid: null
                             });
-                        }, 2000);
+                        }, 1500);
                     }, 1500);
                 } else {
                     // Practice vs Real Player (Tier 0 Free Match)
@@ -459,6 +503,28 @@
                 }
             };
 
+            const confirmPlay = async () => {
+                if (wallet < confirmPopup.entry) { alert("Low Balance! Please deposit money to play."); setConfirmPopup(null); setDepositModal(true); return; }
+                const tier = confirmPopup; setConfirmPopup(null); setMatchFound(false); setMatchTime(20); setIsMatchmaking(true); 
+
+                try {
+                    const q = window.fs.query(window.fs.collection(window.db, "rooms"), window.fs.where("tier", "==", tier.entry), window.fs.where("status", "==", "waiting"));
+                    const querySnapshot = await window.fs.getDocs(q);
+
+                    if (!querySnapshot.empty) {
+                        const roomDoc = querySnapshot.docs[0];
+                        await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomDoc.id), { status: 'playing', p2: { uid: window.auth.currentUser.uid, name: userProfile.name, img: userProfile.avatar } });
+                        setRoomId(roomDoc.id); setPlayerRole(2);
+                    } else {
+                        const docRef = await window.fs.addDoc(window.fs.collection(window.db, "rooms"), {
+                            tier: tier.entry, status: 'waiting', p1: { uid: window.auth.currentUser.uid, name: userProfile.name, img: userProfile.avatar },
+                            p1Bid: null, p2Bid: null, round: 1, p1Tokens: 500, p2Tokens: 500, p1Wins: 0, p2Wins: 0, lastResult: null, createdAt: new Date()
+                        });
+                        setRoomId(docRef.id); setPlayerRole(1);
+                    }
+                } catch(e) { alert("Error connecting to server!"); setIsMatchmaking(false); }
+            };
+
             const cancelMatchmaking = async () => {
                 setIsMatchmaking(false);
                 if(playerRole === 1 && roomId) { await window.fs.deleteDoc(window.fs.doc(window.db, "rooms", roomId)); }
@@ -478,10 +544,7 @@
                                 if(window.auth.currentUser) {
                                     const userRef = window.fs.doc(window.db, "users", window.auth.currentUser.uid);
                                     window.fs.getDoc(userRef).then(uSnap => {
-                                        if(uSnap.exists()){
-                                            let dbW = uSnap.data().wallet || 0;
-                                            window.fs.updateDoc(userRef, { wallet: dbW - entryFee });
-                                        }
+                                        if(uSnap.exists()){ let dbW = uSnap.data().wallet || 0; window.fs.updateDoc(userRef, { wallet: dbW - entryFee }); }
                                     });
                                 }
                             }
@@ -497,20 +560,17 @@
                         else { isWinner = 'draw'; }
                         
                         if (data.tier === 0) {
-                            // Free Match Ending Alert
                             if(isWinner === true) alert("Victory! You won the free practice match!");
                             else if(isWinner === false) alert("Defeat! You lost the free practice match.");
                             else alert("Practice match ended in a Draw!");
                         } else {
-                            // Real Money Ending
                             if(isWinner === true) {
                                 let winnings = data.tier * 1.8;
                                 if(window.auth.currentUser) { 
                                     const userRef = window.fs.doc(window.db, "users", window.auth.currentUser.uid);
                                     window.fs.getDoc(userRef).then(uSnap => {
                                         if(uSnap.exists()){
-                                            let dbW = uSnap.data().wallet || 0;
-                                            let dbWith = uSnap.data().withdrawable || 0;
+                                            let dbW = uSnap.data().wallet || 0; let dbWith = uSnap.data().withdrawable || 0;
                                             window.fs.updateDoc(userRef, { wallet: dbW + winnings, withdrawable: dbWith + winnings });
                                         }
                                     });
@@ -520,10 +580,7 @@
                                 if(window.auth.currentUser) {
                                     const userRef = window.fs.doc(window.db, "users", window.auth.currentUser.uid);
                                     window.fs.getDoc(userRef).then(uSnap => {
-                                        if(uSnap.exists()){
-                                            let dbW = uSnap.data().wallet || 0;
-                                            window.fs.updateDoc(userRef, { wallet: dbW + data.tier });
-                                        }
+                                        if(uSnap.exists()){ let dbW = uSnap.data().wallet || 0; window.fs.updateDoc(userRef, { wallet: dbW + data.tier }); }
                                     });
                                 }
                                 alert("Match Draw! Entry fee refunded.");
@@ -575,36 +632,41 @@
                 let b = parseInt(bidInput);
                 if(isNaN(b) || b < 0) b = 0; if(b > myTokens) b = myTokens;
 
-                // NEW: LOCAL BOT MATCH LOGIC
+                // SMART LOCAL BOT MATCH LOGIC
                 if (roomData.isBotMatch) {
-                    let botTokens = roomData.p2Tokens;
-                    // Bot bids random between 10% and 60%
-                    let botBid = Math.floor(Math.random() * (botTokens * 0.6 - botTokens * 0.1) + botTokens * 0.1);
-                    if(botBid > botTokens) botBid = botTokens;
-
-                    let p1T = roomData.p1Tokens - b;
-                    let p2T = roomData.p2Tokens - botBid;
-                    let p1W = roomData.p1Wins; let p2W = roomData.p2Wins; let winner = "DRAW";
-
-                    if(b > botBid) { winner = roomData.p1.name; p1W++; }
-                    else if(botBid > b) { winner = roomData.p2.name; p2W++; }
-
-                    let nextRound = roomData.round + 1;
+                    setRoomData(prev => ({ ...prev, p1Bid: b })); // Lock player bid locally first for suspense
                     
-                    setRoomData(prev => ({ ...prev, p1Tokens: p1T, p2Tokens: p2T, p1Wins: p1W, p2Wins: p2W, lastResult: { p1Bid: b, p2Bid: botBid, winner } }));
-
                     setTimeout(() => {
-                        if(nextRound > 3) {
-                            setIsPlaying(false);
-                            let isWinner = false;
-                            if(p1W > p2W || (p1W === p2W && p1T > p2T)) isWinner = true;
-                            
-                            if (isWinner) alert("🎉 Victory! You beat the Bot!");
-                            else alert("☠️ Defeat! The Bot won this practice match.");
-                        } else {
-                            setRoomData(prev => ({ ...prev, round: nextRound, lastResult: null }));
-                        }
-                    }, 3500);
+                        let botTokens = roomData.p2Tokens;
+                        // Bot Logic: Randomly bids between 10% and 50% of its tokens.
+                        let botBid = Math.floor(Math.random() * (botTokens * 0.5 - botTokens * 0.1) + botTokens * 0.1);
+                        if (roomData.round === 3) botBid = botTokens; // Bot goes all-in on last round
+                        if (botBid > botTokens) botBid = botTokens;
+
+                        let p1T = roomData.p1Tokens - b;
+                        let p2T = roomData.p2Tokens - botBid;
+                        let p1W = roomData.p1Wins; let p2W = roomData.p2Wins; let winner = "DRAW";
+
+                        if(b > botBid) { winner = roomData.p1.name; p1W++; }
+                        else if(botBid > b) { winner = roomData.p2.name; p2W++; }
+
+                        setRoomData(prev => ({ ...prev, p1Tokens: p1T, p2Tokens: p2T, p1Wins: p1W, p2Wins: p2W, lastResult: { p1Bid: b, p2Bid: botBid, winner } }));
+
+                        setTimeout(() => {
+                            let nextRound = roomData.round + 1;
+                            if(nextRound > 3) {
+                                setIsPlaying(false);
+                                let isWinner = false;
+                                if(p1W > p2W || (p1W === p2W && p1T > p2T)) isWinner = true;
+                                if (isWinner) alert("🎉 Victory! You beat the System Bot!");
+                                else alert("☠️ Defeat! The System Bot won this match.");
+                                setRoomData(null);
+                            } else {
+                                setRoomData(prev => ({ ...prev, round: nextRound, lastResult: null, p1Bid: null, p2Bid: null }));
+                            }
+                            setBidInput('');
+                        }, 3500);
+                    }, 1500); // 1.5 seconds suspense
                     return;
                 }
 
@@ -624,8 +686,7 @@
                     const utrSnap = await window.fs.getDocs(qUtr);
                     
                     if (!utrSnap.empty) {
-                        const matchedUtrDoc = utrSnap.docs[0];
-                        const matchedUtrData = matchedUtrDoc.data();
+                        const matchedUtrDoc = utrSnap.docs[0]; const matchedUtrData = matchedUtrDoc.data();
                         
                         if (Number(matchedUtrData.amount) === amt) {
                             autoVerified = true;
@@ -633,25 +694,18 @@
                             
                             const userRef = window.fs.doc(window.db, "users", window.auth.currentUser.uid);
                             const uSnap = await window.fs.getDoc(userRef);
-                            if(uSnap.exists()){
-                                let dbW = uSnap.data().wallet || 0;
-                                await window.fs.updateDoc(userRef, { wallet: dbW + amt });
-                            }
+                            if(uSnap.exists()){ let dbW = uSnap.data().wallet || 0; await window.fs.updateDoc(userRef, { wallet: dbW + amt }); }
                             
-                            await window.fs.addDoc(window.fs.collection(window.db, "deposits"), {
-                                uid: window.auth.currentUser.uid, name: userProfile.name, utr: utrInput, amount: amt, status: 'approved', date: new Date()
-                            });
+                            await window.fs.addDoc(window.fs.collection(window.db, "deposits"), { uid: window.auth.currentUser.uid, name: userProfile.name, utr: utrInput, amount: amt, status: 'approved', date: new Date() });
                             
                             if (amt >= 30 && userProfile.referralUsed) {
                                 if (!uSnap.data().referralRewardGiven) {
                                     const usersSnap = await window.fs.getDocs(window.fs.collection(window.db, "users"));
                                     let referrerDoc = null; let referrerData = null;
                                     usersSnap.forEach(uDoc => {
-                                        const u = uDoc.data();
-                                        const expectedCode = "YE-" + (u.number ? u.number.slice(-4) : "9999");
+                                        const u = uDoc.data(); const expectedCode = "YE-" + (u.number ? u.number.slice(-4) : "9999");
                                         if(expectedCode === userProfile.referralUsed) { referrerDoc = uDoc; referrerData = u; }
                                     });
-
                                     if(referrerDoc && referrerData) {
                                         await window.fs.updateDoc(window.fs.doc(window.db, "users", referrerDoc.id), { wallet: Number(referrerData.wallet || 0) + 10 });
                                         await window.fs.updateDoc(userRef, { referralRewardGiven: true });
@@ -661,14 +715,10 @@
                             alert("Payment Auto-Verified Successfully! Wallet Updated Instantly.");
                         }
                     }
-                    
                     if(!autoVerified) {
-                        await window.fs.addDoc(window.fs.collection(window.db, "deposits"), {
-                            uid: window.auth.currentUser.uid, name: userProfile.name, utr: utrInput, amount: amt, status: 'pending', date: new Date()
-                        });
+                        await window.fs.addDoc(window.fs.collection(window.db, "deposits"), { uid: window.auth.currentUser.uid, name: userProfile.name, utr: utrInput, amount: amt, status: 'pending', date: new Date() });
                         alert("Deposit proof sent to Admin! Wallet will be updated soon.");
                     }
-                    
                     setDepositModal(false); setUtrInput(''); setDepositAmount('');
                 } catch(e) { alert("Error submitting request!"); }
             };
@@ -679,20 +729,15 @@
                 if(wAmt > withdrawable) return alert("You don't have enough Winning Balance!");
                 
                 try {
-                    await window.fs.addDoc(window.fs.collection(window.db, "withdrawals"), {
-                        uid: window.auth.currentUser.uid, name: userProfile.name, type: withdrawType, id: withdrawId, amount: wAmt, status: 'pending', date: new Date()
-                    });
-                    
+                    await window.fs.addDoc(window.fs.collection(window.db, "withdrawals"), { uid: window.auth.currentUser.uid, name: userProfile.name, type: withdrawType, id: withdrawId, amount: wAmt, status: 'pending', date: new Date() });
                     if(window.auth.currentUser) {
                         const userRef = window.fs.doc(window.db, "users", window.auth.currentUser.uid);
                         const uSnap = await window.fs.getDoc(userRef);
                         if(uSnap.exists()){
-                            let dbW = uSnap.data().wallet || 0;
-                            let dbWith = uSnap.data().withdrawable || 0;
+                            let dbW = uSnap.data().wallet || 0; let dbWith = uSnap.data().withdrawable || 0;
                             await window.fs.updateDoc(userRef, { wallet: dbW - wAmt, withdrawable: dbWith - wAmt });
                         }
                     }
-
                     alert("Withdrawal request sent successfully!");
                     setWithdrawModal(false); setWithdrawId(''); setWithdrawAmount('');
                 } catch(e) { alert("Error submitting request!"); }
@@ -828,7 +873,7 @@
                                     </div>
                                 </div>
 
-                                {/* NEW: PRACTICE MODE SECTION */}
+                                {/* PRACTICE MODE SECTION */}
                                 <div className="mt-8">
                                     <h3 className="font-bold mb-4 text-white text-lg flex items-center gap-2">
                                         <i className="fa-solid fa-gamepad text-[#10b981]"></i> Practice Mode (Free)
@@ -961,6 +1006,7 @@
                             </div>
                         )}
 
+                        {/* HISTORY VIEWS */}
                         {activeTab === 'wallet' && historyView && (
                             <div className="fixed inset-0 bg-[#050505] z-[80] flex flex-col pop-in pb-20 pt-4">
                                 <div className="flex items-center p-4 border-b border-[#dcae45]/30 bg-[#111]">
@@ -1057,17 +1103,12 @@
                                 <div className="mt-8 space-y-3">
                                     <h3 className="text-gray-400 font-bold uppercase tracking-widest text-xs mb-4 pl-2">Settings & Info</h3>
                                     
-                                    {/* MODIFIED: T&C button replaces About Us */}
                                     <button onClick={() => document.getElementById('tcModal').classList.remove('hidden')} className="w-full flex items-center justify-between bg-[#111] border border-gray-800 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors">
                                         <div className="flex items-center gap-4 text-gray-300 font-bold"><i className="fa-solid fa-file-contract text-[#dcae45] text-xl w-6"></i> Terms & Conditions</div><i className="fa-solid fa-chevron-right text-gray-600"></i>
                                     </button>
                                     
                                     <button onClick={() => alert("Support Chat Opening...")} className="w-full flex items-center justify-between bg-[#111] border border-gray-800 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors">
                                         <div className="flex items-center gap-4 text-gray-300 font-bold"><i className="fa-solid fa-headset text-[#dcae45] text-xl w-6"></i> Support Chat</div><i className="fa-solid fa-chevron-right text-gray-600"></i>
-                                    </button>
-                                    
-                                    <button onClick={() => alert("1. Add Money to play.\n2. Do not quit in between.\n3. Refer friends for minimum ₹30 deposit.")} className="w-full flex items-center justify-between bg-[#111] border border-gray-800 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors">
-                                        <div className="flex items-center gap-4 text-gray-300 font-bold"><i className="fa-solid fa-book text-[#dcae45] text-xl w-6"></i> Game Rules</div><i className="fa-solid fa-chevron-right text-gray-600"></i>
                                     </button>
                                     
                                     <button onClick={logoutUser} className="w-full flex items-center justify-between bg-black border border-red-900/50 p-4 rounded-xl mt-4 hover:bg-red-950/30 transition-colors">
@@ -1219,105 +1260,3 @@
     </script>
 </body>
 </html>
-app.js ye log in register ke liye he isme to nhi karna update T&C check box vala agr haa to batao kyoki app.js me abhi tak khuch update nhi Kiya tune to dekh liyo app.js ka code de rha hu padh liyo phir bataiyo 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-
-const firebaseConfig = {
-    apiKey: "AIzaSyA4pTWtUMbZFhrMORZibUhV7gpPRy6DreY",
-    authDomain: "youth-earners-d34ca.firebaseapp.com",
-    projectId: "youth-earners-d34ca",
-    storageBucket: "youth-earners-d34ca.firebasestorage.app",
-    messagingSenderId: "568087034965",
-    appId: "1:568087034965:web:b4f79488d22db53af128dc"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-window.auth = auth;
-window.db = db;
-
-const initRecaptcha = () => {
-    if (!window.recaptchaVerifier) {
-        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'loginBtn', { 'size': 'invisible' });
-    }
-};
-
-onAuthStateChanged(auth, async (user) => {
-    setTimeout(async () => {
-        document.getElementById('logoIntro').style.display = 'none';
-        document.body.classList.remove('intro-running');
-
-        if (user) {
-            document.getElementById('authContainer').classList.add('hidden');
-            document.getElementById('website').classList.remove('hidden');
-            const docSnap = await getDoc(doc(db, "users", user.uid));
-            if (docSnap.exists()) {
-                window.dispatchEvent(new CustomEvent('gameStart', { detail: docSnap.data() }));
-            }
-        } else {
-            document.getElementById('authContainer').classList.remove('hidden');
-            document.getElementById('website').classList.add('hidden');
-        }
-    }, 2500);
-});
-
-document.getElementById('showRegister').addEventListener('click', () => {
-    document.getElementById('loginForm').classList.add('hidden');
-    document.getElementById('registerForm').classList.remove('hidden');
-});
-
-document.getElementById('showLogin').addEventListener('click', () => {
-    document.getElementById('registerForm').classList.add('hidden');
-    document.getElementById('loginForm').classList.remove('hidden');
-});
-
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const num = document.getElementById('loginNumber').value;
-    const pwd = document.getElementById('loginPassword').value;
-    
-    // Login hack: simple mock check for now since real SMS costs money
-    try {
-        const querySnapshot = await window.fs.getDocs(window.fs.query(window.fs.collection(db, "users"), window.fs.where("number", "==", num), window.fs.where("pwd", "==", pwd)));
-        if (!querySnapshot.empty) {
-            // Found user, mock sign in (In production, use Custom Auth Token)
-            alert("Login Successful!");
-            location.reload(); // Quick refresh to simulate state
-        } else {
-            alert("Invalid Number or Password!");
-        }
-    } catch(err) {
-        console.log(err);
-        alert("Error logging in");
-    }
-});
-
-document.getElementById('registerForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const name = document.getElementById('regName').value;
-    const num = document.getElementById('regNumber').value;
-    const pwd = document.getElementById('regPassword').value;
-    const ref = document.getElementById('regReferral').value;
-
-    initRecaptcha();
-    try {
-        const confirmationResult = await signInWithPhoneNumber(auth, `+91${num}`, window.recaptchaVerifier);
-        const code = prompt("Enter OTP sent to your number:");
-        if (code) {
-            const result = await confirmationResult.confirm(code);
-            const user = result.user;
-            await setDoc(doc(db, "users", user.uid), {
-                name, number: num, pwd, wallet: 0, referralUsed: ref, 
-                avatar: 'youth-earners-logo.png', joined: new Date()
-            });
-            alert("Registration Successful!");
-        }
-    } catch (error) {
-        console.log(error);
-        alert("OTP Verification Failed! Check console.");
-    }
-});
