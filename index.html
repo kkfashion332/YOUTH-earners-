@@ -10,6 +10,10 @@
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #dcae45; border-radius: 10px; }
+    </style>
 </head>
 <body class="intro-running bg-premium-dark text-white">
 
@@ -21,22 +25,102 @@
         </div>
     </div>
 
+    <!-- GLOBAL T&C MODAL -->
+    <div id="tcModal" class="hidden fixed inset-0 bg-[#050505]/95 z-[9999] flex justify-center items-center p-4 backdrop-blur-sm transition-all duration-300">
+        <div class="bg-[#111] border border-[#dcae45] w-full max-w-md rounded-2xl overflow-hidden flex flex-col max-h-[85vh] shadow-[0_0_30px_rgba(220,174,69,0.3)]">
+            <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-black">
+                <h2 class="text-lg font-black text-[#dcae45] tracking-widest uppercase"><i class="fa-solid fa-file-contract mr-2"></i> Terms & Conditions</h2>
+                <button onclick="document.getElementById('tcModal').classList.add('hidden')" class="text-gray-400 hover:text-white text-2xl transition"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="p-5 overflow-y-auto text-sm text-gray-300 space-y-5 custom-scrollbar">
+                <div>
+                    <h4 class="text-white font-bold mb-1 text-base">1. Age Restriction (18+)</h4>
+                    <p class="text-gray-400">You must be exactly 18 years of age or older to register and play on Youth Earner's. By proceeding, you legally confirm your age.</p>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-2 text-base">2. Restricted States (Banned)</h4>
+                    <p class="text-gray-400 mb-2">Due to government regulations on Real Money Gaming, users residing in the following states are STRICTLY PROHIBITED from using this app:</p>
+                    <ul class="list-none pl-2 text-rose-400 font-bold space-y-1 bg-rose-500/10 border border-rose-500/30 p-3 rounded-lg">
+                        <li><i class="fa-solid fa-ban mr-2 text-xs"></i>Assam</li>
+                        <li><i class="fa-solid fa-ban mr-2 text-xs"></i>Odisha</li>
+                        <li><i class="fa-solid fa-ban mr-2 text-xs"></i>Telangana</li>
+                        <li><i class="fa-solid fa-ban mr-2 text-xs"></i>Andhra Pradesh</li>
+                        <li><i class="fa-solid fa-ban mr-2 text-xs"></i>Nagaland</li>
+                        <li><i class="fa-solid fa-ban mr-2 text-xs"></i>Sikkim</li>
+                        <li><i class="fa-solid fa-ban mr-2 text-xs"></i>Meghalaya</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-1 text-base">3. Fair Play & Anti-Cheating</h4>
+                    <p class="text-gray-400">We maintain a strict zero-tolerance policy. Agar kisi bhi account mein cheating, fraud, ya hacking detect hoti hai, toh admin ko right hai ki account ko bina notice diye instantly <b>Temporarily Suspend</b> ya <b>Permanently Ban</b> kar diya jayega.</p>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-1 text-base">4. Entry Fees & Refunds</h4>
+                    <p class="text-gray-400">Clear Rule: Match start hone ke baad entry fee kisi bhi haal mein <b>NON-REFUNDABLE</b> hai. Refund tabhi process hoga jab koi server error ya system issue ki wajah se match system dwara cancel kiya jaye.</p>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-1 text-base">5. Withdrawal Rules</h4>
+                    <p class="text-gray-400">Ek baar withdrawal request lagane ke baad, payment processing mein <b>24 se 48 hours</b> (working hours) lag sakte hain. Future dispute se bachne ke liye bank/UPI details dhyan se bharein.</p>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-1 text-base">6. Technical Issues & Liability</h4>
+                    <p class="text-gray-400">Agar match ke beech mein user ka internet connection chala jaye, ping high ho, game auto-close ho, ya device lag kare, toh iski poori zimmedari player ki hogi. Iske liye platform koi compensation ya refund provide nahi karega.</p>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-1 text-base">7. Right to Modify</h4>
+                    <p class="text-[#ffe29a] font-bold">Admin/Management reserves the exclusive right to amend, change, or modify the game rules, prize pool distributions, or platform policies at any given time without prior notice.</p>
+                </div>
+            </div>
+            <div class="p-4 bg-black border-t border-gray-800 text-center">
+                <button onclick="document.getElementById('tcModal').classList.add('hidden')" class="bg-[#dcae45] text-black font-black px-8 py-3 rounded-xl hover:bg-[#ffe29a] transition uppercase tracking-widest w-full shadow-[0_0_15px_rgba(220,174,69,0.3)]">I Understand & Agree</button>
+            </div>
+        </div>
+    </div>
+
     <div id="authContainer" class="hidden auth-wrapper">
         <div class="form-container">
             <img class="auth-logo" src="youth-earners-logo.png" alt="Logo" />
+            
             <form id="loginForm" class="auth-form">
                 <h2>Welcome Back</h2>
                 <div class="input-group"><input type="tel" id="loginNumber" placeholder="Enter your mobile number" pattern="[0-9]{10}" maxlength="10" required></div>
                 <div class="input-group"><input type="password" id="loginPassword" placeholder="Password (content 6 digit)" minlength="6" required></div>
+                
+                <!-- NEW: Horizontal 18+ and T&C Checkboxes -->
+                <div class="flex gap-3 mt-3 mb-4">
+                    <div class="flex-1 flex items-center justify-center gap-2 bg-black/50 p-2 border border-gray-700 rounded-lg">
+                        <input type="checkbox" id="logAgeCheck" required class="w-4 h-4 accent-[#dcae45] cursor-pointer">
+                        <label for="logAgeCheck" class="text-[10px] text-gray-300 font-bold cursor-pointer uppercase">I am 18+</label>
+                    </div>
+                    <div class="flex-1 flex items-center justify-center gap-2 bg-black/50 p-2 border border-gray-700 rounded-lg">
+                        <input type="checkbox" id="logTcCheck" required class="w-4 h-4 accent-[#dcae45] cursor-pointer">
+                        <label for="logTcCheck" class="text-[10px] text-gray-300 cursor-pointer uppercase font-bold">Agree to <span onclick="document.getElementById('tcModal').classList.remove('hidden');" class="text-[#dcae45] underline font-black">T&C</span></label>
+                    </div>
+                </div>
+
                 <button type="submit" id="loginBtn" class="auth-btn">Log In</button>
                 <p class="switch-form">New user? <span id="showRegister">Sign in (Register)</span></p>
             </form>
+
             <form id="registerForm" class="auth-form hidden">
                 <h2>Create Account</h2>
                 <div class="input-group"><input type="text" id="regName" placeholder="Full Name" required></div>
                 <div class="input-group"><input type="tel" id="regNumber" placeholder="Enter your mobile number" pattern="[0-9]{10}" maxlength="10" required></div>
                 <div class="input-group"><input type="password" id="regPassword" placeholder="Password (content 6 digit)" minlength="6" required></div>
                 <div class="input-group"><input type="text" id="regReferral" placeholder="Referral Code (Optional)"></div>
+                
+                <!-- NEW: Horizontal 18+ and T&C Checkboxes -->
+                <div class="flex gap-3 mt-3 mb-4">
+                    <div class="flex-1 flex items-center justify-center gap-2 bg-black/50 p-2 border border-gray-700 rounded-lg">
+                        <input type="checkbox" id="regAgeCheck" required class="w-4 h-4 accent-[#dcae45] cursor-pointer">
+                        <label for="regAgeCheck" class="text-[10px] text-gray-300 font-bold cursor-pointer uppercase">I am 18+</label>
+                    </div>
+                    <div class="flex-1 flex items-center justify-center gap-2 bg-black/50 p-2 border border-gray-700 rounded-lg">
+                        <input type="checkbox" id="regTcCheck" required class="w-4 h-4 accent-[#dcae45] cursor-pointer">
+                        <label for="regTcCheck" class="text-[10px] text-gray-300 cursor-pointer uppercase font-bold">Agree to <span onclick="document.getElementById('tcModal').classList.remove('hidden');" class="text-[#dcae45] underline font-black">T&C</span></label>
+                    </div>
+                </div>
+
                 <button type="submit" id="regBtn" class="auth-btn">Register</button>
                 <p class="switch-form">Already have an account? <span id="showLogin">Log In</span></p>
             </form>
@@ -162,14 +246,12 @@
                         setUserProfile(prev => ({ ...prev, name: dbName, number: data.number || prev.number, avatar: dbAvatar }));
                         setEditNameInput(dbName);
                         
-                        // INITIAL LOAD FIX FOR WALLET & WITHDRAWABLE
                         if(data.wallet !== undefined) setWallet(data.wallet);
                         if(data.withdrawable !== undefined) setWithdrawable(data.withdrawable);
                         
                         if(window.auth && window.auth.currentUser) {
                             const uid = window.auth.currentUser.uid;
                             
-                            // REAL-TIME WALLET & WITHDRAWABLE SYNC
                             unsubWallet = window.fs.onSnapshot(window.fs.doc(window.db, "users", uid), (docSnap) => {
                                 if(docSnap.exists()){
                                     const dbData = docSnap.data();
@@ -205,13 +287,13 @@
             const markAsRead = async (id) => {
                 try {
                     await window.fs.updateDoc(window.fs.doc(window.db, "notifications", id), { read: true });
-                } catch(e) { console.error("Error marking read", e); }
+                } catch(e) {}
             };
 
             const syncProfileToDatabase = async (updateData) => {
                 if (window.auth && window.auth.currentUser) {
                     try { await window.fs.updateDoc(window.fs.doc(window.db, "users", window.auth.currentUser.uid), updateData); } 
-                    catch (e) { console.log("DB Sync error", e); }
+                    catch (e) {}
                 }
             };
 
@@ -337,6 +419,46 @@
                 } catch(e) { alert("Error connecting to server!"); setIsMatchmaking(false); }
             };
 
+            // NEW: PRACTICE MODE LOGIC
+            const startPractice = async (type) => {
+                setConfirmPopup(null); setMatchFound(false); setMatchTime(type === 'bot' ? 3 : 20); setIsMatchmaking(true); setCurrentBet(0);
+                
+                if (type === 'bot') {
+                    setPlayerRole(1);
+                    setTimeout(() => {
+                        setMatchFound(true);
+                        setOpponent({ name: 'System Bot', img: 'https://cdn-icons-png.flaticon.com/512/4712/4712010.png' });
+                        setTimeout(() => {
+                            setIsMatchmaking(false); setIsPlaying(true); setBidInput('');
+                            setRoomData({
+                                tier: 0, round: 1, p1Tokens: 500, p2Tokens: 500, p1Wins: 0, p2Wins: 0,
+                                p1: { name: userProfile.name, img: userProfile.avatar },
+                                p2: { name: 'System Bot', img: 'https://cdn-icons-png.flaticon.com/512/4712/4712010.png' },
+                                lastResult: null, isBotMatch: true
+                            });
+                        }, 2000);
+                    }, 1500);
+                } else {
+                    // Practice vs Real Player (Tier 0 Free Match)
+                    try {
+                        const q = window.fs.query(window.fs.collection(window.db, "rooms"), window.fs.where("tier", "==", 0), window.fs.where("status", "==", "waiting"));
+                        const querySnapshot = await window.fs.getDocs(q);
+
+                        if (!querySnapshot.empty) {
+                            const roomDoc = querySnapshot.docs[0];
+                            await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomDoc.id), { status: 'playing', p2: { uid: window.auth.currentUser.uid, name: userProfile.name, img: userProfile.avatar } });
+                            setRoomId(roomDoc.id); setPlayerRole(2);
+                        } else {
+                            const docRef = await window.fs.addDoc(window.fs.collection(window.db, "rooms"), {
+                                tier: 0, status: 'waiting', p1: { uid: window.auth.currentUser.uid, name: userProfile.name, img: userProfile.avatar },
+                                p1Bid: null, p2Bid: null, round: 1, p1Tokens: 500, p2Tokens: 500, p1Wins: 0, p2Wins: 0, lastResult: null, createdAt: new Date()
+                            });
+                            setRoomId(docRef.id); setPlayerRole(1);
+                        }
+                    } catch(e) { alert("Error connecting to server!"); setIsMatchmaking(false); }
+                }
+            };
+
             const cancelMatchmaking = async () => {
                 setIsMatchmaking(false);
                 if(playerRole === 1 && roomId) { await window.fs.deleteDoc(window.fs.doc(window.db, "rooms", roomId)); }
@@ -351,16 +473,17 @@
                     if(data.status === 'playing' && !matchFound) {
                         setMatchFound(true); setOpponent(playerRole === 1 ? data.p2 : data.p1);
                         setTimeout(() => { 
-                            // Deduct entry fee properly in DB
-                            const entryFee = data.tier;
-                            if(window.auth.currentUser) {
-                                const userRef = window.fs.doc(window.db, "users", window.auth.currentUser.uid);
-                                window.fs.getDoc(userRef).then(uSnap => {
-                                    if(uSnap.exists()){
-                                        let dbW = uSnap.data().wallet || 0;
-                                        window.fs.updateDoc(userRef, { wallet: dbW - entryFee });
-                                    }
-                                });
+                            if (data.tier > 0) {
+                                const entryFee = data.tier;
+                                if(window.auth.currentUser) {
+                                    const userRef = window.fs.doc(window.db, "users", window.auth.currentUser.uid);
+                                    window.fs.getDoc(userRef).then(uSnap => {
+                                        if(uSnap.exists()){
+                                            let dbW = uSnap.data().wallet || 0;
+                                            window.fs.updateDoc(userRef, { wallet: dbW - entryFee });
+                                        }
+                                    });
+                                }
                             }
                             setIsMatchmaking(false); setIsPlaying(true); setBidInput(''); 
                         }, 3000);
@@ -373,35 +496,38 @@
                         else if(data.p2Wins > data.p1Wins || (data.p2Wins === data.p1Wins && data.p2Tokens > data.p1Tokens)) { isWinner = playerRole === 2; } 
                         else { isWinner = 'draw'; }
                         
-                        if(isWinner === true) {
-                            let winnings = data.tier * 1.8;
-                            
-                            // WINNING FIX: UPDATE BOTH WALLET AND WITHDRAWABLE IN DATABASE
-                            if(window.auth.currentUser) { 
-                                const userRef = window.fs.doc(window.db, "users", window.auth.currentUser.uid);
-                                window.fs.getDoc(userRef).then(uSnap => {
-                                    if(uSnap.exists()){
-                                        let dbW = uSnap.data().wallet || 0;
-                                        let dbWith = uSnap.data().withdrawable || 0;
-                                        window.fs.updateDoc(userRef, { 
-                                            wallet: dbW + winnings,
-                                            withdrawable: dbWith + winnings
-                                        });
-                                    }
-                                });
+                        if (data.tier === 0) {
+                            // Free Match Ending Alert
+                            if(isWinner === true) alert("Victory! You won the free practice match!");
+                            else if(isWinner === false) alert("Defeat! You lost the free practice match.");
+                            else alert("Practice match ended in a Draw!");
+                        } else {
+                            // Real Money Ending
+                            if(isWinner === true) {
+                                let winnings = data.tier * 1.8;
+                                if(window.auth.currentUser) { 
+                                    const userRef = window.fs.doc(window.db, "users", window.auth.currentUser.uid);
+                                    window.fs.getDoc(userRef).then(uSnap => {
+                                        if(uSnap.exists()){
+                                            let dbW = uSnap.data().wallet || 0;
+                                            let dbWith = uSnap.data().withdrawable || 0;
+                                            window.fs.updateDoc(userRef, { wallet: dbW + winnings, withdrawable: dbWith + winnings });
+                                        }
+                                    });
+                                }
+                                setShowWinPopup(winnings); 
+                            } else if(isWinner === 'draw') {
+                                if(window.auth.currentUser) {
+                                    const userRef = window.fs.doc(window.db, "users", window.auth.currentUser.uid);
+                                    window.fs.getDoc(userRef).then(uSnap => {
+                                        if(uSnap.exists()){
+                                            let dbW = uSnap.data().wallet || 0;
+                                            window.fs.updateDoc(userRef, { wallet: dbW + data.tier });
+                                        }
+                                    });
+                                }
+                                alert("Match Draw! Entry fee refunded.");
                             }
-                            setShowWinPopup(winnings); 
-                        } else if(isWinner === 'draw') {
-                            if(window.auth.currentUser) {
-                                const userRef = window.fs.doc(window.db, "users", window.auth.currentUser.uid);
-                                window.fs.getDoc(userRef).then(uSnap => {
-                                    if(uSnap.exists()){
-                                        let dbW = uSnap.data().wallet || 0;
-                                        window.fs.updateDoc(userRef, { wallet: dbW + data.tier });
-                                    }
-                                });
-                            }
-                            alert("Match Draw! Entry fee refunded.");
                         }
                     }
 
@@ -444,10 +570,46 @@
             }, [isMatchmaking, matchFound, roomId, playerRole]);
 
             const submitBid = async () => {
-                if(!roomId || !roomData) return;
+                if(!roomData) return;
                 let myTokens = playerRole === 1 ? roomData.p1Tokens : roomData.p2Tokens;
                 let b = parseInt(bidInput);
                 if(isNaN(b) || b < 0) b = 0; if(b > myTokens) b = myTokens;
+
+                // NEW: LOCAL BOT MATCH LOGIC
+                if (roomData.isBotMatch) {
+                    let botTokens = roomData.p2Tokens;
+                    // Bot bids random between 10% and 60%
+                    let botBid = Math.floor(Math.random() * (botTokens * 0.6 - botTokens * 0.1) + botTokens * 0.1);
+                    if(botBid > botTokens) botBid = botTokens;
+
+                    let p1T = roomData.p1Tokens - b;
+                    let p2T = roomData.p2Tokens - botBid;
+                    let p1W = roomData.p1Wins; let p2W = roomData.p2Wins; let winner = "DRAW";
+
+                    if(b > botBid) { winner = roomData.p1.name; p1W++; }
+                    else if(botBid > b) { winner = roomData.p2.name; p2W++; }
+
+                    let nextRound = roomData.round + 1;
+                    
+                    setRoomData(prev => ({ ...prev, p1Tokens: p1T, p2Tokens: p2T, p1Wins: p1W, p2Wins: p2W, lastResult: { p1Bid: b, p2Bid: botBid, winner } }));
+
+                    setTimeout(() => {
+                        if(nextRound > 3) {
+                            setIsPlaying(false);
+                            let isWinner = false;
+                            if(p1W > p2W || (p1W === p2W && p1T > p2T)) isWinner = true;
+                            
+                            if (isWinner) alert("🎉 Victory! You beat the Bot!");
+                            else alert("☠️ Defeat! The Bot won this practice match.");
+                        } else {
+                            setRoomData(prev => ({ ...prev, round: nextRound, lastResult: null }));
+                        }
+                    }, 3500);
+                    return;
+                }
+
+                // NORMAL FIREBASE MATCH
+                if(!roomId) return;
                 await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomId), { [playerRole === 1 ? 'p1Bid' : 'p2Bid']: b });
             };
 
@@ -521,17 +683,13 @@
                         uid: window.auth.currentUser.uid, name: userProfile.name, type: withdrawType, id: withdrawId, amount: wAmt, status: 'pending', date: new Date()
                     });
                     
-                    // WITHDRAWAL FIX: DEDUCT MONEY FROM DATABASE WALLET & WITHDRAWABLE
                     if(window.auth.currentUser) {
                         const userRef = window.fs.doc(window.db, "users", window.auth.currentUser.uid);
                         const uSnap = await window.fs.getDoc(userRef);
                         if(uSnap.exists()){
                             let dbW = uSnap.data().wallet || 0;
                             let dbWith = uSnap.data().withdrawable || 0;
-                            await window.fs.updateDoc(userRef, { 
-                                wallet: dbW - wAmt, 
-                                withdrawable: dbWith - wAmt 
-                            });
+                            await window.fs.updateDoc(userRef, { wallet: dbW - wAmt, withdrawable: dbWith - wAmt });
                         }
                     }
 
@@ -577,7 +735,7 @@
                 return (
                     <div className="max-w-md mx-auto bg-transparent min-h-screen text-white p-4 flex flex-col relative pb-28">
                         <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-xl font-bold text-[#dcae45]"><i className="fa-solid fa-gamepad"></i> Game Running</h2>
+                            <h2 className="text-xl font-bold text-[#dcae45]"><i className="fa-solid fa-gamepad"></i> Game Running {roomData.tier === 0 && "(Free)"}</h2>
                         </div>
                         <div className="flex justify-between items-center gold-card p-4 rounded-xl">
                             <div className="text-center w-1/3">
@@ -670,11 +828,27 @@
                                     </div>
                                 </div>
 
+                                {/* NEW: PRACTICE MODE SECTION */}
                                 <div className="mt-8">
                                     <h3 className="font-bold mb-4 text-white text-lg flex items-center gap-2">
-                                        <i className="fa-solid fa-users text-[#dcae45]"></i> Play with Real Players
+                                        <i className="fa-solid fa-gamepad text-[#10b981]"></i> Practice Mode (Free)
                                     </h3>
-                                    
+                                    <div className="flex gap-4">
+                                        <button onClick={() => startPractice('bot')} className="flex-1 bg-[#111] border border-[#10b981]/50 p-4 rounded-2xl text-center hover:border-[#10b981] transition shadow-[0_0_15px_rgba(16,185,129,0.1)]">
+                                            <i className="fa-solid fa-robot text-4xl text-[#10b981] mb-2 drop-shadow-[0_0_10px_#10b981]"></i>
+                                            <div className="font-bold text-white text-sm">Play vs Bot</div>
+                                        </button>
+                                        <button onClick={() => startPractice('player')} className="flex-1 bg-[#111] border border-[#3b82f6]/50 p-4 rounded-2xl text-center hover:border-[#3b82f6] transition shadow-[0_0_15px_rgba(59,130,246,0.1)]">
+                                            <i className="fa-solid fa-user-ninja text-4xl text-[#3b82f6] mb-2 drop-shadow-[0_0_10px_#3b82f6]"></i>
+                                            <div className="font-bold text-white text-sm">vs Real Player</div>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="mt-8">
+                                    <h3 className="font-bold mb-4 text-white text-lg flex items-center gap-2">
+                                        <i className="fa-solid fa-users text-[#dcae45]"></i> Play for Real Cash
+                                    </h3>
                                     <div className="grid grid-cols-2 gap-4">
                                         {playTiers.map((tier, index) => (
                                             <div key={tier.id || index} className="gold-card rounded-2xl p-4 flex flex-col items-center text-center relative overflow-hidden">
@@ -687,7 +861,6 @@
                                             </div>
                                         ))}
                                     </div>
-                                    
                                 </div>
                             </div>
                         )}
@@ -883,15 +1056,20 @@
 
                                 <div className="mt-8 space-y-3">
                                     <h3 className="text-gray-400 font-bold uppercase tracking-widest text-xs mb-4 pl-2">Settings & Info</h3>
+                                    
+                                    {/* MODIFIED: T&C button replaces About Us */}
+                                    <button onClick={() => document.getElementById('tcModal').classList.remove('hidden')} className="w-full flex items-center justify-between bg-[#111] border border-gray-800 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors">
+                                        <div className="flex items-center gap-4 text-gray-300 font-bold"><i className="fa-solid fa-file-contract text-[#dcae45] text-xl w-6"></i> Terms & Conditions</div><i className="fa-solid fa-chevron-right text-gray-600"></i>
+                                    </button>
+                                    
                                     <button onClick={() => alert("Support Chat Opening...")} className="w-full flex items-center justify-between bg-[#111] border border-gray-800 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors">
                                         <div className="flex items-center gap-4 text-gray-300 font-bold"><i className="fa-solid fa-headset text-[#dcae45] text-xl w-6"></i> Support Chat</div><i className="fa-solid fa-chevron-right text-gray-600"></i>
                                     </button>
-                                    <button onClick={() => alert("About Youth Earners")} className="w-full flex items-center justify-between bg-[#111] border border-gray-800 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors">
-                                        <div className="flex items-center gap-4 text-gray-300 font-bold"><i className="fa-solid fa-circle-info text-[#dcae45] text-xl w-6"></i> About Us</div><i className="fa-solid fa-chevron-right text-gray-600"></i>
-                                    </button>
+                                    
                                     <button onClick={() => alert("1. Add Money to play.\n2. Do not quit in between.\n3. Refer friends for minimum ₹30 deposit.")} className="w-full flex items-center justify-between bg-[#111] border border-gray-800 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors">
                                         <div className="flex items-center gap-4 text-gray-300 font-bold"><i className="fa-solid fa-book text-[#dcae45] text-xl w-6"></i> Game Rules</div><i className="fa-solid fa-chevron-right text-gray-600"></i>
                                     </button>
+                                    
                                     <button onClick={logoutUser} className="w-full flex items-center justify-between bg-black border border-red-900/50 p-4 rounded-xl mt-4 hover:bg-red-950/30 transition-colors">
                                         <div className="flex items-center gap-4 text-red-500 font-bold"><i className="fa-solid fa-right-from-bracket text-xl w-6"></i> Logout</div>
                                     </button>
@@ -1041,3 +1219,105 @@
     </script>
 </body>
 </html>
+app.js ye log in register ke liye he isme to nhi karna update T&C check box vala agr haa to batao kyoki app.js me abhi tak khuch update nhi Kiya tune to dekh liyo app.js ka code de rha hu padh liyo phir bataiyo 
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyA4pTWtUMbZFhrMORZibUhV7gpPRy6DreY",
+    authDomain: "youth-earners-d34ca.firebaseapp.com",
+    projectId: "youth-earners-d34ca",
+    storageBucket: "youth-earners-d34ca.firebasestorage.app",
+    messagingSenderId: "568087034965",
+    appId: "1:568087034965:web:b4f79488d22db53af128dc"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+window.auth = auth;
+window.db = db;
+
+const initRecaptcha = () => {
+    if (!window.recaptchaVerifier) {
+        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'loginBtn', { 'size': 'invisible' });
+    }
+};
+
+onAuthStateChanged(auth, async (user) => {
+    setTimeout(async () => {
+        document.getElementById('logoIntro').style.display = 'none';
+        document.body.classList.remove('intro-running');
+
+        if (user) {
+            document.getElementById('authContainer').classList.add('hidden');
+            document.getElementById('website').classList.remove('hidden');
+            const docSnap = await getDoc(doc(db, "users", user.uid));
+            if (docSnap.exists()) {
+                window.dispatchEvent(new CustomEvent('gameStart', { detail: docSnap.data() }));
+            }
+        } else {
+            document.getElementById('authContainer').classList.remove('hidden');
+            document.getElementById('website').classList.add('hidden');
+        }
+    }, 2500);
+});
+
+document.getElementById('showRegister').addEventListener('click', () => {
+    document.getElementById('loginForm').classList.add('hidden');
+    document.getElementById('registerForm').classList.remove('hidden');
+});
+
+document.getElementById('showLogin').addEventListener('click', () => {
+    document.getElementById('registerForm').classList.add('hidden');
+    document.getElementById('loginForm').classList.remove('hidden');
+});
+
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const num = document.getElementById('loginNumber').value;
+    const pwd = document.getElementById('loginPassword').value;
+    
+    // Login hack: simple mock check for now since real SMS costs money
+    try {
+        const querySnapshot = await window.fs.getDocs(window.fs.query(window.fs.collection(db, "users"), window.fs.where("number", "==", num), window.fs.where("pwd", "==", pwd)));
+        if (!querySnapshot.empty) {
+            // Found user, mock sign in (In production, use Custom Auth Token)
+            alert("Login Successful!");
+            location.reload(); // Quick refresh to simulate state
+        } else {
+            alert("Invalid Number or Password!");
+        }
+    } catch(err) {
+        console.log(err);
+        alert("Error logging in");
+    }
+});
+
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('regName').value;
+    const num = document.getElementById('regNumber').value;
+    const pwd = document.getElementById('regPassword').value;
+    const ref = document.getElementById('regReferral').value;
+
+    initRecaptcha();
+    try {
+        const confirmationResult = await signInWithPhoneNumber(auth, `+91${num}`, window.recaptchaVerifier);
+        const code = prompt("Enter OTP sent to your number:");
+        if (code) {
+            const result = await confirmationResult.confirm(code);
+            const user = result.user;
+            await setDoc(doc(db, "users", user.uid), {
+                name, number: num, pwd, wallet: 0, referralUsed: ref, 
+                avatar: 'youth-earners-logo.png', joined: new Date()
+            });
+            alert("Registration Successful!");
+        }
+    } catch (error) {
+        console.log(error);
+        alert("OTP Verification Failed! Check console.");
+    }
+});
