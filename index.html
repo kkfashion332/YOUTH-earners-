@@ -97,15 +97,23 @@
             const [withHistory, setWithHistory] = useState([]);
             const [matchHistory, setMatchHistory] = useState([]);
 
-            // ==========================================
-            // NOTIFICATION STATE (NEW)
-            // ==========================================
+            // NOTIFICATION STATE
             const [notifications, setNotifications] = useState([]);
             const [showNotifications, setShowNotifications] = useState(false);
             const [unreadCount, setUnreadCount] = useState(0);
 
             // SETTINGS FROM ADMIN
             const [adminSettings, setAdminSettings] = useState({ upiId: 'youthearners@nyes', qrUrl: 'payment-qr.png' });
+
+            // SAFE DATE FORMATTER (FIX FOR HISTORY CRASH)
+            const formatSafeDate = (dateObj) => {
+                if (!dateObj) return 'N/A';
+                try {
+                    return dateObj.toDate ? new Date(dateObj.toDate()).toLocaleString() : new Date(dateObj).toLocaleString();
+                } catch(e) {
+                    return 'Invalid Date';
+                }
+            };
 
             useEffect(() => {
                 let audioCtx = null;
@@ -144,9 +152,6 @@
                 return () => { if(unsubMatches) unsubMatches(); };
             }, []);
 
-            // ==========================================
-            // REAL-TIME LISTENER FOR USER & NOTIFICATIONS
-            // ==========================================
             useEffect(() => {
                 let unsubWallet = null;
                 let unsubNotif = null;
@@ -164,7 +169,6 @@
                         if(window.auth && window.auth.currentUser) {
                             const uid = window.auth.currentUser.uid;
                             
-                            // 1. Listen for Wallet Changes
                             unsubWallet = window.fs.onSnapshot(window.fs.doc(window.db, "users", uid), (docSnap) => {
                                 if(docSnap.exists()){
                                     const dbData = docSnap.data();
@@ -172,7 +176,6 @@
                                 }
                             });
 
-                            // 2. Listen for Notifications (NEW)
                             const nQ = window.fs.query(window.fs.collection(window.db, "notifications"), window.fs.where("uid", "==", uid));
                             unsubNotif = window.fs.onSnapshot(nQ, (snap) => {
                                 let notifs = [];
@@ -197,7 +200,6 @@
                 };
             }, []);
 
-            // Mark Notification as Read
             const markAsRead = async (id) => {
                 try {
                     await window.fs.updateDoc(window.fs.doc(window.db, "notifications", id), { read: true });
@@ -267,6 +269,7 @@
                 }
             }, [activeTab]);
 
+            // UPDATED HISTORY FETCH FUNCTION WITH SAFE DATES
             useEffect(() => {
                 if (activeTab === 'wallet' && window.auth && window.auth.currentUser) {
                     const fetchAllHistory = async () => {
@@ -275,13 +278,13 @@
                             const dQ = window.fs.query(window.fs.collection(window.db, "deposits"), window.fs.where("uid", "==", uid));
                             const dSnap = await window.fs.getDocs(dQ);
                             let dData = []; dSnap.forEach(d => dData.push(d.data()));
-                            dData.sort((a,b) => b.date?.toDate() - a.date?.toDate());
+                            dData.sort((a,b) => (b.date?.toDate ? b.date.toDate() : new Date(b.date)) - (a.date?.toDate ? a.date.toDate() : new Date(a.date)));
                             setDepHistory(dData);
 
                             const wQ = window.fs.query(window.fs.collection(window.db, "withdrawals"), window.fs.where("uid", "==", uid));
                             const wSnap = await window.fs.getDocs(wQ);
                             let wData = []; wSnap.forEach(w => wData.push(w.data()));
-                            wData.sort((a,b) => b.date?.toDate() - a.date?.toDate());
+                            wData.sort((a,b) => (b.date?.toDate ? b.date.toDate() : new Date(b.date)) - (a.date?.toDate ? a.date.toDate() : new Date(a.date)));
                             setWithHistory(wData);
 
                             const mQ1 = window.fs.query(window.fs.collection(window.db, "rooms"), window.fs.where("p1.uid", "==", uid), window.fs.where("status", "==", "finished"));
@@ -300,9 +303,9 @@
                                 else { isWinner = 'draw'; }
                                 return { ...match, isWinner, date: match.createdAt || new Date() };
                             });
-                            processedMatches.sort((a,b) => b.date?.toDate ? b.date.toDate() - a.date.toDate() : 0);
+                            processedMatches.sort((a,b) => (b.date?.toDate ? b.date.toDate() : new Date(b.date)) - (a.date?.toDate ? a.date.toDate() : new Date(a.date)));
                             setMatchHistory(processedMatches);
-                        } catch(e) { }
+                        } catch(e) { console.log("History error", e); }
                     };
                     fetchAllHistory();
                 }
@@ -580,7 +583,6 @@
                                 <span className="line"></span>
                             </div>
                         </div>
-                        {/* NOTIFICATION BELL ICON (UPDATED) */}
                         <div className="mz-header-right relative cursor-pointer" onClick={() => setShowNotifications(true)}>
                             <i className="fa-solid fa-bell text-[#dcae45] text-xl hover:scale-110 transition"></i>
                             {unreadCount > 0 && (
@@ -639,8 +641,7 @@
                             </div>
                         )}
 
-                        {/* RANKING, WALLET, REFER, PROFILE TABS REMAIN SAME... */}
-                        {/* (I have kept them exactly as they were to save space, but they will function perfectly) */}
+                        {/* RANKING TAB */}
                         {activeTab === 'ranking' && (
                             <div className="space-y-6 pt-2 pop-in">
                                 <h2 className="text-2xl font-black text-[#dcae45] text-center mb-6 tracking-widest uppercase"><i className="fa-solid fa-ranking-star"></i> Top Earners</h2>
@@ -701,6 +702,7 @@
                             </div>
                         )}
 
+                        {/* WALLET TAB */}
                         {activeTab === 'wallet' && !historyView && (
                             <div className="space-y-6 pt-2 pop-in">
                                 <div className="bg-gradient-to-br from-[#1a1a1a] to-[#000] p-6 rounded-3xl border border-[#dcae45]/40 shadow-[0_10px_30px_rgba(220,174,69,0.15)] relative overflow-hidden mt-4">
@@ -735,6 +737,7 @@
                             </div>
                         )}
 
+                        {/* HISTORY VIEWS (UPDATED WITH SAFE DATE) */}
                         {activeTab === 'wallet' && historyView && (
                             <div className="fixed inset-0 bg-[#050505] z-[80] flex flex-col pop-in pb-20 pt-4">
                                 <div className="flex items-center p-4 border-b border-[#dcae45]/30 bg-[#111]">
@@ -746,7 +749,7 @@
                                         <div key={idx} className="bg-[#111] border border-gray-800 p-4 rounded-xl">
                                             <div className="flex justify-between items-start mb-2">
                                                 <div><span className="text-[#10b981] font-black text-lg">+₹{tx.amount}</span><span className={`ml-3 text-[10px] font-bold uppercase px-2 py-1 rounded-full ${tx.status === 'pending' ? 'bg-yellow-500/20 text-yellow-500' : tx.status === 'approved' ? 'bg-[#10b981]/20 text-[#10b981]' : 'bg-red-500/20 text-red-500'}`}>{tx.status}</span></div>
-                                                <div className="text-[10px] text-gray-500 font-bold text-right">{tx.date ? new Date(tx.date.toDate()).toLocaleString() : 'N/A'}</div>
+                                                <div className="text-[10px] text-gray-500 font-bold text-right">{formatSafeDate(tx.date)}</div>
                                             </div>
                                             <div className="text-xs text-gray-400 font-bold">UTR: <span className="text-gray-200">{tx.utr}</span></div>
                                         </div>
@@ -756,7 +759,7 @@
                                         <div key={idx} className="bg-[#111] border border-gray-800 p-4 rounded-xl">
                                             <div className="flex justify-between items-start mb-2">
                                                 <div><span className="text-rose-500 font-black text-lg">-₹{tx.amount}</span><span className={`ml-3 text-[10px] font-bold uppercase px-2 py-1 rounded-full ${tx.status === 'pending' ? 'bg-yellow-500/20 text-yellow-500' : tx.status === 'approved' ? 'bg-[#10b981]/20 text-[#10b981]' : 'bg-red-500/20 text-red-500'}`}>{tx.status}</span></div>
-                                                <div className="text-[10px] text-gray-500 font-bold text-right">{tx.date ? new Date(tx.date.toDate()).toLocaleString() : 'N/A'}</div>
+                                                <div className="text-[10px] text-gray-500 font-bold text-right">{formatSafeDate(tx.date)}</div>
                                             </div>
                                             <div className="text-xs text-gray-400 font-bold uppercase">{tx.type}: <span className="text-gray-200">{tx.id}</span></div>
                                         </div>
@@ -767,7 +770,7 @@
                                             <div className={`absolute top-0 left-0 w-1 h-full ${match.isWinner === true ? 'bg-[#10b981]' : match.isWinner === false ? 'bg-rose-500' : 'bg-gray-500'}`}></div>
                                             <div className="flex justify-between items-center mb-2 pl-2">
                                                 <span className={`font-black uppercase text-lg ${match.isWinner === true ? 'text-[#10b981]' : match.isWinner === false ? 'text-rose-500' : 'text-gray-400'}`}>{match.isWinner === true ? 'VICTORY' : match.isWinner === false ? 'DEFEAT' : 'DRAW'}</span>
-                                                <div className="text-[10px] text-gray-500 font-bold text-right">{match.date ? new Date(match.date.toDate ? match.date.toDate() : match.date).toLocaleString() : 'N/A'}</div>
+                                                <div className="text-[10px] text-gray-500 font-bold text-right">{formatSafeDate(match.date)}</div>
                                             </div>
                                             <div className="flex justify-between text-xs font-bold pl-2">
                                                 <span className="text-gray-400">Entry: <span className="text-white">₹{match.tier}</span></span>
@@ -775,10 +778,16 @@
                                             </div>
                                         </div>
                                     ))}
+
+                                    {/* Empty States */}
+                                    {historyView === 'deposit' && depHistory.length === 0 && <div className="text-center text-gray-500 font-bold mt-10">No Deposit History Found.</div>}
+                                    {historyView === 'withdraw' && withHistory.length === 0 && <div className="text-center text-gray-500 font-bold mt-10">No Withdrawal History Found.</div>}
+                                    {historyView === 'match' && matchHistory.length === 0 && <div className="text-center text-gray-500 font-bold mt-10">No Match History Found.</div>}
                                 </div>
                             </div>
                         )}
 
+                        {/* REFER TAB */}
                         {activeTab === 'refer' && (
                             <div className="space-y-6 pt-4 pop-in">
                                 <div className="bg-[#111] border border-[#dcae45] w-full rounded-3xl p-6 shadow-[0_0_30px_rgba(220,174,69,0.2)] text-center relative overflow-hidden">
@@ -801,6 +810,7 @@
                             </div>
                         )}
 
+                        {/* PROFILE TAB */}
                         {activeTab === 'profile' && (
                             <div className="space-y-6 pt-4 pop-in">
                                 <div className="text-center relative bg-[#111] border border-[#dcae45]/40 p-6 rounded-3xl shadow-[0_0_20px_rgba(220,174,69,0.1)]">
@@ -845,9 +855,7 @@
                         )}
                     </div>
 
-                    {/* ========================================== */}
-                    {/* NOTIFICATION MODAL (NEW POPUP SCREEN) */}
-                    {/* ========================================== */}
+                    {/* NOTIFICATION MODAL */}
                     {showNotifications && (
                         <div className="fixed inset-0 bg-[#050505]/95 z-[100] flex flex-col pop-in pb-20 pt-4 backdrop-blur-sm">
                             <div className="flex items-center justify-between p-4 border-b border-[#dcae45]/30 bg-[#111]">
@@ -886,9 +894,8 @@
                             </div>
                         </div>
                     )}
-                    {/* ========================================== */}
 
-                    {/* PAYMENT MODALS & OTHER POPUPS */}
+                    {/* PAYMENT MODALS */}
                     {depositModal && (
                         <div className="fixed inset-0 bg-black/90 z-[90] flex items-center justify-center p-4 backdrop-blur-sm pop-in">
                             <div className="bg-[#111] border border-[#dcae45] w-full max-w-sm rounded-3xl p-6 shadow-[0_0_30px_rgba(220,174,69,0.2)]">
