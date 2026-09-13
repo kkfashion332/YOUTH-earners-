@@ -15,9 +15,9 @@
         .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #dcae45; border-radius: 10px; }
     </style>
 </head>
-<body class="intro-running bg-[#050505] text-white">
+<body class="bg-[#050505] text-white">
 
-    <!-- FIXED: CENTERED INTRO SCREEN (GUARANTEED TO HIDE) -->
+    <!-- INTRO SCREEN -->
     <div id="logoIntro" class="fixed inset-0 bg-[#050505] z-[99999] flex flex-col items-center justify-center transition-opacity duration-500">
         <div class="text-center">
             <div class="w-32 h-32 mx-auto mb-6 rounded-full shadow-[0_0_30px_rgba(220,174,69,0.5)] p-2 bg-black border-2 border-[#dcae45] animate-pulse">
@@ -80,7 +80,7 @@
         </div>
     </div>
 
-    <!-- AUTHENTICATION UI -->
+    <!-- AUTHENTICATION UI (NO OTP) -->
     <div id="authContainer" class="hidden auth-wrapper min-h-screen flex items-center justify-center p-4">
         <div class="form-container bg-[#111] border border-[#dcae45]/50 p-8 rounded-3xl w-full max-w-sm shadow-[0_0_30px_rgba(220,174,69,0.15)] relative">
             <img class="w-24 h-24 mx-auto mb-6 rounded-full border-2 border-[#dcae45] p-1 bg-black" src="youth-earners-logo.png" alt="Logo" />
@@ -134,10 +134,11 @@
     <!-- MAIN REACT APP CONTAINER -->
     <main id="website" class="hidden"><div id="root"></div></main>
 
-    <!-- INTEGRATED FIREBASE & AUTH LOGIC -->
+    <!-- INTEGRATED FIREBASE & AUTH LOGIC (NO OTP / DIRECT SAVE) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        // USING EMAIL/PASSWORD BEHIND THE SCENES TO BYPASS OTP BUT KEEP UID SYSTEM
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs, updateDoc, addDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -153,17 +154,12 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        // Make Firebase globally available for React App
         window.auth = auth;
         window.db = db;
         window.fs = { collection, query, where, getDocs, doc, getDoc, updateDoc, addDoc, deleteDoc, onSnapshot, setDoc };
 
-        const initRecaptcha = () => {
-            if (!window.recaptchaVerifier) {
-                window.recaptchaVerifier = new RecaptchaVerifier(auth, 'loginBtn', { 'size': 'invisible' });
-            }
-        };
-
-        // NEW LOGIC: GUARANTEED LOGO HIDE INDEPENDENT OF FIREBASE
+        // LOGO INTRO HIDE LOGIC
         window.addEventListener('load', () => {
             setTimeout(() => {
                 const intro = document.getElementById('logoIntro');
@@ -171,7 +167,6 @@
                     intro.style.opacity = '0'; // Smooth fade out
                     setTimeout(() => {
                         intro.style.display = 'none';
-                        document.body.classList.remove('intro-running');
                     }, 500);
                 }
             }, 2000);
@@ -205,50 +200,47 @@
             document.getElementById('loginForm').classList.remove('hidden');
         });
 
-        // Login Handler
+        // LOGIN WITHOUT OTP
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const num = document.getElementById('loginNumber').value;
             const pwd = document.getElementById('loginPassword').value;
+            const dummyEmail = `${num}@ye.com`; // Trick to bypass OTP
             
             try {
-                const querySnapshot = await window.fs.getDocs(window.fs.query(window.fs.collection(db, "users"), window.fs.where("number", "==", num), window.fs.where("pwd", "==", pwd)));
-                if (!querySnapshot.empty) {
-                    alert("Login Successful! Note: Secure OTP login requires paid SMS plan.");
-                    location.reload(); 
-                } else {
-                    alert("Invalid Number or Password!");
-                }
+                await signInWithEmailAndPassword(auth, dummyEmail, pwd);
+                // The onAuthStateChanged will automatically redirect to the game
             } catch(err) {
-                console.log(err);
-                alert("Error logging in");
+                alert("Invalid Number or Password! (या आपने अकाउंट नहीं बनाया है)");
             }
         });
 
-        // Registration Handler
+        // REGISTER WITHOUT OTP
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const name = document.getElementById('regName').value;
             const num = document.getElementById('regNumber').value;
             const pwd = document.getElementById('regPassword').value;
             const ref = document.getElementById('regReferral').value;
+            const dummyEmail = `${num}@ye.com`; // Trick to bypass OTP
 
-            initRecaptcha();
             try {
-                const confirmationResult = await signInWithPhoneNumber(auth, `+91${num}`, window.recaptchaVerifier);
-                const code = prompt("Enter OTP sent to your number:");
-                if (code) {
-                    const result = await confirmationResult.confirm(code);
-                    const user = result.user;
-                    await setDoc(doc(db, "users", user.uid), {
-                        name, number: num, pwd, wallet: 0, withdrawable: 0, referralUsed: ref, 
-                        avatar: 'youth-earners-logo.png', joined: new Date()
-                    });
-                    alert("Registration Successful!");
-                }
+                const userCredential = await createUserWithEmailAndPassword(auth, dummyEmail, pwd);
+                const user = userCredential.user;
+                
+                // Save user details instantly to database
+                await setDoc(doc(db, "users", user.uid), {
+                    name, number: num, pwd, wallet: 0, withdrawable: 0, referralUsed: ref, 
+                    avatar: 'youth-earners-logo.png', joined: new Date()
+                });
+                
+                alert("Registration Successful!");
             } catch (error) {
-                console.log(error);
-                alert("OTP Verification Failed! Try again.");
+                if(error.code === 'auth/email-already-in-use') {
+                    alert("This Number is already registered! Please Login.");
+                } else {
+                    alert("Error: " + error.message);
+                }
             }
         });
     </script>
@@ -318,6 +310,26 @@
                     return 'Invalid Date';
                 }
             };
+
+            useEffect(() => {
+                let audioCtx = null;
+                const playClickSound = () => {
+                    try {
+                        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                        if (audioCtx.state === 'suspended') audioCtx.resume();
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.connect(gain); gain.connect(audioCtx.destination);
+                        osc.type = 'sine'; osc.frequency.setValueAtTime(1200, audioCtx.currentTime); 
+                        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                        osc.start(); gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.03);
+                        osc.stop(audioCtx.currentTime + 0.03);
+                    } catch(e){}
+                };
+                const handleGlobalClick = (e) => { if(e.target.closest('button') || e.target.closest('i')) playClickSound(); };
+                document.addEventListener('click', handleGlobalClick);
+                return () => document.removeEventListener('click', handleGlobalClick);
+            }, []);
 
             useEffect(() => {
                 let unsubMatches = null;
@@ -634,13 +646,12 @@
 
                 // SMART LOCAL BOT MATCH LOGIC
                 if (roomData.isBotMatch) {
-                    setRoomData(prev => ({ ...prev, p1Bid: b })); // Lock player bid locally first for suspense
+                    setRoomData(prev => ({ ...prev, p1Bid: b })); 
                     
                     setTimeout(() => {
                         let botTokens = roomData.p2Tokens;
-                        // Bot Logic: Randomly bids between 10% and 50% of its tokens.
                         let botBid = Math.floor(Math.random() * (botTokens * 0.5 - botTokens * 0.1) + botTokens * 0.1);
-                        if (roomData.round === 3) botBid = botTokens; // Bot goes all-in on last round
+                        if (roomData.round === 3) botBid = botTokens; 
                         if (botBid > botTokens) botBid = botTokens;
 
                         let p1T = roomData.p1Tokens - b;
@@ -666,7 +677,7 @@
                             }
                             setBidInput('');
                         }, 3500);
-                    }, 1500); // 1.5 seconds suspense
+                    }, 1500); 
                     return;
                 }
 
@@ -780,7 +791,7 @@
                 return (
                     <div className="max-w-md mx-auto bg-transparent min-h-screen text-white p-4 flex flex-col relative pb-28">
                         <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-xl font-bold text-[#dcae45]"><i className="fa-solid fa-gamepad"></i> Game Running {roomData.tier === 0 && "(Free)"}</h2>
+                            <h2 className="text-xl font-bold text-[#dcae45]"><i className="fa-solid fa-gamepad"></i> Game Running {roomData.tier === 0 && "(Practice)"}</h2>
                         </div>
                         <div className="flex justify-between items-center gold-card p-4 rounded-xl">
                             <div className="text-center w-1/3">
