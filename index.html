@@ -17,13 +17,14 @@
 </head>
 <body class="bg-[#050505] text-white">
 
-    <!-- INTRO SCREEN (UPDATE: Removed circle, made text thinner & shiny) -->
+    <!-- INTRO SCREEN -->
     <div id="logoIntro" class="fixed inset-0 bg-[#050505] z-[99999] flex flex-col items-center justify-center transition-opacity duration-500">
         <div class="text-center">
-            <div class="w-36 h-36 mx-auto mb-8 animate-pulse drop-shadow-[0_0_25px_rgba(220,174,69,0.9)]">
-                <img class="w-full h-full object-contain" src="youth-earners-logo.png" alt="Youth Earner's" />
+            <div class="w-32 h-32 mx-auto mb-6 rounded-full shadow-[0_0_30px_rgba(220,174,69,0.5)] p-2 bg-black border-2 border-[#dcae45] animate-pulse">
+                <img class="w-full h-full object-contain rounded-full" src="youth-earners-logo.png" alt="Youth Earner's" />
             </div>
-            <p class="text-2xl font-medium text-[#ffe29a] tracking-[0.3em] uppercase" style="text-shadow: 0 0 10px rgba(255,204,0,0.8), 0 0 25px rgba(255,204,0,0.5);">Youth Earner's</p>
+            <div class="w-16 h-1 bg-[#dcae45] mx-auto mb-4 rounded-full"></div>
+            <p class="text-3xl font-black text-[#ffe29a] tracking-[0.2em] uppercase drop-shadow-[0_0_10px_rgba(220,174,69,0.8)]">Youth Earner's</p>
         </div>
     </div>
 
@@ -37,18 +38,40 @@
             <div class="p-5 overflow-y-auto text-sm text-gray-300 space-y-5 custom-scrollbar">
                 <div>
                     <h4 class="text-white font-bold mb-1 text-base">1. Age Restriction (18+)</h4>
-                    <p class="text-gray-400">You must be exactly 18 years of age or older to register and play on Youth Earner's.</p>
+                    <p class="text-gray-400">You must be exactly 18 years of age or older to register and play on Youth Earner's. By proceeding, you legally confirm your age.</p>
                 </div>
                 <div>
                     <h4 class="text-white font-bold mb-2 text-base">2. Restricted States (Banned)</h4>
-                    <p class="text-gray-400 mb-2">Due to government regulations, users residing in the following states are STRICTLY PROHIBITED:</p>
+                    <p class="text-gray-400 mb-2">Due to government regulations on Real Money Gaming, users residing in the following states are STRICTLY PROHIBITED from using this app:</p>
                     <ul class="list-none pl-2 text-rose-400 font-bold space-y-1 bg-rose-500/10 border border-rose-500/30 p-3 rounded-lg">
-                        <li><i class="fa-solid fa-ban mr-2 text-xs"></i>Assam, Odisha, Telangana, Andhra Pradesh, Nagaland, Sikkim, Meghalaya</li>
+                        <li><i class="fa-solid fa-ban mr-2 text-xs"></i>Assam</li>
+                        <li><i class="fa-solid fa-ban mr-2 text-xs"></i>Odisha</li>
+                        <li><i class="fa-solid fa-ban mr-2 text-xs"></i>Telangana</li>
+                        <li><i class="fa-solid fa-ban mr-2 text-xs"></i>Andhra Pradesh</li>
+                        <li><i class="fa-solid fa-ban mr-2 text-xs"></i>Nagaland</li>
+                        <li><i class="fa-solid fa-ban mr-2 text-xs"></i>Sikkim</li>
+                        <li><i class="fa-solid fa-ban mr-2 text-xs"></i>Meghalaya</li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-white font-bold mb-1 text-base">3. Fair Play & Refunds</h4>
-                    <p class="text-gray-400">Zero-tolerance for cheating. Entry fee is NON-REFUNDABLE once a match starts.</p>
+                    <h4 class="text-white font-bold mb-1 text-base">3. Fair Play & Anti-Cheating</h4>
+                    <p class="text-gray-400">We maintain a strict zero-tolerance policy. Agar kisi bhi account mein cheating, fraud, ya hacking detect hoti hai, toh admin ko right hai ki account ko bina notice diye instantly <b>Temporarily Suspend</b> ya <b>Permanently Ban</b> kar diya jayega.</p>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-1 text-base">4. Entry Fees & Refunds</h4>
+                    <p class="text-gray-400">Clear Rule: Match start hone ke baad entry fee kisi bhi haal mein <b>NON-REFUNDABLE</b> hai. Refund tabhi process hoga jab koi server error ya system issue ki wajah se match system dwara cancel kiya jaye.</p>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-1 text-base">5. Withdrawal Rules</h4>
+                    <p class="text-gray-400">Ek baar withdrawal request lagane ke baad, payment processing mein <b>24 se 48 hours</b> (working hours) lag sakte hain. Future dispute se bachne ke liye bank/UPI details dhyan se bharein.</p>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-1 text-base">6. Technical Issues & Liability</h4>
+                    <p class="text-gray-400">Agar match ke beech mein user ka internet connection chala jaye, ping high ho, game auto-close ho, ya device lag kare, toh iski poori zimmedari player ki hogi. Iske liye platform koi compensation ya refund provide nahi karega.</p>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-1 text-base">7. Right to Modify</h4>
+                    <p class="text-[#ffe29a] font-bold">Admin/Management reserves the exclusive right to amend, change, or modify the game rules, prize pool distributions, or platform policies at any given time without prior notice.</p>
                 </div>
             </div>
             <div class="p-4 bg-black border-t border-gray-800 text-center">
@@ -57,7 +80,7 @@
         </div>
     </div>
 
-    <!-- AUTHENTICATION UI -->
+    <!-- AUTHENTICATION UI (NO OTP) -->
     <div id="authContainer" class="hidden auth-wrapper min-h-screen flex items-center justify-center p-4">
         <div class="form-container bg-[#111] border border-[#dcae45]/50 p-8 rounded-3xl w-full max-w-sm shadow-[0_0_30px_rgba(220,174,69,0.15)] relative">
             <img class="w-24 h-24 mx-auto mb-6 rounded-full border-2 border-[#dcae45] p-1 bg-black" src="youth-earners-logo.png" alt="Logo" />
@@ -67,6 +90,7 @@
                 <input type="tel" id="loginNumber" placeholder="Mobile Number" pattern="[0-9]{10}" maxlength="10" required class="w-full bg-black border border-gray-700 p-4 rounded-xl text-white focus:border-[#dcae45] outline-none">
                 <input type="password" id="loginPassword" placeholder="Password (Min 6 digits)" minlength="6" required class="w-full bg-black border border-gray-700 p-4 rounded-xl text-white focus:border-[#dcae45] outline-none">
                 
+                <!-- Horizontal Checkboxes for Login -->
                 <div class="flex gap-2 mt-2">
                     <div class="flex-1 flex items-center justify-center gap-2 bg-black p-3 border border-gray-700 rounded-xl">
                         <input type="checkbox" id="logAgeCheck" required class="w-4 h-4 accent-[#dcae45] cursor-pointer">
@@ -89,6 +113,7 @@
                 <input type="password" id="regPassword" placeholder="Password (Min 6 digits)" minlength="6" required class="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none">
                 <input type="text" id="regReferral" placeholder="Referral Code (Optional)" class="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none">
                 
+                <!-- Horizontal Checkboxes for Register -->
                 <div class="flex gap-2 mt-2">
                     <div class="flex-1 flex items-center justify-center gap-2 bg-black p-3 border border-gray-700 rounded-xl">
                         <input type="checkbox" id="regAgeCheck" required class="w-4 h-4 accent-[#dcae45] cursor-pointer">
@@ -109,9 +134,10 @@
     <!-- MAIN REACT APP CONTAINER -->
     <main id="website" class="hidden"><div id="root"></div></main>
 
-    <!-- FIREBASE INIT -->
+    <!-- INTEGRATED FIREBASE & AUTH LOGIC (NO OTP / DIRECT SAVE) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        // USING EMAIL/PASSWORD BEHIND THE SCENES TO BYPASS OTP BUT KEEP UID SYSTEM
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs, updateDoc, addDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
@@ -128,40 +154,94 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        window.auth = auth; window.db = db;
+        // Make Firebase globally available for React App
+        window.auth = auth;
+        window.db = db;
         window.fs = { collection, query, where, getDocs, doc, getDoc, updateDoc, addDoc, deleteDoc, onSnapshot, setDoc };
 
+        // LOGO INTRO HIDE LOGIC
         window.addEventListener('load', () => {
             setTimeout(() => {
                 const intro = document.getElementById('logoIntro');
-                if(intro) { intro.style.opacity = '0'; setTimeout(() => intro.style.display = 'none', 500); }
+                if(intro) {
+                    intro.style.opacity = '0'; // Smooth fade out
+                    setTimeout(() => {
+                        intro.style.display = 'none';
+                    }, 500);
+                }
             }, 2000);
         });
 
+        // Listen for Login State
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                document.getElementById('authContainer').classList.add('hidden'); document.getElementById('website').classList.remove('hidden');
-                try { const docSnap = await getDoc(doc(db, "users", user.uid)); if (docSnap.exists()) window.dispatchEvent(new CustomEvent('gameStart', { detail: docSnap.data() })); } catch(e) {}
+                document.getElementById('authContainer').classList.add('hidden');
+                document.getElementById('website').classList.remove('hidden');
+                try {
+                    const docSnap = await getDoc(doc(db, "users", user.uid));
+                    if (docSnap.exists()) {
+                        window.dispatchEvent(new CustomEvent('gameStart', { detail: docSnap.data() }));
+                    }
+                } catch(e) { console.log(e); }
             } else {
-                document.getElementById('authContainer').classList.remove('hidden'); document.getElementById('website').classList.add('hidden');
+                document.getElementById('authContainer').classList.remove('hidden');
+                document.getElementById('website').classList.add('hidden');
             }
         });
 
-        document.getElementById('showRegister').addEventListener('click', () => { document.getElementById('loginForm').classList.add('hidden'); document.getElementById('registerForm').classList.remove('hidden'); });
-        document.getElementById('showLogin').addEventListener('click', () => { document.getElementById('registerForm').classList.add('hidden'); document.getElementById('loginForm').classList.remove('hidden'); });
-
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault(); const num = document.getElementById('loginNumber').value; const pwd = document.getElementById('loginPassword').value;
-            try { await signInWithEmailAndPassword(auth, `${num}@ye.com`, pwd); } catch(err) { alert("Invalid Number or Password!"); }
+        // Toggle Login/Register Forms
+        document.getElementById('showRegister').addEventListener('click', () => {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('registerForm').classList.remove('hidden');
         });
 
-        document.getElementById('registerForm').addEventListener('submit', async (e) => {
-            e.preventDefault(); const name = document.getElementById('regName').value; const num = document.getElementById('regNumber').value; const pwd = document.getElementById('regPassword').value; const ref = document.getElementById('regReferral').value;
+        document.getElementById('showLogin').addEventListener('click', () => {
+            document.getElementById('registerForm').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+        });
+
+        // LOGIN WITHOUT OTP
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const num = document.getElementById('loginNumber').value;
+            const pwd = document.getElementById('loginPassword').value;
+            const dummyEmail = `${num}@ye.com`; // Trick to bypass OTP
+            
             try {
-                const userCredential = await createUserWithEmailAndPassword(auth, `${num}@ye.com`, pwd);
-                await setDoc(doc(db, "users", userCredential.user.uid), { name, number: num, pwd, wallet: 0, withdrawable: 0, referralUsed: ref, avatar: 'youth-earners-logo.png', joined: new Date() });
+                await signInWithEmailAndPassword(auth, dummyEmail, pwd);
+                // The onAuthStateChanged will automatically redirect to the game
+            } catch(err) {
+                alert("Invalid Number or Password! (या आपने अकाउंट नहीं बनाया है)");
+            }
+        });
+
+        // REGISTER WITHOUT OTP
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('regName').value;
+            const num = document.getElementById('regNumber').value;
+            const pwd = document.getElementById('regPassword').value;
+            const ref = document.getElementById('regReferral').value;
+            const dummyEmail = `${num}@ye.com`; // Trick to bypass OTP
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, dummyEmail, pwd);
+                const user = userCredential.user;
+                
+                // Save user details instantly to database
+                await setDoc(doc(db, "users", user.uid), {
+                    name, number: num, pwd, wallet: 0, withdrawable: 0, referralUsed: ref, 
+                    avatar: 'youth-earners-logo.png', joined: new Date()
+                });
+                
                 alert("Registration Successful!");
-            } catch (error) { alert(error.code === 'auth/email-already-in-use' ? "Number already registered!" : "Error: " + error.message); }
+            } catch (error) {
+                if(error.code === 'auth/email-already-in-use') {
+                    alert("This Number is already registered! Please Login.");
+                } else {
+                    alert("Error: " + error.message);
+                }
+            }
         });
     </script>
 
@@ -177,7 +257,11 @@
             const savedName = localStorage.getItem('userName') || 'Player';
             
             const [userProfile, setUserProfile] = useState({ name: savedName, number: '9999999999', avatar: savedAvatar });
-            const [wallet, setWallet] = useState(0); const [withdrawable, setWithdrawable] = useState(0);
+            const [isEditingName, setIsEditingName] = useState(false);
+            const [editNameInput, setEditNameInput] = useState('');
+
+            const [wallet, setWallet] = useState(0);
+            const [withdrawable, setWithdrawable] = useState(0);
             
             const [confirmPopup, setConfirmPopup] = useState(null); 
             const [showWinPopup, setShowWinPopup] = useState(null);
@@ -187,30 +271,66 @@
             const [matchFound, setMatchFound] = useState(false);
             const [opponent, setOpponent] = useState({ name: 'Searching...', img: 'youth-earners-logo.png' });
             
+            const [depositModal, setDepositModal] = useState(false);
+            const [withdrawModal, setWithdrawModal] = useState(false);
+            
+            const [utrInput, setUtrInput] = useState('');
+            const [depositAmount, setDepositAmount] = useState('');
+            const [withdrawType, setWithdrawType] = useState('upi');
+            const [withdrawId, setWithdrawId] = useState('');
+            const [withdrawAmount, setWithdrawAmount] = useState('');
+
             const [roomId, setRoomId] = useState(null);
             const [playerRole, setPlayerRole] = useState(null); 
             const [roomData, setRoomData] = useState(null);
             const [bidInput, setBidInput] = useState('');
             
-            // NEW: 10s Timer & Emoji States
-            const [roundTime, setRoundTime] = useState(10);
-            const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-            const [activeEmojiP1, setActiveEmojiP1] = useState(null);
-            const [activeEmojiP2, setActiveEmojiP2] = useState(null);
-
+            const fileInputRef = useRef(null);
+            
             const [playTiers, setPlayTiers] = useState([{ entry: 5, win: 9 }, { entry: 10, win: 18 }, { entry: 15, win: 27 }, { entry: 20, win: 36 }]);
             const [topPlayers, setTopPlayers] = useState([]);
+            const [isLoadingLeaderboard, setIsLoadingLeaderboard] = useState(false);
             
-            // Unchanged Wallet & Admin States (Hidden for brevity in this comment block, standard implementation follows)
-            const [depositModal, setDepositModal] = useState(false); const [withdrawModal, setWithdrawModal] = useState(false);
-            const [utrInput, setUtrInput] = useState(''); const [depositAmount, setDepositAmount] = useState('');
-            const [withdrawType, setWithdrawType] = useState('upi'); const [withdrawId, setWithdrawId] = useState(''); const [withdrawAmount, setWithdrawAmount] = useState('');
-            const fileInputRef = useRef(null); const [isEditingName, setIsEditingName] = useState(false); const [editNameInput, setEditNameInput] = useState('');
-            const [historyView, setHistoryView] = useState(null); const [depHistory, setDepHistory] = useState([]); const [withHistory, setWithHistory] = useState([]); const [matchHistory, setMatchHistory] = useState([]);
-            const [notifications, setNotifications] = useState([]); const [showNotifications, setShowNotifications] = useState(false); const [unreadCount, setUnreadCount] = useState(0);
+            const [historyView, setHistoryView] = useState(null); 
+            const [depHistory, setDepHistory] = useState([]);
+            const [withHistory, setWithHistory] = useState([]);
+            const [matchHistory, setMatchHistory] = useState([]);
+
+            const [notifications, setNotifications] = useState([]);
+            const [showNotifications, setShowNotifications] = useState(false);
+            const [unreadCount, setUnreadCount] = useState(0);
+
             const [adminSettings, setAdminSettings] = useState({ upiId: 'youthearners@nyes', qrUrl: 'payment-qr.png' });
 
-            // (Data Fetching Hooks - Exact same as before)
+            const formatSafeDate = (dateObj) => {
+                if (!dateObj) return 'N/A';
+                try {
+                    return dateObj.toDate ? new Date(dateObj.toDate()).toLocaleString() : new Date(dateObj).toLocaleString();
+                } catch(e) {
+                    return 'Invalid Date';
+                }
+            };
+
+            useEffect(() => {
+                let audioCtx = null;
+                const playClickSound = () => {
+                    try {
+                        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                        if (audioCtx.state === 'suspended') audioCtx.resume();
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.connect(gain); gain.connect(audioCtx.destination);
+                        osc.type = 'sine'; osc.frequency.setValueAtTime(1200, audioCtx.currentTime); 
+                        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                        osc.start(); gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.03);
+                        osc.stop(audioCtx.currentTime + 0.03);
+                    } catch(e){}
+                };
+                const handleGlobalClick = (e) => { if(e.target.closest('button') || e.target.closest('i')) playClickSound(); };
+                document.addEventListener('click', handleGlobalClick);
+                return () => document.removeEventListener('click', handleGlobalClick);
+            }, []);
+
             useEffect(() => {
                 let unsubMatches = null;
                 const fetchLiveSettingsAndMatches = async () => {
@@ -228,7 +348,9 @@
             }, []);
 
             useEffect(() => {
-                let unsubWallet = null; let unsubNotif = null;
+                let unsubWallet = null;
+                let unsubNotif = null;
+                
                 const handleGameStart = (e) => {
                     const data = e.detail;
                     if(data) {
@@ -237,13 +359,25 @@
                         localStorage.setItem('userAvatar', dbAvatar); localStorage.setItem('userName', dbName);
                         setUserProfile(prev => ({ ...prev, name: dbName, number: data.number || prev.number, avatar: dbAvatar }));
                         setEditNameInput(dbName);
+                        
                         if(data.wallet !== undefined) setWallet(data.wallet);
                         if(data.withdrawable !== undefined) setWithdrawable(data.withdrawable);
                         
                         if(window.auth && window.auth.currentUser) {
                             const uid = window.auth.currentUser.uid;
                             unsubWallet = window.fs.onSnapshot(window.fs.doc(window.db, "users", uid), (docSnap) => {
-                                if(docSnap.exists()){ const dbData = docSnap.data(); if(dbData.wallet !== undefined) setWallet(dbData.wallet); if(dbData.withdrawable !== undefined) setWithdrawable(dbData.withdrawable); }
+                                if(docSnap.exists()){
+                                    const dbData = docSnap.data();
+                                    if(dbData.wallet !== undefined) setWallet(dbData.wallet);
+                                    if(dbData.withdrawable !== undefined) setWithdrawable(dbData.withdrawable);
+                                }
+                            });
+                            const nQ = window.fs.query(window.fs.collection(window.db, "notifications"), window.fs.where("uid", "==", uid));
+                            unsubNotif = window.fs.onSnapshot(nQ, (snap) => {
+                                let notifs = []; let unread = 0;
+                                snap.forEach(doc => { const nData = doc.data(); notifs.push({ id: doc.id, ...nData }); if(!nData.read) unread++; });
+                                notifs.sort((a,b) => (b.date?.toDate() || 0) - (a.date?.toDate() || 0));
+                                setNotifications(notifs); setUnreadCount(unread);
                             });
                         }
                     }
@@ -252,124 +386,231 @@
                 return () => { window.removeEventListener('gameStart', handleGameStart); if(unsubWallet) unsubWallet(); if(unsubNotif) unsubNotif(); };
             }, []);
 
-            // UPDATE 4: Timer Logic for Game Rounds
-            useEffect(() => {
-                let timer;
-                if (isPlaying && roomData && !roomData.lastResult) {
-                    let myBidStatus = playerRole === 1 ? roomData.p1Bid : roomData.p2Bid;
-                    if (myBidStatus === null && roundTime > 0) {
-                        timer = setInterval(() => setRoundTime(prev => prev - 1), 1000);
-                    } else if (myBidStatus === null && roundTime === 0) {
-                        // Auto-submit 0 bid when time runs out
-                        submitBid(0); 
-                    }
-                }
-                return () => clearInterval(timer);
-            }, [isPlaying, roomData, roundTime, playerRole]);
-
-            // Reset timer on new round
-            useEffect(() => {
-                if (roomData && !roomData.lastResult) { setRoundTime(10); }
-            }, [roomData?.round, roomData?.lastResult]);
-
-            // UPDATE 3: Emoji Sync Listener
-            useEffect(() => {
-                if (roomData?.lastEmoji) {
-                    if (roomData.lastEmoji.role === 1) { 
-                        setActiveEmojiP1(roomData.lastEmoji.emoji); 
-                        setTimeout(() => setActiveEmojiP1(null), 2500); 
-                    } else { 
-                        setActiveEmojiP2(roomData.lastEmoji.emoji); 
-                        setTimeout(() => setActiveEmojiP2(null), 2500); 
-                    }
-                }
-            }, [roomData?.lastEmoji?.time]);
-
-            const sendEmoji = async (emoji) => {
-                if (roomData.isBotMatch) {
-                    setRoomData(prev => ({ ...prev, lastEmoji: { role: 1, emoji: emoji, time: Date.now() } }));
-                    setTimeout(() => {
-                        const botEmojis = ['😡', '😂', '🔥', '😭'];
-                        setRoomData(prev => ({ ...prev, lastEmoji: { role: 2, emoji: botEmojis[Math.floor(Math.random()*botEmojis.length)], time: Date.now() } }));
-                    }, 1000);
-                } else if (roomId) {
-                    await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomId), {
-                        lastEmoji: { role: playerRole, emoji: emoji, time: Date.now() }
-                    });
-                }
-                setShowEmojiPicker(false);
+            const markAsRead = async (id) => { try { await window.fs.updateDoc(window.fs.doc(window.db, "notifications", id), { read: true }); } catch(e) {} };
+            const syncProfileToDatabase = async (updateData) => { if (window.auth && window.auth.currentUser) { try { await window.fs.updateDoc(window.fs.doc(window.db, "users", window.auth.currentUser.uid), updateData); } catch (e) {} } };
+            const saveProfileName = () => { if(!editNameInput.trim()) return; setUserProfile(prev => ({...prev, name: editNameInput})); localStorage.setItem('userName', editNameInput); syncProfileToDatabase({ name: editNameInput }); setIsEditingName(false); };
+            
+            const handleImageUpload = (e) => { 
+                const file = e.target.files[0]; 
+                if (file) { 
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const img = new Image(); img.src = event.target.result;
+                        img.onload = () => {
+                            const canvas = document.createElement("canvas");
+                            const MAX_SIZE = 250; let width = img.width; let height = img.height;
+                            if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
+                            canvas.width = width; canvas.height = height;
+                            const ctx = canvas.getContext("2d"); ctx.drawImage(img, 0, 0, width, height);
+                            const compressedBase64 = canvas.toDataURL("image/jpeg", 0.7); 
+                            localStorage.setItem('userAvatar', compressedBase64); setUserProfile(prev => ({ ...prev, avatar: compressedBase64 })); syncProfileToDatabase({ avatar: compressedBase64 }); 
+                        };
+                    };
+                    reader.readAsDataURL(file);
+                } 
             };
 
-            const submitBid = async (overrideValue = null) => {
-                if(!roomData) return;
-                let myTokens = playerRole === 1 ? roomData.p1Tokens : roomData.p2Tokens;
-                // Use override if time ran out (0), otherwise input
-                let b = overrideValue !== null ? overrideValue : parseInt(bidInput);
-                if(isNaN(b) || b < 0) b = 0; if(b > myTokens) b = myTokens;
+            const logoutUser = async () => { if(window.auth) { await window.auth.signOut(); } localStorage.clear(); window.location.reload(); };
 
-                if (roomData.isBotMatch) {
-                    setRoomData(prev => ({ ...prev, p1Bid: b })); 
-                    setTimeout(() => {
-                        let botTokens = roomData.p2Tokens; let botBid = Math.floor(Math.random() * (botTokens * 0.5 - botTokens * 0.1) + botTokens * 0.1);
-                        if (roomData.round === 3) botBid = botTokens; if (botBid > botTokens) botBid = botTokens;
-                        let p1T = roomData.p1Tokens - b; let p2T = roomData.p2Tokens - botBid;
-                        let p1W = roomData.p1Wins; let p2W = roomData.p2Wins; let winner = "DRAW";
-                        if(b > botBid) { winner = roomData.p1.name; p1W++; } else if(botBid > b) { winner = roomData.p2.name; p2W++; }
-                        setRoomData(prev => ({ ...prev, p1Tokens: p1T, p2Tokens: p2T, p1Wins: p1W, p2Wins: p2W, lastResult: { p1Bid: b, p2Bid: botBid, winner } }));
-                        setTimeout(() => {
-                            let nextRound = roomData.round + 1;
-                            if(nextRound > 3) {
-                                setIsPlaying(false); let isWinner = false; if(p1W > p2W || (p1W === p2W && p1T > p2T)) isWinner = true;
-                                if (isWinner) alert("🎉 Victory! You beat the System Bot!"); else alert("☠️ Defeat! The System Bot won this match.");
-                                setRoomData(null);
-                            } else { setRoomData(prev => ({ ...prev, round: nextRound, lastResult: null, p1Bid: null, p2Bid: null })); }
-                            setBidInput('');
-                        }, 3500);
-                    }, 1500); 
-                    return;
+            useEffect(() => {
+                if (activeTab === 'ranking') { 
+                    const fetchRealLeaderboard = async () => {
+                        setIsLoadingLeaderboard(true);
+                        try {
+                            const querySnapshot = await window.fs.getDocs(window.fs.collection(window.db, "users"));
+                            let playersData = [];
+                            querySnapshot.forEach((doc) => {
+                                const data = doc.data();
+                                playersData.push({ name: data.name || "Player", amount: data.wallet || 0, img: data.avatar || "youth-earners-logo.png" });
+                            });
+                            playersData.sort((a, b) => b.amount - a.amount);
+                            playersData = playersData.slice(0, 10).map((p, index) => ({ ...p, rank: index + 1 }));
+                            let padData = [...playersData];
+                            while (padData.length < 3) { padData.push({ rank: padData.length + 1, name: "Waiting...", amount: 0, img: "youth-earners-logo.png" }); }
+                            setTopPlayers(padData);
+                        } catch (error) {}
+                        setIsLoadingLeaderboard(false);
+                    };
+                    fetchRealLeaderboard();
                 }
+            }, [activeTab]);
 
-                if(!roomId) return;
-                await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomId), { [playerRole === 1 ? 'p1Bid' : 'p2Bid']: b });
-            };
+            useEffect(() => {
+                if (activeTab === 'wallet' && window.auth && window.auth.currentUser) {
+                    const fetchAllHistory = async () => {
+                        const uid = window.auth.currentUser.uid;
+                        try {
+                            const dQ = window.fs.query(window.fs.collection(window.db, "deposits"), window.fs.where("uid", "==", uid));
+                            const dSnap = await window.fs.getDocs(dQ);
+                            let dData = []; dSnap.forEach(d => dData.push(d.data()));
+                            dData.sort((a,b) => (b.date?.toDate ? b.date.toDate() : new Date(b.date)) - (a.date?.toDate ? a.date.toDate() : new Date(a.date)));
+                            setDepHistory(dData);
 
-            // Standard Logic: Practice, Real Play, Wallet, Rank (Truncated for space, assume same as earlier)
-            const startPractice = async (type) => { /* Same as before */ 
+                            const wQ = window.fs.query(window.fs.collection(window.db, "withdrawals"), window.fs.where("uid", "==", uid));
+                            const wSnap = await window.fs.getDocs(wQ);
+                            let wData = []; wSnap.forEach(w => wData.push(w.data()));
+                            wData.sort((a,b) => (b.date?.toDate ? b.date.toDate() : new Date(b.date)) - (a.date?.toDate ? a.date.toDate() : new Date(a.date)));
+                            setWithHistory(wData);
+
+                            const mQ1 = window.fs.query(window.fs.collection(window.db, "rooms"), window.fs.where("p1.uid", "==", uid), window.fs.where("status", "==", "finished"));
+                            const mQ2 = window.fs.query(window.fs.collection(window.db, "rooms"), window.fs.where("p2.uid", "==", uid), window.fs.where("status", "==", "finished"));
+                            const [mSnap1, mSnap2] = await Promise.all([window.fs.getDocs(mQ1), window.fs.getDocs(mQ2)]);
+                            let mData = [];
+                            mSnap1.forEach(m => mData.push({...m.data(), id: m.id}));
+                            mSnap2.forEach(m => mData.push({...m.data(), id: m.id}));
+                            
+                            const uniqueMData = Array.from(new Set(mData.map(a => a.id))).map(id => mData.find(a => a.id === id));
+                            const processedMatches = uniqueMData.map(match => {
+                                const isP1 = match.p1.uid === uid; let isWinner = false;
+                                if(match.p1Wins > match.p2Wins || (match.p1Wins === match.p2Wins && match.p1Tokens > match.p2Tokens)) { isWinner = isP1; } 
+                                else if(match.p2Wins > match.p1Wins || (match.p2Wins === match.p1Wins && match.p2Tokens > match.p1Tokens)) { isWinner = !isP1; } 
+                                else { isWinner = 'draw'; }
+                                return { ...match, isWinner, date: match.createdAt || new Date() };
+                            });
+                            processedMatches.sort((a,b) => (b.date?.toDate ? b.date.toDate() : new Date(b.date)) - (a.date?.toDate ? a.date.toDate() : new Date(a.date)));
+                            setMatchHistory(processedMatches);
+                        } catch(e) { }
+                    };
+                    fetchAllHistory();
+                }
+            }, [activeTab, historyView]);
+
+            // SMART BOT PRACTICE MATCH LOGIC
+            const startPractice = async (type) => {
                 setConfirmPopup(null); setMatchFound(false); setMatchTime(type === 'bot' ? 3 : 20); setIsMatchmaking(true);
+                
                 if (type === 'bot') {
                     setPlayerRole(1);
                     setTimeout(() => {
-                        setMatchFound(true); setOpponent({ name: 'System Bot', img: 'https://cdn-icons-png.flaticon.com/512/4712/4712010.png' });
+                        setMatchFound(true);
+                        setOpponent({ name: 'System Bot', img: 'https://cdn-icons-png.flaticon.com/512/4712/4712010.png' });
                         setTimeout(() => {
                             setIsMatchmaking(false); setIsPlaying(true); setBidInput('');
-                            setRoomData({ tier: 0, round: 1, p1Tokens: 500, p2Tokens: 500, p1Wins: 0, p2Wins: 0, p1: { name: userProfile.name, img: userProfile.avatar }, p2: { name: 'System Bot', img: 'https://cdn-icons-png.flaticon.com/512/4712/4712010.png' }, lastResult: null, isBotMatch: true, p1Bid: null, p2Bid: null });
+                            setRoomData({
+                                tier: 0, round: 1, p1Tokens: 500, p2Tokens: 500, p1Wins: 0, p2Wins: 0,
+                                p1: { name: userProfile.name, img: userProfile.avatar },
+                                p2: { name: 'System Bot', img: 'https://cdn-icons-png.flaticon.com/512/4712/4712010.png' },
+                                lastResult: null, isBotMatch: true, p1Bid: null, p2Bid: null
+                            });
                         }, 1500);
                     }, 1500);
-                } 
+                } else {
+                    // Practice vs Real Player (Tier 0 Free Match)
+                    try {
+                        const q = window.fs.query(window.fs.collection(window.db, "rooms"), window.fs.where("tier", "==", 0), window.fs.where("status", "==", "waiting"));
+                        const querySnapshot = await window.fs.getDocs(q);
+
+                        if (!querySnapshot.empty) {
+                            const roomDoc = querySnapshot.docs[0];
+                            await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomDoc.id), { status: 'playing', p2: { uid: window.auth.currentUser.uid, name: userProfile.name, img: userProfile.avatar } });
+                            setRoomId(roomDoc.id); setPlayerRole(2);
+                        } else {
+                            const docRef = await window.fs.addDoc(window.fs.collection(window.db, "rooms"), {
+                                tier: 0, status: 'waiting', p1: { uid: window.auth.currentUser.uid, name: userProfile.name, img: userProfile.avatar },
+                                p1Bid: null, p2Bid: null, round: 1, p1Tokens: 500, p2Tokens: 500, p1Wins: 0, p2Wins: 0, lastResult: null, createdAt: new Date()
+                            });
+                            setRoomId(docRef.id); setPlayerRole(1);
+                        }
+                    } catch(e) { alert("Error connecting to server!"); setIsMatchmaking(false); }
+                }
             };
-            const cancelMatchmaking = async () => { setIsMatchmaking(false); if(playerRole === 1 && roomId) { await window.fs.deleteDoc(window.fs.doc(window.db, "rooms", roomId)); } setRoomId(null); };
+
+            const confirmPlay = async () => {
+                if (wallet < confirmPopup.entry) { alert("Low Balance! Please deposit money to play."); setConfirmPopup(null); setDepositModal(true); return; }
+                const tier = confirmPopup; setConfirmPopup(null); setMatchFound(false); setMatchTime(20); setIsMatchmaking(true); 
+
+                try {
+                    const q = window.fs.query(window.fs.collection(window.db, "rooms"), window.fs.where("tier", "==", tier.entry), window.fs.where("status", "==", "waiting"));
+                    const querySnapshot = await window.fs.getDocs(q);
+
+                    if (!querySnapshot.empty) {
+                        const roomDoc = querySnapshot.docs[0];
+                        await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomDoc.id), { status: 'playing', p2: { uid: window.auth.currentUser.uid, name: userProfile.name, img: userProfile.avatar } });
+                        setRoomId(roomDoc.id); setPlayerRole(2);
+                    } else {
+                        const docRef = await window.fs.addDoc(window.fs.collection(window.db, "rooms"), {
+                            tier: tier.entry, status: 'waiting', p1: { uid: window.auth.currentUser.uid, name: userProfile.name, img: userProfile.avatar },
+                            p1Bid: null, p2Bid: null, round: 1, p1Tokens: 500, p2Tokens: 500, p1Wins: 0, p2Wins: 0, lastResult: null, createdAt: new Date()
+                        });
+                        setRoomId(docRef.id); setPlayerRole(1);
+                    }
+                } catch(e) { alert("Error connecting to server!"); setIsMatchmaking(false); }
+            };
+
+            const cancelMatchmaking = async () => {
+                setIsMatchmaking(false);
+                if(playerRole === 1 && roomId) { await window.fs.deleteDoc(window.fs.doc(window.db, "rooms", roomId)); }
+                setRoomId(null);
+            };
 
             useEffect(() => {
                 if (!roomId) return;
                 const unsub = window.fs.onSnapshot(window.fs.doc(window.db, "rooms", roomId), async (doc) => {
                     const data = doc.data(); if(!data) return; setRoomData(data);
+
                     if(data.status === 'playing' && !matchFound) {
                         setMatchFound(true); setOpponent(playerRole === 1 ? data.p2 : data.p1);
-                        setTimeout(() => { setIsMatchmaking(false); setIsPlaying(true); setBidInput(''); }, 3000);
+                        setTimeout(() => { 
+                            if (data.tier > 0) {
+                                const entryFee = data.tier;
+                                if(window.auth.currentUser) {
+                                    const userRef = window.fs.doc(window.db, "users", window.auth.currentUser.uid);
+                                    window.fs.getDoc(userRef).then(uSnap => {
+                                        if(uSnap.exists()){ let dbW = uSnap.data().wallet || 0; window.fs.updateDoc(userRef, { wallet: dbW - entryFee }); }
+                                    });
+                                }
+                            }
+                            setIsMatchmaking(false); setIsPlaying(true); setBidInput(''); 
+                        }, 3000);
                     }
+
                     if(data.status === 'finished') {
                         setIsPlaying(false); setRoomId(null);
                         let isWinner = false;
-                        if(data.p1Wins > data.p2Wins || (data.p1Wins === data.p2Wins && data.p1Tokens > data.p2Tokens)) { isWinner = playerRole === 1; } else if(data.p2Wins > data.p1Wins || (data.p2Wins === data.p1Wins && data.p2Tokens > data.p1Tokens)) { isWinner = playerRole === 2; } else { isWinner = 'draw'; }
-                        if (data.tier > 0 && isWinner === true) { setShowWinPopup(data.tier * 1.8); } else if (data.tier === 0) { alert(isWinner===true ? "Victory!" : isWinner===false ? "Defeat!" : "Draw!"); }
+                        if(data.p1Wins > data.p2Wins || (data.p1Wins === data.p2Wins && data.p1Tokens > data.p2Tokens)) { isWinner = playerRole === 1; } 
+                        else if(data.p2Wins > data.p1Wins || (data.p2Wins === data.p1Wins && data.p2Tokens > data.p1Tokens)) { isWinner = playerRole === 2; } 
+                        else { isWinner = 'draw'; }
+                        
+                        if (data.tier === 0) {
+                            if(isWinner === true) alert("Victory! You won the free practice match!");
+                            else if(isWinner === false) alert("Defeat! You lost the free practice match.");
+                            else alert("Practice match ended in a Draw!");
+                        } else {
+                            if(isWinner === true) {
+                                let winnings = data.tier * 1.8;
+                                if(window.auth.currentUser) { 
+                                    const userRef = window.fs.doc(window.db, "users", window.auth.currentUser.uid);
+                                    window.fs.getDoc(userRef).then(uSnap => {
+                                        if(uSnap.exists()){
+                                            let dbW = uSnap.data().wallet || 0; let dbWith = uSnap.data().withdrawable || 0;
+                                            window.fs.updateDoc(userRef, { wallet: dbW + winnings, withdrawable: dbWith + winnings });
+                                        }
+                                    });
+                                }
+                                setShowWinPopup(winnings); 
+                            } else if(isWinner === 'draw') {
+                                if(window.auth.currentUser) {
+                                    const userRef = window.fs.doc(window.db, "users", window.auth.currentUser.uid);
+                                    window.fs.getDoc(userRef).then(uSnap => {
+                                        if(uSnap.exists()){ let dbW = uSnap.data().wallet || 0; window.fs.updateDoc(userRef, { wallet: dbW + data.tier }); }
+                                    });
+                                }
+                                alert("Match Draw! Entry fee refunded.");
+                            }
+                        }
                     }
+
                     if(data.status === 'playing' && data.p1Bid !== null && data.p2Bid !== null && !data.lastResult) {
                         if(playerRole === 1) {
                             let p1T = data.p1Tokens - data.p1Bid; let p2T = data.p2Tokens - data.p2Bid;
                             let p1W = data.p1Wins; let p2W = data.p2Wins; let winner = "DRAW";
-                            if(data.p1Bid > data.p2Bid) { winner = data.p1.name; p1W++; } else if(data.p2Bid > data.p1Bid) { winner = data.p2.name; p2W++; }
+                            if(data.p1Bid > data.p2Bid) { winner = data.p1.name; p1W++; }
+                            else if(data.p2Bid > data.p1Bid) { winner = data.p2.name; p2W++; }
+                            
                             let nextRound = data.round + 1;
-                            await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomId), { p1Tokens: p1T, p2Tokens: p2T, p1Wins: p1W, p2Wins: p2W, lastResult: { p1Bid: data.p1Bid, p2Bid: data.p2Bid, winner } });
+                            await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomId), {
+                                p1Tokens: p1T, p2Tokens: p2T, p1Wins: p1W, p2Wins: p2W, lastResult: { p1Bid: data.p1Bid, p2Bid: data.p2Bid, winner }
+                            });
                             setTimeout(async () => {
                                 if(nextRound > 3) { await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomId), { status: 'finished' }); } 
                                 else { await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomId), { p1Bid: null, p2Bid: null, round: nextRound, lastResult: null }); }
@@ -380,19 +621,154 @@
                 return () => unsub();
             }, [roomId, matchFound, playerRole]);
 
-            // MATCHMAKING SCREEN
+            useEffect(() => {
+                let timer;
+                if (isMatchmaking && !matchFound) {
+                    timer = setInterval(async () => {
+                        setMatchTime(prev => {
+                            if(prev <= 1) {
+                                clearInterval(timer); setIsMatchmaking(false); alert("No real player found right now. Try again!");
+                                if(playerRole === 1 && roomId) { window.fs.deleteDoc(window.fs.doc(window.db, "rooms", roomId)); }
+                                setRoomId(null); return 0;
+                            }
+                            return prev - 1;
+                        });
+                    }, 1000);
+                }
+                return () => clearInterval(timer);
+            }, [isMatchmaking, matchFound, roomId, playerRole]);
+
+            const submitBid = async () => {
+                if(!roomData) return;
+                let myTokens = playerRole === 1 ? roomData.p1Tokens : roomData.p2Tokens;
+                let b = parseInt(bidInput);
+                if(isNaN(b) || b < 0) b = 0; if(b > myTokens) b = myTokens;
+
+                // SMART LOCAL BOT MATCH LOGIC
+                if (roomData.isBotMatch) {
+                    setRoomData(prev => ({ ...prev, p1Bid: b })); 
+                    
+                    setTimeout(() => {
+                        let botTokens = roomData.p2Tokens;
+                        let botBid = Math.floor(Math.random() * (botTokens * 0.5 - botTokens * 0.1) + botTokens * 0.1);
+                        if (roomData.round === 3) botBid = botTokens; 
+                        if (botBid > botTokens) botBid = botTokens;
+
+                        let p1T = roomData.p1Tokens - b;
+                        let p2T = roomData.p2Tokens - botBid;
+                        let p1W = roomData.p1Wins; let p2W = roomData.p2Wins; let winner = "DRAW";
+
+                        if(b > botBid) { winner = roomData.p1.name; p1W++; }
+                        else if(botBid > b) { winner = roomData.p2.name; p2W++; }
+
+                        setRoomData(prev => ({ ...prev, p1Tokens: p1T, p2Tokens: p2T, p1Wins: p1W, p2Wins: p2W, lastResult: { p1Bid: b, p2Bid: botBid, winner } }));
+
+                        setTimeout(() => {
+                            let nextRound = roomData.round + 1;
+                            if(nextRound > 3) {
+                                setIsPlaying(false);
+                                let isWinner = false;
+                                if(p1W > p2W || (p1W === p2W && p1T > p2T)) isWinner = true;
+                                if (isWinner) alert("🎉 Victory! You beat the System Bot!");
+                                else alert("☠️ Defeat! The System Bot won this match.");
+                                setRoomData(null);
+                            } else {
+                                setRoomData(prev => ({ ...prev, round: nextRound, lastResult: null, p1Bid: null, p2Bid: null }));
+                            }
+                            setBidInput('');
+                        }, 3500);
+                    }, 1500); 
+                    return;
+                }
+
+                // NORMAL FIREBASE MATCH
+                if(!roomId) return;
+                await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomId), { [playerRole === 1 ? 'p1Bid' : 'p2Bid']: b });
+            };
+
+            const submitDepositRequest = async () => {
+                if(!utrInput || !depositAmount) return alert("Fill all details!");
+                const amt = Number(depositAmount);
+                if(amt < 10) return alert("Minimum deposit amount is ₹10!");
+                
+                try {
+                    let autoVerified = false;
+                    const qUtr = window.fs.query(window.fs.collection(window.db, "auto_utrs"), window.fs.where("utr", "==", utrInput), window.fs.where("used", "==", false));
+                    const utrSnap = await window.fs.getDocs(qUtr);
+                    
+                    if (!utrSnap.empty) {
+                        const matchedUtrDoc = utrSnap.docs[0]; const matchedUtrData = matchedUtrDoc.data();
+                        
+                        if (Number(matchedUtrData.amount) === amt) {
+                            autoVerified = true;
+                            await window.fs.updateDoc(window.fs.doc(window.db, "auto_utrs", matchedUtrDoc.id), { used: true });
+                            
+                            const userRef = window.fs.doc(window.db, "users", window.auth.currentUser.uid);
+                            const uSnap = await window.fs.getDoc(userRef);
+                            if(uSnap.exists()){ let dbW = uSnap.data().wallet || 0; await window.fs.updateDoc(userRef, { wallet: dbW + amt }); }
+                            
+                            await window.fs.addDoc(window.fs.collection(window.db, "deposits"), { uid: window.auth.currentUser.uid, name: userProfile.name, utr: utrInput, amount: amt, status: 'approved', date: new Date() });
+                            
+                            if (amt >= 30 && userProfile.referralUsed) {
+                                if (!uSnap.data().referralRewardGiven) {
+                                    const usersSnap = await window.fs.getDocs(window.fs.collection(window.db, "users"));
+                                    let referrerDoc = null; let referrerData = null;
+                                    usersSnap.forEach(uDoc => {
+                                        const u = uDoc.data(); const expectedCode = "YE-" + (u.number ? u.number.slice(-4) : "9999");
+                                        if(expectedCode === userProfile.referralUsed) { referrerDoc = uDoc; referrerData = u; }
+                                    });
+                                    if(referrerDoc && referrerData) {
+                                        await window.fs.updateDoc(window.fs.doc(window.db, "users", referrerDoc.id), { wallet: Number(referrerData.wallet || 0) + 10 });
+                                        await window.fs.updateDoc(userRef, { referralRewardGiven: true });
+                                    }
+                                }
+                            }
+                            alert("Payment Auto-Verified Successfully! Wallet Updated Instantly.");
+                        }
+                    }
+                    if(!autoVerified) {
+                        await window.fs.addDoc(window.fs.collection(window.db, "deposits"), { uid: window.auth.currentUser.uid, name: userProfile.name, utr: utrInput, amount: amt, status: 'pending', date: new Date() });
+                        alert("Deposit proof sent to Admin! Wallet will be updated soon.");
+                    }
+                    setDepositModal(false); setUtrInput(''); setDepositAmount('');
+                } catch(e) { alert("Error submitting request!"); }
+            };
+
+            const submitWithdrawRequest = async () => {
+                if(!withdrawId || !withdrawAmount) return alert("Fill all details!");
+                const wAmt = Number(withdrawAmount);
+                if(wAmt > withdrawable) return alert("You don't have enough Winning Balance!");
+                
+                try {
+                    await window.fs.addDoc(window.fs.collection(window.db, "withdrawals"), { uid: window.auth.currentUser.uid, name: userProfile.name, type: withdrawType, id: withdrawId, amount: wAmt, status: 'pending', date: new Date() });
+                    if(window.auth.currentUser) {
+                        const userRef = window.fs.doc(window.db, "users", window.auth.currentUser.uid);
+                        const uSnap = await window.fs.getDoc(userRef);
+                        if(uSnap.exists()){
+                            let dbW = uSnap.data().wallet || 0; let dbWith = uSnap.data().withdrawable || 0;
+                            await window.fs.updateDoc(userRef, { wallet: dbW - wAmt, withdrawable: dbWith - wAmt });
+                        }
+                    }
+                    alert("Withdrawal request sent successfully!");
+                    setWithdrawModal(false); setWithdrawId(''); setWithdrawAmount('');
+                } catch(e) { alert("Error submitting request!"); }
+            };
+
             if (isMatchmaking) {
                 return (
                     <div className="fixed inset-0 z-[100] bg-[#050505] text-white flex flex-col items-center pt-20 px-6">
                         <div className="absolute top-10 w-full text-center">
                             <h2 className="text-[#ffe29a] text-xl font-bold tracking-widest uppercase">{matchFound ? "MATCH FOUND!" : "SEARCHING..."}</h2>
+                            {!matchFound && <p className="text-gray-400 text-sm mt-2">Timeout in: {matchTime}s</p>}
                         </div>
                         <div className="flex w-full justify-between items-center mt-24">
                             <div className="flex flex-col items-center">
-                                <div className="w-24 h-24 rounded-full border-4 border-[#3b82f6] p-1 shadow-[0_0_20px_rgba(59,130,246,0.5)] bg-black"><img src={userProfile.avatar} className="w-full h-full rounded-full object-cover" /></div>
+                                <div className="w-24 h-24 rounded-full border-4 border-[#3b82f6] p-1 shadow-[0_0_20px_rgba(59,130,246,0.5)] bg-black">
+                                    <img src={userProfile.avatar} className="w-full h-full rounded-full object-cover" />
+                                </div>
                                 <span className="font-bold mt-4 text-lg">{userProfile.name}</span>
                             </div>
-                            <div className="text-4xl font-black text-[#dcae45] italic tracking-tighter">VS</div>
+                            <div className="text-4xl font-black text-[#dcae45] italic tracking-tighter drop-shadow-[0_0_10px_rgba(220,174,69,0.8)]">VS</div>
                             <div className="flex flex-col items-center">
                                 <div className={`w-24 h-24 rounded-full border-4 p-1 bg-black ${matchFound ? 'border-[#ef4444] shadow-[0_0_20px_rgba(239,68,68,0.5)]' : 'border-[#dcae45] border-dashed spin-slow'}`}>
                                     <img src={opponent.img} className={`w-full h-full rounded-full object-cover ${matchFound ? '' : 'animate-pulse opacity-50'}`} />
@@ -405,148 +781,487 @@
                 );
             }
 
-            // GAME RUNNING SCREEN (UPDATE 2: Aamne-Samne UI + Emojis)
             if (isPlaying && roomData) {
-                let myBidStatus = playerRole === 1 ? roomData.p1Bid : roomData.p2Bid;
+                let myData = playerRole === 1 ? roomData.p1 : roomData.p2;
+                let oppData = playerRole === 1 ? roomData.p2 : roomData.p1;
                 let myTokens = playerRole === 1 ? roomData.p1Tokens : roomData.p2Tokens;
+                let oppTokens = playerRole === 1 ? roomData.p2Tokens : roomData.p1Tokens;
+                let myBidStatus = playerRole === 1 ? roomData.p1Bid : roomData.p2Bid;
 
                 return (
                     <div className="max-w-md mx-auto bg-transparent min-h-screen text-white p-4 flex flex-col relative pb-28">
-                        
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-xl font-bold text-[#dcae45]"><i className="fa-solid fa-gamepad"></i> Game Running {roomData.tier === 0 && "(Practice)"}</h2>
-                            
-                            {/* Emoji Button */}
-                            <div className="relative">
-                                <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="text-2xl hover:scale-110 transition bg-[#111] border border-[#dcae45] rounded-full w-10 h-10 flex items-center justify-center shadow-lg">😀</button>
-                                {showEmojiPicker && (
-                                    <div className="absolute top-12 right-0 bg-[#111] border border-[#dcae45] p-2 rounded-xl flex gap-3 shadow-[0_0_20px_rgba(220,174,69,0.4)] z-50">
-                                        {['😂', '😎', '😡', '😭', '🔥', '👍'].map(em => (
-                                            <button key={em} onClick={() => sendEmoji(em)} className="text-2xl hover:scale-125 transition transform hover:-translate-y-1">{em}</button>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
                         </div>
-
-                        {/* 10s Timer */}
-                        {!roomData.lastResult && myBidStatus === null && (
-                            <div className="text-center mb-4">
-                                <div className={`text-5xl font-black transition-colors ${roundTime <= 3 ? 'text-rose-500 animate-pulse drop-shadow-[0_0_10px_rgba(244,63,94,0.8)]' : 'text-[#ffe29a] drop-shadow-[0_0_10px_rgba(220,174,69,0.5)]'}`}>
-                                    00:{roundTime < 10 ? `0${roundTime}` : roundTime}
-                                </div>
-                                <div className="text-[10px] text-gray-400 uppercase tracking-widest mt-1">Seconds Left</div>
+                        <div className="flex justify-between items-center gold-card p-4 rounded-xl">
+                            <div className="text-center w-1/3">
+                                <img src={myData.img} className="w-10 h-10 rounded-full object-cover mx-auto mb-1 border-2 border-[#3b82f6]"/>
+                                <div className="text-2xl font-bold text-[#ffe29a]">{myTokens}</div>
                             </div>
-                        )}
-                        
-                        {/* AAMNE SAMNE PROFILES */}
-                        <div className="flex justify-between items-end mt-2 px-2 relative bg-gradient-to-b from-[#111] to-[#0a0a0a] border border-[#dcae45]/30 p-4 rounded-2xl shadow-[0_0_25px_rgba(220,174,69,0.15)]">
-                            
-                            {/* Player 1 Profile */}
-                            <div className="flex flex-col items-center relative w-1/3">
-                                {activeEmojiP1 && <div className="absolute -top-12 text-5xl pop-in z-50 drop-shadow-lg">{activeEmojiP1}</div>}
-                                <div className={`w-20 h-20 rounded-full border-4 ${playerRole === 1 ? 'border-[#3b82f6] shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'border-[#ef4444] shadow-[0_0_15px_rgba(239,68,68,0.5)]'} p-1 bg-black mb-2 relative`}>
-                                    <img src={roomData.p1.img} className="w-full h-full rounded-full object-cover"/>
-                                </div>
-                                <span className="text-sm font-bold text-gray-300 w-full text-center truncate">{roomData.p1.name}</span>
-                                <span className="text-2xl font-black text-white mt-1 bg-black px-4 py-1 rounded-full border border-gray-700">{roomData.p1Tokens}</span>
-                            </div>
-
-                            {/* Center Match Info */}
-                            <div className="flex flex-col items-center w-1/3 pb-8">
-                                <span className="text-xs font-bold text-[#dcae45] mb-2 bg-[#dcae45]/10 px-3 py-1 rounded-full border border-[#dcae45]/30 shadow-inner">R{roomData.round}/3</span>
-                                <div className="text-3xl font-black text-gray-600 italic tracking-tighter">VS</div>
-                            </div>
-
-                            {/* Player 2 Profile */}
-                            <div className="flex flex-col items-center relative w-1/3">
-                                {activeEmojiP2 && <div className="absolute -top-12 text-5xl pop-in z-50 drop-shadow-lg">{activeEmojiP2}</div>}
-                                <div className={`w-20 h-20 rounded-full border-4 ${playerRole === 2 ? 'border-[#3b82f6] shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'border-[#ef4444] shadow-[0_0_15px_rgba(239,68,68,0.5)]'} p-1 bg-black mb-2 relative`}>
-                                    <img src={roomData.p2.img} className="w-full h-full rounded-full object-cover"/>
-                                </div>
-                                <span className="text-sm font-bold text-gray-300 w-full text-center truncate">{roomData.p2.name}</span>
-                                <span className="text-2xl font-black text-white mt-1 bg-black px-4 py-1 rounded-full border border-gray-700">{roomData.p2Tokens}</span>
+                            <div className="text-xl font-black text-[#dcae45] w-1/3 text-center">R{roomData.round}/3</div>
+                            <div className="text-center w-1/3">
+                                <img src={oppData.img} className="w-10 h-10 rounded-full object-cover mx-auto mb-1 border-2 border-[#ef4444]"/>
+                                <div className="text-2xl font-bold text-rose-400">{oppTokens}</div>
                             </div>
                         </div>
                         
-                        {/* Action Area */}
                         {!roomData.lastResult ? (
                             <div className="mt-8">
                                 {myBidStatus === null ? (
                                     <>
-                                        <div className="relative">
-                                            <input type="number" value={bidInput} onChange={(e) => setBidInput(e.target.value)} className="w-full bg-[#111] border-2 border-[#dcae45] rounded-xl text-center text-4xl py-4 focus:outline-none focus:border-[#ffe29a] font-bold shadow-[0_0_15px_rgba(220,174,69,0.2)] text-[#ffe29a]" placeholder="Enter Bid" />
-                                            <div className="absolute right-6 top-1/2 transform -translate-y-1/2 text-[#dcae45]/50 text-2xl"><i className="fa-solid fa-coins"></i></div>
-                                        </div>
+                                        <input type="number" value={bidInput} onChange={(e) => setBidInput(e.target.value)} className="w-full bg-[#111] border-2 border-[#dcae45] rounded-xl text-center text-4xl py-4 focus:outline-none focus:border-[#ffe29a] font-bold shadow-[0_0_15px_rgba(220,174,69,0.2)] text-[#ffe29a]" placeholder="Enter Bid" />
                                         <div className="flex gap-2 mt-4">
-                                            <button onClick={() => setBidInput(Math.floor(myTokens/2))} className="flex-1 bg-black border border-[#dcae45]/50 py-3 rounded-xl font-bold text-[#ffe29a] hover:bg-[#111]">1/2</button>
-                                            <button onClick={() => setBidInput(myTokens)} className="flex-1 bg-black border border-[#dcae45]/50 py-3 rounded-xl font-bold text-[#ffe29a] hover:bg-[#111]">Max</button>
+                                            <button onClick={() => setBidInput(Math.floor(myTokens/2))} className="flex-1 bg-black border border-[#dcae45]/50 py-2 rounded-lg font-bold text-[#ffe29a]">1/2</button>
+                                            <button onClick={() => setBidInput(myTokens)} className="flex-1 bg-black border border-[#dcae45]/50 py-2 rounded-lg font-bold text-[#ffe29a]">Max</button>
                                         </div>
-                                        <button onClick={() => submitBid(null)} className="w-full mt-6 btn-play-gold py-4 rounded-full text-xl tracking-widest font-black uppercase shadow-[0_0_20px_rgba(220,174,69,0.4)]">LOCK BID</button>
+                                        <button onClick={submitBid} className="w-full mt-8 btn-play-gold py-4 rounded-full text-lg tracking-widest font-bold">LOCK BID</button>
                                     </>
                                 ) : (
-                                    <div className="text-center mt-12 flex flex-col items-center">
-                                        <div className="w-16 h-16 border-4 border-[#dcae45] border-t-transparent rounded-full animate-spin mb-4"></div>
-                                        <div className="animate-pulse text-[#ffe29a] font-bold text-xl tracking-widest uppercase">Waiting for opponent...</div>
-                                    </div>
+                                    <div className="text-center mt-16 animate-pulse text-[#dcae45] font-bold text-xl">Waiting for opponent...</div>
                                 )}
                             </div>
                         ) : (
                             <div className="mt-8 text-center pop-in">
-                                <h3 className="text-xl font-bold mb-4 uppercase tracking-widest">Round Result</h3>
-                                <div className="flex justify-between text-3xl font-black mb-4 px-6">
-                                    <span className="text-[#3b82f6] drop-shadow-[0_0_10px_rgba(59,130,246,0.6)]">{playerRole === 1 ? roomData.lastResult.p1Bid : roomData.lastResult.p2Bid}</span>
-                                    <span className="text-gray-600">vs</span>
-                                    <span className="text-[#ef4444] drop-shadow-[0_0_10px_rgba(239,68,68,0.6)]">{playerRole === 1 ? roomData.lastResult.p2Bid : roomData.lastResult.p1Bid}</span>
+                                <h3 className="text-xl font-bold mb-4">Round Result</h3>
+                                <div className="flex justify-between text-2xl font-black mb-4">
+                                    <span className="text-[#3b82f6]">{playerRole === 1 ? roomData.lastResult.p1Bid : roomData.lastResult.p2Bid}</span>
+                                    <span className="text-gray-500">vs</span>
+                                    <span className="text-[#ef4444]">{playerRole === 1 ? roomData.lastResult.p2Bid : roomData.lastResult.p1Bid}</span>
                                 </div>
-                                <div className="text-3xl text-[#ffe29a] font-black mt-4 p-5 border-2 border-[#dcae45] rounded-2xl bg-[#111] shadow-[0_0_20px_rgba(220,174,69,0.2)]">
-                                    {roomData.lastResult.winner === 'DRAW' ? 'Round Tied!' : `${roomData.lastResult.winner} WINS`}
-                                </div>
+                                <div className="text-2xl text-[#ffe29a] font-bold mt-4 p-4 border border-[#dcae45] rounded-xl bg-[#111]">{roomData.lastResult.winner === 'DRAW' ? 'Round Tied!' : `${roomData.lastResult.winner} WON`}</div>
                             </div>
                         )}
                     </div>
                 );
             }
 
-            // --- REST OF THE UI REMAINS EXACTLY SAME (HOME, WALLET, RANKING, ETC) --- 
-            // (I have kept standard return for normal pages so it keeps working completely fine)
             return (
                 <div className="max-w-md mx-auto bg-transparent min-h-screen relative pb-24">
+                    
                     <div className="mz-style-header">
                         <div className="mz-header-left"><img src="youth-earners-logo.png" alt="Logo" /></div>
                         <div className="mz-header-center">
                             <h1 className="mz-header-title">YOUTH EARNERS</h1>
-                            <div className="mz-header-subtitle"><span className="line"></span><span className="text">PLAY • EARN • GROW</span><span className="line"></span></div>
+                            <div className="mz-header-subtitle">
+                                <span className="line"></span>
+                                <span className="text">PLAY • EARN • GROW</span>
+                                <span className="line"></span>
+                            </div>
                         </div>
                         <div className="mz-header-right relative cursor-pointer" onClick={() => setShowNotifications(true)}>
                             <i className="fa-solid fa-bell text-[#dcae45] text-xl hover:scale-110 transition"></i>
+                            {unreadCount > 0 && (
+                                <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full border border-black animate-pulse">
+                                    {unreadCount > 9 ? '9+' : unreadCount}
+                                </span>
+                            )}
                         </div>
                     </div>
 
                     <div className="p-4 pt-4">
+                        
+                        {/* HOME TAB */}
                         {activeTab === 'home' && (
                             <div className="space-y-6 pop-in">
                                 <div className="bg-gradient-to-r from-[#111] to-[#0a0a0a] border border-[#dcae45]/40 rounded-2xl p-5 shadow-[0_4px_15px_rgba(220,174,69,0.15)] relative overflow-hidden">
+                                    <div className="absolute -right-10 -top-10 w-32 h-32 bg-[#dcae45] opacity-10 blur-3xl rounded-full"></div>
                                     <div className="flex justify-between items-center relative z-10">
-                                        <div><p className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Total Balance</p><h2 className="text-3xl font-black text-white">₹{wallet.toFixed(2)}</h2></div>
+                                        <div>
+                                            <p className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Total Balance</p>
+                                            <h2 className="text-3xl font-black text-white">₹{wallet.toFixed(2)}</h2>
+                                        </div>
+                                        <div className="w-12 h-12 rounded-full bg-black border-2 border-[#dcae45] flex items-center justify-center shadow-[0_0_10px_rgba(220,174,69,0.3)]">
+                                            <i className="fa-solid fa-wallet text-[#dcae45] text-xl"></i>
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-3 mt-5 relative z-10">
+                                        <button onClick={() => setDepositModal(true)} className="flex-1 bg-[#dcae45] text-black py-2.5 rounded-xl font-black text-sm tracking-wide shadow-[0_0_10px_rgba(220,174,69,0.3)] flex justify-center items-center gap-2 hover:bg-[#ffe29a] transition">
+                                            <i className="fa-solid fa-plus-circle"></i> Add Cash
+                                        </button>
+                                        <button onClick={() => setWithdrawModal(true)} className="flex-1 bg-transparent border border-[#dcae45] text-[#ffe29a] py-2.5 rounded-xl font-bold text-sm tracking-wide hover:bg-[#111] transition flex justify-center items-center gap-2">
+                                            <i className="fa-solid fa-building-columns"></i> Withdraw
+                                        </button>
                                     </div>
                                 </div>
+
+                                {/* PRACTICE MODE SECTION */}
                                 <div className="mt-8">
-                                    <h3 className="font-bold mb-4 text-white text-lg flex items-center gap-2"><i className="fa-solid fa-gamepad text-[#10b981]"></i> Practice Mode (Free)</h3>
+                                    <h3 className="font-bold mb-4 text-white text-lg flex items-center gap-2">
+                                        <i className="fa-solid fa-gamepad text-[#10b981]"></i> Practice Mode (Free)
+                                    </h3>
                                     <div className="flex gap-4">
-                                        <button onClick={() => startPractice('bot')} className="flex-1 bg-[#111] border border-[#10b981]/50 p-4 rounded-2xl hover:border-[#10b981] transition shadow-[0_0_15px_rgba(16,185,129,0.1)] font-bold text-sm">Play vs Bot</button>
-                                        <button onClick={() => startPractice('player')} className="flex-1 bg-[#111] border border-[#3b82f6]/50 p-4 rounded-2xl hover:border-[#3b82f6] transition shadow-[0_0_15px_rgba(59,130,246,0.1)] font-bold text-sm">vs Real Player</button>
+                                        <button onClick={() => startPractice('bot')} className="flex-1 bg-[#111] border border-[#10b981]/50 p-4 rounded-2xl text-center hover:border-[#10b981] transition shadow-[0_0_15px_rgba(16,185,129,0.1)]">
+                                            <i className="fa-solid fa-robot text-4xl text-[#10b981] mb-2 drop-shadow-[0_0_10px_#10b981]"></i>
+                                            <div className="font-bold text-white text-sm">Play vs Bot</div>
+                                        </button>
+                                        <button onClick={() => startPractice('player')} className="flex-1 bg-[#111] border border-[#3b82f6]/50 p-4 rounded-2xl text-center hover:border-[#3b82f6] transition shadow-[0_0_15px_rgba(59,130,246,0.1)]">
+                                            <i className="fa-solid fa-user-ninja text-4xl text-[#3b82f6] mb-2 drop-shadow-[0_0_10px_#3b82f6]"></i>
+                                            <div className="font-bold text-white text-sm">vs Real Player</div>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="mt-8">
+                                    <h3 className="font-bold mb-4 text-white text-lg flex items-center gap-2">
+                                        <i className="fa-solid fa-users text-[#dcae45]"></i> Play for Real Cash
+                                    </h3>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        {playTiers.map((tier, index) => (
+                                            <div key={tier.id || index} className="gold-card rounded-2xl p-4 flex flex-col items-center text-center relative overflow-hidden">
+                                                <div className="bg-black border border-[#dcae45]/30 rounded-lg px-4 py-1.5 mb-3 shadow-[0_0_10px_rgba(0,0,0,0.8)]">
+                                                    <img src={tier.logo || "youth-earners-logo.png"} style={{mixBlendMode:'screen'}} className="h-6 w-auto opacity-90" alt="game-icon" />
+                                                </div>
+                                                <div className="text-xs text-gray-400 mb-1">Entry: <span className="font-bold text-white text-base">₹{tier.entry}</span></div>
+                                                <div className="text-[22px] text-[#ffe29a] font-black mb-5 drop-shadow-[0_0_10px_rgba(220,174,69,0.5)] tracking-wide">WIN: ₹{tier.win}</div>
+                                                <button onClick={() => setConfirmPopup(tier)} className="w-full btn-play-gold py-2.5 rounded-full font-black text-[13px] tracking-wide flex items-center justify-center gap-2"><i className="fa-solid fa-play"></i> Play Now</button>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
                             </div>
                         )}
-                        {/* Other Tabs Logic here ... kept activeTab styling working */}
+
+                        {/* RANKING TAB */}
+                        {activeTab === 'ranking' && (
+                            <div className="space-y-6 pt-2 pop-in">
+                                <h2 className="text-2xl font-black text-[#dcae45] text-center mb-6 tracking-widest uppercase"><i className="fa-solid fa-ranking-star"></i> Top Earners</h2>
+                                {isLoadingLeaderboard ? (
+                                    <div className="text-center text-[#dcae45] font-bold mt-10 animate-pulse">Loading Leaderboard...</div>
+                                ) : (
+                                    <>
+                                        <div className="flex justify-center items-end gap-2 mb-8 mt-10">
+                                            <div className="flex flex-col items-center w-28">
+                                                <div className="relative">
+                                                    <img src={topPlayers[1]?.img} className="w-16 h-16 rounded-full object-cover border-4 border-gray-400 p-0.5 bg-black z-10 relative" />
+                                                    <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-gray-400 text-black text-xs font-black px-2 py-0.5 rounded-full z-20">#2</div>
+                                                </div>
+                                                <div className="bg-[#111] w-full pt-6 pb-2 rounded-t-lg mt-[-10px] border-t-2 border-gray-400 text-center flex flex-col">
+                                                    <span className="text-xs font-bold truncate px-1 text-gray-300">{topPlayers[1]?.name}</span>
+                                                    <span className="text-sm font-black text-[#ffe29a]">₹{topPlayers[1]?.amount}</span>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex flex-col items-center w-32 relative z-20">
+                                                <div className="relative">
+                                                    <i className="fa-solid fa-crown absolute -top-6 left-1/2 transform -translate-x-1/2 text-3xl text-[#dcae45] drop-shadow-[0_0_10px_rgba(220,174,69,0.8)] z-30"></i>
+                                                    <img src={topPlayers[0]?.img} className="w-20 h-20 rounded-full object-cover border-4 border-[#dcae45] p-0.5 bg-black z-10 relative shadow-[0_0_15px_rgba(220,174,69,0.5)]" />
+                                                    <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-[#dcae45] text-black text-sm font-black px-3 py-0.5 rounded-full z-20">#1</div>
+                                                </div>
+                                                <div className="bg-gradient-to-t from-[#221a08] to-[#111] w-full pt-8 pb-3 rounded-t-xl mt-[-15px] border-t-2 border-[#dcae45] text-center flex flex-col h-[100px] justify-start shadow-[0_-5px_15px_rgba(220,174,69,0.2)]">
+                                                    <span className="text-sm font-black truncate px-1 text-white">{topPlayers[0]?.name}</span>
+                                                    <span className="text-lg font-black text-[#ffe29a]">₹{topPlayers[0]?.amount}</span>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex flex-col items-center w-28">
+                                                <div className="relative">
+                                                    <img src={topPlayers[2]?.img} className="w-16 h-16 rounded-full object-cover border-4 border-[#cd7f32] p-0.5 bg-black z-10 relative" />
+                                                    <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-[#cd7f32] text-black text-xs font-black px-2 py-0.5 rounded-full z-20">#3</div>
+                                                </div>
+                                                <div className="bg-[#111] w-full pt-6 pb-2 rounded-t-lg mt-[-10px] border-t-2 border-[#cd7f32] text-center flex flex-col h-[70px] justify-start">
+                                                    <span className="text-xs font-bold truncate px-1 text-gray-300">{topPlayers[2]?.name}</span>
+                                                    <span className="text-sm font-black text-[#ffe29a]">₹{topPlayers[2]?.amount}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-3 pb-8">
+                                            {topPlayers.slice(3).map((player) => (
+                                                <div key={player.rank} className="flex items-center justify-between bg-[#111] border border-gray-800 p-3 rounded-xl">
+                                                    <div className="flex items-center gap-4">
+                                                        <span className="font-black text-gray-500 w-6 text-center">#{player.rank}</span>
+                                                        <img src={player.img} className="w-10 h-10 rounded-full object-cover border border-gray-600" />
+                                                        <span className="font-bold text-gray-300">{player.name}</span>
+                                                    </div>
+                                                    <div className="font-black text-[#10b981]">₹{player.amount}</div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        )}
+
+                        {/* WALLET TAB */}
+                        {activeTab === 'wallet' && !historyView && (
+                            <div className="space-y-6 pt-2 pop-in">
+                                <div className="bg-gradient-to-br from-[#1a1a1a] to-[#000] p-6 rounded-3xl border border-[#dcae45]/40 shadow-[0_10px_30px_rgba(220,174,69,0.15)] relative overflow-hidden mt-4">
+                                    <div className="text-gray-400 text-sm font-semibold uppercase tracking-widest">Total Balance</div>
+                                    <div className="text-5xl font-black text-white my-2 tracking-wide">₹{wallet.toFixed(2)}</div>
+                                </div>
+
+                                <div className="bg-[#111] p-5 rounded-2xl border border-gray-800 flex justify-between items-center shadow-lg">
+                                    <div>
+                                        <div className="text-gray-400 text-xs font-semibold mb-1">Winning Balance (Withdrawable)</div>
+                                        <div className="text-2xl font-black text-[#10b981]">₹{withdrawable.toFixed(2)}</div>
+                                    </div>
+                                    <i className="fa-solid fa-money-bill-wave text-3xl text-gray-700"></i>
+                                </div>
+
+                                <div className="flex gap-4 mt-8">
+                                    <button onClick={() => setDepositModal(true)} className="flex-1 btn-play-gold py-4 rounded-2xl font-bold text-lg shadow-[0_0_15px_rgba(220,174,69,0.4)]"><i className="fa-solid fa-plus-circle"></i> Add Money</button>
+                                    <button onClick={() => setWithdrawModal(true)} className="flex-1 bg-transparent border-2 border-[#dcae45] py-4 rounded-2xl font-bold text-lg text-[#ffe29a] hover:bg-[#111] transition-colors"><i className="fa-solid fa-building-columns"></i> Withdraw</button>
+                                </div>
+
+                                <div className="mt-8 space-y-3">
+                                    <button onClick={() => setHistoryView('deposit')} className="w-full flex items-center justify-between bg-[#111] border border-gray-800 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors">
+                                        <div className="flex items-center gap-4 text-gray-300 font-bold"><div className="w-8 h-8 rounded-full bg-[#10b981]/10 text-[#10b981] flex items-center justify-center"><i className="fa-solid fa-arrow-down"></i></div>Deposit History</div><i className="fa-solid fa-chevron-right text-gray-600"></i>
+                                    </button>
+                                    <button onClick={() => setHistoryView('withdraw')} className="w-full flex items-center justify-between bg-[#111] border border-gray-800 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors">
+                                        <div className="flex items-center gap-4 text-gray-300 font-bold"><div className="w-8 h-8 rounded-full bg-rose-500/10 text-rose-500 flex items-center justify-center"><i className="fa-solid fa-arrow-up"></i></div>Withdrawal History</div><i className="fa-solid fa-chevron-right text-gray-600"></i>
+                                    </button>
+                                    <button onClick={() => setHistoryView('match')} className="w-full flex items-center justify-between bg-[#111] border border-gray-800 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors">
+                                        <div className="flex items-center gap-4 text-gray-300 font-bold"><div className="w-8 h-8 rounded-full bg-[#3b82f6]/10 text-[#3b82f6] flex items-center justify-center"><i className="fa-solid fa-gamepad"></i></div>Match History</div><i className="fa-solid fa-chevron-right text-gray-600"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* HISTORY VIEWS */}
+                        {activeTab === 'wallet' && historyView && (
+                            <div className="fixed inset-0 bg-[#050505] z-[80] flex flex-col pop-in pb-20 pt-4">
+                                <div className="flex items-center p-4 border-b border-[#dcae45]/30 bg-[#111]">
+                                    <button onClick={() => setHistoryView(null)} className="text-[#dcae45] text-xl px-2"><i className="fa-solid fa-arrow-left"></i></button>
+                                    <h2 className="text-xl font-black text-white ml-4 tracking-widest uppercase">{historyView === 'deposit' ? 'Deposit History' : historyView === 'withdraw' ? 'Withdrawal History' : 'Match History'}</h2>
+                                </div>
+                                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                                    {historyView === 'deposit' && depHistory.map((tx, idx) => (
+                                        <div key={idx} className="bg-[#111] border border-gray-800 p-4 rounded-xl">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <div><span className="text-[#10b981] font-black text-lg">+₹{tx.amount}</span><span className={`ml-3 text-[10px] font-bold uppercase px-2 py-1 rounded-full ${tx.status === 'pending' ? 'bg-yellow-500/20 text-yellow-500' : tx.status === 'approved' ? 'bg-[#10b981]/20 text-[#10b981]' : 'bg-red-500/20 text-red-500'}`}>{tx.status}</span></div>
+                                                <div className="text-[10px] text-gray-500 font-bold text-right">{formatSafeDate(tx.date)}</div>
+                                            </div>
+                                            <div className="text-xs text-gray-400 font-bold">UTR: <span className="text-gray-200">{tx.utr}</span></div>
+                                        </div>
+                                    ))}
+                                    
+                                    {historyView === 'withdraw' && withHistory.map((tx, idx) => (
+                                        <div key={idx} className="bg-[#111] border border-gray-800 p-4 rounded-xl">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <div><span className="text-rose-500 font-black text-lg">-₹{tx.amount}</span><span className={`ml-3 text-[10px] font-bold uppercase px-2 py-1 rounded-full ${tx.status === 'pending' ? 'bg-yellow-500/20 text-yellow-500' : tx.status === 'approved' ? 'bg-[#10b981]/20 text-[#10b981]' : 'bg-red-500/20 text-red-500'}`}>{tx.status}</span></div>
+                                                <div className="text-[10px] text-gray-500 font-bold text-right">{formatSafeDate(tx.date)}</div>
+                                            </div>
+                                            <div className="text-xs text-gray-400 font-bold uppercase">{tx.type}: <span className="text-gray-200">{tx.id}</span></div>
+                                        </div>
+                                    ))}
+                                    
+                                    {historyView === 'match' && matchHistory.map((match, idx) => (
+                                        <div key={idx} className={`bg-[#111] border border-gray-800 p-4 rounded-xl relative overflow-hidden`}>
+                                            <div className={`absolute top-0 left-0 w-1 h-full ${match.isWinner === true ? 'bg-[#10b981]' : match.isWinner === false ? 'bg-rose-500' : 'bg-gray-500'}`}></div>
+                                            <div className="flex justify-between items-center mb-2 pl-2">
+                                                <span className={`font-black uppercase text-lg ${match.isWinner === true ? 'text-[#10b981]' : match.isWinner === false ? 'text-rose-500' : 'text-gray-400'}`}>{match.isWinner === true ? 'VICTORY' : match.isWinner === false ? 'DEFEAT' : 'DRAW'}</span>
+                                                <div className="text-[10px] text-gray-500 font-bold text-right">{formatSafeDate(match.date)}</div>
+                                            </div>
+                                            <div className="flex justify-between text-xs font-bold pl-2">
+                                                <span className="text-gray-400">Entry: <span className="text-white">₹{match.tier}</span></span>
+                                                <span className="text-gray-400">Win Amount: <span className="text-[#ffe29a]">₹{match.isWinner === true ? (match.tier * 1.8).toFixed(2) : '0'}</span></span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* REFER TAB */}
+                        {activeTab === 'refer' && (
+                            <div className="space-y-6 pt-4 pop-in">
+                                <div className="bg-[#111] border border-[#dcae45] w-full rounded-3xl p-6 shadow-[0_0_30px_rgba(220,174,69,0.2)] text-center relative overflow-hidden">
+                                    <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#dcae45] opacity-10 blur-3xl rounded-full"></div>
+                                    <i className="fa-solid fa-gifts text-6xl text-[#dcae45] mb-4 drop-shadow-[0_0_15px_rgba(220,174,69,0.8)]"></i>
+                                    <h3 className="text-3xl font-black text-[#ffe29a] mb-2 uppercase tracking-wider">Refer & Earn</h3>
+                                    
+                                    <p className="text-gray-300 text-sm mb-2 font-bold">Invite friends & earn ₹10 Bonus!</p>
+                                    <p className="text-red-500 font-bold text-xs mb-6 px-2 border border-red-500/30 bg-red-500/10 py-2 rounded-lg">* You will get ₹10 Bonus ONLY when your referred friend makes a minimum deposit of ₹30!</p>
+                                    
+                                    <div className="bg-black border-2 border-dashed border-[#dcae45] p-4 rounded-xl mb-6">
+                                        <p className="text-xs text-gray-500 mb-1 uppercase tracking-widest font-bold">Your Invite Code</p>
+                                        <div className="flex items-center justify-between px-2">
+                                            <span className="text-3xl font-black text-white tracking-widest">YE-{userProfile.number.slice(-4) || '9999'}</span>
+                                            <i className="fa-solid fa-copy text-[#dcae45] text-2xl cursor-pointer hover:scale-110 transition" onClick={()=>alert("Invite Code Copied!")}></i>
+                                        </div>
+                                    </div>
+                                    <button onClick={() => alert("Share Link Copied!")} className="w-full btn-play-gold py-4 rounded-xl font-black uppercase text-lg">Share Now</button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* PROFILE TAB */}
+                        {activeTab === 'profile' && (
+                            <div className="space-y-6 pt-4 pop-in">
+                                <div className="text-center relative bg-[#111] border border-[#dcae45]/40 p-6 rounded-3xl shadow-[0_0_20px_rgba(220,174,69,0.1)]">
+                                    <div className="relative inline-block mb-4">
+                                        <img src={userProfile.avatar} alt="Profile" className="w-28 h-28 rounded-full object-cover border-4 border-[#dcae45] p-1 mx-auto bg-black shadow-[0_0_15px_rgba(220,174,69,0.3)]" />
+                                        <button onClick={() => fileInputRef.current.click()} className="absolute bottom-0 right-0 bg-[#dcae45] text-black w-10 h-10 flex items-center justify-center rounded-full border-2 border-black shadow-lg"><i className="fa-solid fa-camera text-lg"></i></button>
+                                        <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
+                                    </div>
+                                    
+                                    <div className="mt-2 h-10 flex justify-center items-center">
+                                        {isEditingName ? (
+                                            <div className="flex items-center gap-3">
+                                                <input type="text" value={editNameInput} onChange={(e) => setEditNameInput(e.target.value)} className="bg-transparent text-white text-2xl font-black text-center border-b-2 border-[#dcae45] focus:outline-none w-[180px]" autoFocus />
+                                                <button onClick={saveProfileName} className="text-[#10b981] bg-[#10b981]/20 w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition"><i className="fa-solid fa-check"></i></button>
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center gap-3">
+                                                <h2 className="text-2xl font-black text-white">{userProfile.name}</h2>
+                                                <button onClick={() => setIsEditingName(true)} className="text-gray-400 hover:text-[#dcae45] transition"><i className="fa-solid fa-pen"></i></button>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <p className="text-[#dcae45] mt-3 tracking-widest font-bold text-sm bg-black inline-block px-4 py-1.5 rounded-full border border-[#dcae45]/30"><i className="fa-solid fa-phone text-xs mr-1"></i> +91 {userProfile.number}</p>
+                                </div>
+
+                                <div className="mt-8 space-y-3">
+                                    <h3 className="text-gray-400 font-bold uppercase tracking-widest text-xs mb-4 pl-2">Settings & Info</h3>
+                                    
+                                    <button onClick={() => document.getElementById('tcModal').classList.remove('hidden')} className="w-full flex items-center justify-between bg-[#111] border border-gray-800 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors">
+                                        <div className="flex items-center gap-4 text-gray-300 font-bold"><i className="fa-solid fa-file-contract text-[#dcae45] text-xl w-6"></i> Terms & Conditions</div><i className="fa-solid fa-chevron-right text-gray-600"></i>
+                                    </button>
+                                    
+                                    <button onClick={() => alert("Support Chat Opening...")} className="w-full flex items-center justify-between bg-[#111] border border-gray-800 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors">
+                                        <div className="flex items-center gap-4 text-gray-300 font-bold"><i className="fa-solid fa-headset text-[#dcae45] text-xl w-6"></i> Support Chat</div><i className="fa-solid fa-chevron-right text-gray-600"></i>
+                                    </button>
+                                    
+                                    <button onClick={logoutUser} className="w-full flex items-center justify-between bg-black border border-red-900/50 p-4 rounded-xl mt-4 hover:bg-red-950/30 transition-colors">
+                                        <div className="flex items-center gap-4 text-red-500 font-bold"><i className="fa-solid fa-right-from-bracket text-xl w-6"></i> Logout</div>
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
+                    {/* NOTIFICATION MODAL */}
+                    {showNotifications && (
+                        <div className="fixed inset-0 bg-[#050505]/95 z-[100] flex flex-col pop-in pb-20 pt-4 backdrop-blur-sm">
+                            <div className="flex items-center justify-between p-4 border-b border-[#dcae45]/30 bg-[#111]">
+                                <h2 className="text-xl font-black text-white tracking-widest uppercase">
+                                    <i className="fa-solid fa-bell text-[#dcae45] mr-2"></i> Notifications
+                                </h2>
+                                <button onClick={() => setShowNotifications(false)} className="text-gray-400 text-2xl hover:text-white transition">
+                                    <i className="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+                            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                                {notifications.length === 0 ? (
+                                    <div className="text-center text-gray-500 font-bold mt-10">No new notifications.</div>
+                                ) : (
+                                    notifications.map(notif => (
+                                        <div key={notif.id} className={`bg-[#111] border ${notif.read ? 'border-gray-800' : 'border-[#dcae45] shadow-[0_0_15px_rgba(220,174,69,0.2)]'} p-4 rounded-xl relative overflow-hidden transition`}>
+                                            {!notif.read && <div className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse border border-black"></div>}
+                                            <div className="text-xs text-[#dcae45] mb-3 font-bold">
+                                                <i className="fa-regular fa-clock mr-1"></i> {notif.date ? new Date(notif.date.toDate()).toLocaleString() : ''}
+                                            </div>
+                                            {notif.imageUrl && (
+                                                <img src={notif.imageUrl} alt="banner" className="w-full h-32 md:h-40 object-cover rounded-lg mb-3 border border-gray-700" />
+                                            )}
+                                            <p className="text-gray-200 text-sm whitespace-pre-wrap">{notif.text}</p>
+                                            
+                                            {!notif.read && (
+                                                <div className="mt-4 pt-3 border-t border-gray-800 text-right">
+                                                    <button onClick={() => markAsRead(notif.id)} className="text-xs bg-[#dcae45] text-black px-4 py-1.5 rounded-full font-bold uppercase tracking-widest hover:bg-[#ffe29a] transition">
+                                                        Mark as Read <i className="fa-solid fa-check ml-1"></i>
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* PAYMENT MODALS */}
+                    {depositModal && (
+                        <div className="fixed inset-0 bg-black/90 z-[90] flex items-center justify-center p-4 backdrop-blur-sm pop-in">
+                            <div className="bg-[#111] border border-[#dcae45] w-full max-w-sm rounded-3xl p-6 shadow-[0_0_30px_rgba(220,174,69,0.2)]">
+                                <h3 className="text-xl font-bold text-[#ffe29a] mb-4 text-center">Deposit Money</h3>
+                                <div className="bg-white p-2 rounded-xl w-40 h-40 mx-auto mb-4">
+                                    <img src={adminSettings.qrUrl} className="w-full h-full object-contain" alt="Payment QR Code" />
+                                </div>
+                                <div className="text-center mb-6">
+                                    <p className="text-gray-400 text-xs mb-1">Scan QR or Pay to UPI ID</p>
+                                    <div className="flex items-center justify-center gap-2 text-white font-bold bg-black py-2 rounded-lg border border-gray-700">
+                                        {adminSettings.upiId} <i className="fa-solid fa-copy text-[#dcae45] cursor-pointer" onClick={() => alert('UPI ID Copied!')}></i>
+                                    </div>
+                                </div>
+                                <div className="space-y-3 mb-6">
+                                    <input type="number" placeholder="Enter Amount Paid (Min: ₹10)" value={depositAmount} onChange={e=>setDepositAmount(e.target.value)} className="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none" min="10" />
+                                    <input type="text" placeholder="12-Digit UTR / Ref Number" value={utrInput} onChange={e=>setUtrInput(e.target.value)} className="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none" />
+                                </div>
+                                <div className="flex gap-3">
+                                    <button onClick={() => setDepositModal(false)} className="flex-1 border border-gray-600 py-3 rounded-xl font-bold text-gray-400">Cancel</button>
+                                    <button onClick={submitDepositRequest} className="flex-1 btn-play-gold py-3 rounded-xl font-bold">Submit Proof</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {withdrawModal && (
+                        <div className="fixed inset-0 bg-black/90 z-[90] flex items-center justify-center p-4 backdrop-blur-sm pop-in">
+                            <div className="bg-[#111] border border-[#dcae45] w-full max-w-sm rounded-3xl p-6 shadow-[0_0_30px_rgba(220,174,69,0.2)]">
+                                <h3 className="text-xl font-bold text-[#ffe29a] mb-2 text-center">Withdraw Money</h3>
+                                <p className="text-center text-gray-400 text-sm mb-6">Available: <span className="text-[#10b981] font-bold">₹{withdrawable.toFixed(2)}</span></p>
+                                <div className="flex gap-2 mb-4 bg-black p-1 rounded-xl border border-gray-800">
+                                    <button onClick={() => setWithdrawType('upi')} className={`flex-1 py-2 rounded-lg font-bold text-sm ${withdrawType==='upi'?'bg-[#dcae45] text-black':'text-gray-400'}`}>UPI ID</button>
+                                    <button onClick={() => setWithdrawType('number')} className={`flex-1 py-2 rounded-lg font-bold text-sm ${withdrawType==='number'?'bg-[#dcae45] text-black':'text-gray-400'}`}>Mobile No.</button>
+                                </div>
+                                <div className="space-y-3 mb-6">
+                                    <input type="text" placeholder={withdrawType==='upi'?"Enter UPI ID":"Enter Mobile Number"} value={withdrawId} onChange={e=>setWithdrawId(e.target.value)} className="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none" />
+                                    <input type="number" placeholder="Enter Amount to Withdraw" value={withdrawAmount} onChange={e=>setWithdrawAmount(e.target.value)} className="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none" />
+                                </div>
+                                <div className="flex gap-3">
+                                    <button onClick={() => setWithdrawModal(false)} className="flex-1 border border-gray-600 py-3 rounded-xl font-bold text-gray-400">Cancel</button>
+                                    <button onClick={submitWithdrawRequest} className="flex-1 btn-play-gold py-3 rounded-xl font-bold">Withdraw</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* CONFIRM MATCH MODAL */}
+                    {confirmPopup && (
+                        <div className="fixed inset-0 bg-black z-[80] flex flex-col items-center justify-center p-6 pop-in">
+                            <div className="w-full max-w-sm flex flex-col gap-8">
+                                <div className="mx-auto w-24 h-24 bg-gradient-to-tr from-[#dcae45] to-[#ffe29a] rounded-full flex items-center justify-center text-black text-5xl shadow-[0_0_30px_rgba(220,174,69,0.6)]">
+                                    <i className="fa-solid fa-coins"></i>
+                                </div>
+                                <h2 className="text-3xl font-black text-center text-white tracking-widest uppercase">Confirm Match</h2>
+                                <div className="bg-[#111] border border-[#dcae45] rounded-3xl p-8 flex flex-col gap-6 text-center shadow-[0_0_20px_rgba(220,174,69,0.2)]">
+                                    <div><div className="text-gray-400 text-sm mb-1 uppercase tracking-wider">Entry Amount</div><div className="text-white font-black text-4xl">₹{confirmPopup.entry}</div></div>
+                                    <hr className="border-gray-800" />
+                                    <div><div className="text-gray-400 text-sm mb-1 uppercase tracking-wider">Winning Amount</div><div className="text-[#ffe29a] font-black text-5xl drop-shadow-[0_0_10px_rgba(220,174,69,0.8)]">₹{confirmPopup.win}</div></div>
+                                </div>
+                                <div className="flex gap-4 w-full mt-4">
+                                    <button onClick={() => setConfirmPopup(null)} className="flex-1 bg-transparent border-2 border-gray-600 text-gray-300 py-4 rounded-2xl font-bold text-lg hover:bg-gray-800 transition">Cancel</button>
+                                    <button onClick={confirmPlay} className="flex-1 btn-play-gold py-4 rounded-2xl font-black text-lg text-black uppercase tracking-wide">Play Now</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* VICTORY POPUP */}
+                    {showWinPopup !== null && (
+                        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/90 backdrop-blur-md victory-anim px-4">
+                            <div className="bg-gradient-to-b from-[#1a1508] to-[#000] border-2 border-[#dcae45] p-8 rounded-3xl text-center shadow-[0_0_50px_rgba(220,174,69,0.5)] w-full max-w-sm">
+                                <i className="fa-solid fa-trophy text-8xl text-[#dcae45] mb-6 drop-shadow-[0_0_20px_#ffe29a]"></i>
+                                <h2 className="text-4xl font-black text-white mb-2 tracking-widest uppercase">YOU WIN!</h2>
+                                <p className="text-gray-400 mb-6 font-bold">Amount added to Winning Wallet</p>
+                                <div className="text-6xl font-black text-[#10b981] drop-shadow-[0_0_15px_#10b981] mb-10">+₹{showWinPopup}</div>
+                                <button onClick={() => setShowWinPopup(null)} className="btn-play-gold w-full py-4 rounded-full font-black text-black text-xl uppercase tracking-wider">Awesome!</button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* BOTTOM NAVIGATION */}
                     <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-[#050505] border-t border-[#dcae45]/30 flex justify-between items-center h-[70px] px-6 z-50 rounded-t-3xl shadow-[0_-10px_25px_rgba(0,0,0,0.9)] backdrop-blur-md">
-                        <button onClick={()=>setActiveTab('home')} className={`flex flex-col items-center gap-1 w-10 ${activeTab==='home'?'text-[#ffe29a]':'text-gray-500'}`}><i className="fa-solid fa-house text-xl"></i><span className="text-[10px] font-bold">Home</span></button>
-                        <button onClick={()=>setActiveTab('wallet')} className={`flex flex-col items-center gap-1 w-10 ${activeTab==='wallet'?'text-[#ffe29a]':'text-gray-500'}`}><i className="fa-solid fa-wallet text-xl"></i><span className="text-[10px] font-bold">Wallet</span></button>
-                        <button onClick={()=>setActiveTab('profile')} className={`flex flex-col items-center gap-1 w-10 ${activeTab==='profile'?'text-[#ffe29a]':'text-gray-500'}`}><i className="fa-solid fa-user text-xl"></i><span className="text-[10px] font-bold">Profile</span></button>
+                        <button onClick={()=>setActiveTab('home')} className={`flex flex-col items-center gap-1 w-10 ${activeTab==='home'?'text-[#ffe29a] drop-shadow-[0_0_8px_rgba(220,174,69,0.8)]':'text-gray-500'}`}><i className="fa-solid fa-house text-xl"></i><span className="text-[10px] font-bold">Home</span></button>
+                        <button onClick={()=>setActiveTab('ranking')} className={`flex flex-col items-center gap-1 w-12 ${activeTab==='ranking'?'text-[#ffe29a] drop-shadow-[0_0_8px_rgba(220,174,69,0.8)]':'text-gray-500'}`}><i className="fa-solid fa-ranking-star text-xl"></i><span className="text-[10px] font-bold">Ranking</span></button>
+                        <div className="relative -top-6">
+                            <button onClick={()=>setActiveTab('wallet')} className={`w-16 h-16 rounded-full flex items-center justify-center border-4 border-[#050505] shadow-[0_0_20px_rgba(220,174,69,0.6)] transition-transform ${activeTab==='wallet'?'bg-gradient-to-b from-[#ffe29a] to-[#dcae45] text-black scale-105':'bg-[#111] text-[#dcae45]'}`}>
+                                <i className="fa-solid fa-wallet text-2xl"></i>
+                            </button>
+                        </div>
+                        <button onClick={()=>setActiveTab('refer')} className={`flex flex-col items-center gap-1 w-10 ${activeTab==='refer'?'text-[#ffe29a] drop-shadow-[0_0_8px_rgba(220,174,69,0.8)]':'text-gray-500'}`}><i className="fa-solid fa-gift text-xl"></i><span className="text-[10px] font-bold">Refer</span></button>
+                        <button onClick={()=>setActiveTab('profile')} className={`flex flex-col items-center gap-1 w-10 ${activeTab==='profile'?'text-[#ffe29a] drop-shadow-[0_0_8px_rgba(220,174,69,0.8)]':'text-gray-500'}`}><i className="fa-solid fa-user text-xl"></i><span className="text-[10px] font-bold">Profile</span></button>
                     </div>
                 </div>
             );
