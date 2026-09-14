@@ -10,107 +10,48 @@
 html, body { width: 100%; min-height: 100%; background: var(--black); color: var(--text); font-family: 'Arial', sans-serif; }
 .hidden { display: none !important; }
 
-/* 1. Pure Gaming Dark Background */
-.bg-premium-dark {
-    background-color: var(--black);
-    background-image: radial-gradient(circle at top, rgba(255, 204, 0, 0.05) 0%, transparent 60%);
-    min-height: 100vh;
-}
+/* Pure Gaming Dark Background */
+.bg-premium-dark { background-color: var(--black); background-image: radial-gradient(circle at top, rgba(255, 204, 0, 0.05) 0%, transparent 60%); min-height: 100vh; }
 
-/* ==============================================================
-   NEW MZ-FASHION STYLE HEADER
-   ============================================================== */
+/* MZ-FASHION STYLE HEADER */
 .mz-style-header {
     background: linear-gradient(180deg, #111111 0%, #000000 100%);
-    border-bottom-left-radius: 25px; 
-    border-bottom-right-radius: 25px;
-    border-bottom: 1.5px solid var(--gold); 
-    box-shadow: 0 4px 20px rgba(255, 204, 0, 0.15);
-    padding: 12px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: relative;
-    z-index: 10;
+    border-bottom-left-radius: 25px; border-bottom-right-radius: 25px; border-bottom: 1.5px solid var(--gold); 
+    box-shadow: 0 4px 20px rgba(255, 204, 0, 0.15); padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 10;
 }
-.mz-header-left {
-    width: 45px;
-    height: 45px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.mz-header-left img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain; 
-}
-.mz-header-center {
-    text-align: center;
-    flex: 1;
-    margin: 0 10px;
-}
-.mz-header-title {
-    color: #fff;
-    font-size: 20px;
-    font-weight: 900;
-    letter-spacing: 2px;
-    margin-bottom: 2px;
-}
-.mz-header-subtitle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-}
-.mz-header-subtitle .line {
-    height: 1px;
-    width: 25px;
-    background: var(--gold);
-}
-.mz-header-subtitle .text {
-    color: var(--gold);
-    font-size: 8px;
-    font-weight: bold;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-}
-.mz-header-right {
-    width: 45px;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-}
+.mz-header-left { width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; }
+.mz-header-left img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.mz-header-center { text-align: center; flex: 1; margin: 0 10px; }
+.mz-header-title { color: #fff; font-size: 20px; font-weight: 900; letter-spacing: 2px; margin-bottom: 2px; }
+.mz-header-subtitle { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.mz-header-subtitle .line { height: 1px; width: 25px; background: var(--gold); }
+.mz-header-subtitle .text { color: var(--gold); font-size: 8px; font-weight: bold; letter-spacing: 3px; text-transform: uppercase; }
+.mz-header-right { width: 45px; display: flex; justify-content: flex-end; align-items: center; }
 
-/* 3. Gaming Match Cards */
+/* Gaming Match Cards */
 .gold-card { 
-    background: var(--dark); 
-    border: 1px solid var(--gold); 
-    box-shadow: 0 0 15px rgba(255, 204, 0, 0.15), inset 0 0 10px rgba(255, 204, 0, 0.05); 
-    border-radius: 12px;
-    position: relative;
-    overflow: hidden;
-    transition: all 0.3s ease; 
+    background: var(--dark); border: 1px solid var(--gold); box-shadow: 0 0 15px rgba(255, 204, 0, 0.15), inset 0 0 10px rgba(255, 204, 0, 0.05); 
+    border-radius: 12px; position: relative; overflow: hidden; transition: all 0.3s ease; 
 }
-.gold-card:hover { 
-    border-color: var(--gold-light); 
-    box-shadow: 0 0 25px rgba(255, 204, 0, 0.4); 
-}
-.gold-card::before { content: ''; position: absolute; top: 0; left: 0; width: 40px; height: 40px; background: linear-gradient(135deg, var(--gold) 45%, transparent 50%); z-index: 0; }
-.gold-card::after { content: ''; position: absolute; bottom: 0; right: 0; width: 30px; height: 30px; background: linear-gradient(315deg, var(--gold) 45%, transparent 50%); z-index: 0; }
 .gold-card > * { position: relative; z-index: 1; }
 
-/* 4. Solid Neon Play Buttons */
+/* Solid Neon Play Buttons */
 .btn-play-gold { 
-    position: relative; overflow: hidden; background: var(--gold); color: #000; 
-    box-shadow: 0 4px 15px rgba(255, 204, 0, 0.4); border: none; font-weight: 900; z-index: 1; transition: 0.3s; cursor: pointer;
+    position: relative; overflow: hidden; background: var(--gold); color: #000; box-shadow: 0 4px 15px rgba(255, 204, 0, 0.4); 
+    border: none; font-weight: 900; z-index: 1; transition: 0.3s; cursor: pointer;
 }
-.btn-play-gold:hover { background: var(--gold-light); box-shadow: 0 4px 20px rgba(255, 204, 0, 0.6); }
 .btn-play-gold:active { transform: scale(0.95); }
-.btn-play-gold::before {
-    content: ""; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
-    background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0) 100%);
-    transform: skewX(-25deg); animation: shineSweeper 3s infinite; z-index: -1;
+
+/* Range Slider Styling */
+.bid-slider {
+    -webkit-appearance: none; width: 100%; background: transparent; margin: 15px 0;
+}
+.bid-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%;
+    background: var(--gold); cursor: pointer; margin-top: -10px; box-shadow: 0 0 10px rgba(255, 204, 0, 0.8); border: 2px solid #000;
+}
+.bid-slider::-webkit-slider-runnable-track {
+    width: 100%; height: 6px; cursor: pointer; background: #333; border-radius: 3px;
 }
 
 /* Base Utility Classes */
@@ -119,37 +60,29 @@ html, body { width: 100%; min-height: 100%; background: var(--black); color: var
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 .pop-in { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
 @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-@keyframes shineSweeper { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
 
-/* Fixes & Spacing */
-.pb-24 { padding-bottom: 6.5rem; }
-.hide-scrollbar::-webkit-scrollbar { display: none; }
-.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+/* Chat Bubble & Timer */
+.chat-bubble {
+    position: absolute; top: -45px; background: var(--gold); color: black; font-weight: bold; font-size: 18px;
+    padding: 6px 12px; border-radius: 12px; border-bottom-left-radius: 0; white-space: nowrap; z-index: 50;
+    box-shadow: 0 4px 10px rgba(255,204,0,0.4); animation: popIn 0.2s ease forwards;
+}
+.chat-bubble.right { border-bottom-left-radius: 12px; border-bottom-right-radius: 0; }
+
+.timer-overlay {
+    position: absolute; inset: 0; background: rgba(0,0,0,0.65); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 24px; text-shadow: 0 0 5px black;
+}
+.timer-red { color: #ef4444; background: rgba(239, 68, 68, 0.2); text-shadow: 0 0 10px red; }
+
+/* Intro Original Restoration */
+body.intro-running { overflow: hidden; }
+#logoIntro { position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; background: #000; transition: opacity 500ms ease; }
+.intro-stage { display: flex; flex-direction: column; align-items: center; gap: 15px; text-align: center; }
+.intro-logo { width: 150px; height: auto; animation: popIn 1s ease forwards; }
+.intro-line { width: 100px; height: 2px; background: var(--gold); margin: 5px 0; }
+.intro-title { font-size: 24px; color: var(--gold); font-weight: 900; letter-spacing: 3px; text-transform: uppercase; }
 
 /* Auth Forms */
-.auth-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at center, rgba(255,204,0,0.05), var(--black) 70%); padding: 20px; }
-.form-container { background: var(--dark); border: 2px solid var(--gold); border-radius: 15px; padding: 40px 30px; width: 100%; max-width: 400px; box-shadow: 0 0 25px rgba(255,204,0,0.15); text-align: center; }
-.auth-logo { width: 220px; margin: 0 auto 20px; mix-blend-mode: screen; }
-.auth-form h2 { color: var(--gold); margin-bottom: 25px; font-size: 24px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px;}
-.input-group { margin-bottom: 15px; }
-.input-group input { width: 100%; padding: 14px 20px; border-radius: 8px; background: #000; border: 1px solid rgba(255,204,0,0.3); color: white; font-size: 16px; outline: none; transition: border 0.3s; }
-.input-group input:focus { border: 1px solid var(--gold); box-shadow: 0 0 10px rgba(255,204,0,0.2); }
-.auth-btn { width: 100%; padding: 15px; border-radius: 8px; background: var(--gold); color: #000; font-size: 16px; font-weight: 900; text-transform: uppercase; border: none; cursor: pointer; transition: transform 0.2s; margin-top: 10px; box-shadow: 0 0 15px rgba(255,204,0,0.4); }
-.auth-btn:hover { transform: translateY(-2px); background: var(--gold-light); }
-.switch-form { margin-top: 20px; font-size: 14px; color: #94a3b8; }
-.switch-form span { color: var(--gold); cursor: pointer; font-weight: bold; text-decoration: underline; }
-
-/* Intro Animations */
-body.intro-running { overflow: hidden; }
-#logoIntro { position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #000; opacity: 1; transition: opacity 900ms ease; }
-#logoIntro::before { content: ""; position: absolute; width: 120vmin; height: 120vmin; border-radius: 50%; background: radial-gradient(circle, rgba(255,204,0,.1) 0%, transparent 50%); animation: glowPulse 4.5s ease-in-out infinite; }
-.intro-stage { position: relative; display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 24px; text-align: center; }
-.intro-logo { width: min(560px, 78vw); height: auto; opacity: 0; transform: scale(.82); animation: logoIn 1.5s cubic-bezier(.2,.7,.2,1) .25s forwards, logoFloat 5s ease-in-out 2s infinite; }
-.intro-line { width: 0; height: 2px; background: var(--gold); animation: lineGrow 1.1s ease .9s forwards; box-shadow: 0 0 10px var(--gold); }
-.intro-title { letter-spacing: .32em; text-transform: uppercase; font-size: clamp(11px, 3vw, 15px); color: var(--gold); opacity: 0; animation: fadeUp .9s ease 1.25s forwards; font-weight: 900; }
-
-@keyframes logoIn { 0%{opacity:0;transform:scale(.82) translateY(14px);filter:blur(8px)} 60%{opacity:1;filter:blur(0)} 100%{opacity:1;transform:scale(1) translateY(0);filter:blur(0)} }
-@keyframes logoFloat { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-8px) scale(1.015)} }
-@keyframes lineGrow { to{width:min(420px,62vw)} }
-@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-@keyframes glowPulse { 0%,100%{opacity:.55;transform:scale(1)} 50%{opacity:1;transform:scale(1.08)} }
+.auth-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.form-container { background: var(--dark); border: 1px solid var(--gold); border-radius: 15px; padding: 40px 30px; width: 100%; max-width: 400px; box-shadow: 0 0 25px rgba(255,204,0,0.15); text-align: center; }
