@@ -10,16 +10,14 @@
 html, body { width: 100%; min-height: 100%; background: var(--black); color: var(--text); font-family: 'Arial', sans-serif; }
 .hidden { display: none !important; }
 
-/* 1. Pure Gaming Dark Background */
+/* Pure Gaming Dark Background */
 .bg-premium-dark {
     background-color: var(--black);
     background-image: radial-gradient(circle at top, rgba(255, 204, 0, 0.05) 0%, transparent 60%);
     min-height: 100vh;
 }
 
-/* ==============================================================
-   NEW MZ-FASHION STYLE HEADER
-   ============================================================== */
+/* MZ-FASHION STYLE HEADER */
 .mz-style-header {
     background: linear-gradient(180deg, #111111 0%, #000000 100%);
     border-bottom-left-radius: 25px; 
@@ -82,7 +80,7 @@ html, body { width: 100%; min-height: 100%; background: var(--black); color: var
     align-items: center;
 }
 
-/* 3. Gaming Match Cards */
+/* Gaming Match Cards */
 .gold-card { 
     background: var(--dark); 
     border: 1px solid var(--gold); 
@@ -100,7 +98,7 @@ html, body { width: 100%; min-height: 100%; background: var(--black); color: var
 .gold-card::after { content: ''; position: absolute; bottom: 0; right: 0; width: 30px; height: 30px; background: linear-gradient(315deg, var(--gold) 45%, transparent 50%); z-index: 0; }
 .gold-card > * { position: relative; z-index: 1; }
 
-/* 4. Solid Neon Play Buttons */
+/* Solid Neon Play Buttons */
 .btn-play-gold { 
     position: relative; overflow: hidden; background: var(--gold); color: #000; 
     box-shadow: 0 4px 15px rgba(255, 204, 0, 0.4); border: none; font-weight: 900; z-index: 1; transition: 0.3s; cursor: pointer;
@@ -139,12 +137,12 @@ html, body { width: 100%; min-height: 100%; background: var(--black); color: var
 .switch-form { margin-top: 20px; font-size: 14px; color: #94a3b8; }
 .switch-form span { color: var(--gold); cursor: pointer; font-weight: bold; text-decoration: underline; }
 
-/* Intro Animations */
+/* Intro Animations (Circle removed, glow adjusted) */
 body.intro-running { overflow: hidden; }
 #logoIntro { position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #000; opacity: 1; transition: opacity 900ms ease; }
-#logoIntro::before { content: ""; position: absolute; width: 120vmin; height: 120vmin; border-radius: 50%; background: radial-gradient(circle, rgba(255,204,0,.1) 0%, transparent 50%); animation: glowPulse 4.5s ease-in-out infinite; }
+#logoIntro::before { content: ""; position: absolute; width: 150vmin; height: 150vmin; background: radial-gradient(circle, rgba(255,204,0,.08) 0%, transparent 40%); animation: glowPulse 4.5s ease-in-out infinite; }
 .intro-stage { position: relative; display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 24px; text-align: center; }
-.intro-logo { width: min(560px, 78vw); height: auto; opacity: 0; transform: scale(.82); animation: logoIn 1.5s cubic-bezier(.2,.7,.2,1) .25s forwards, logoFloat 5s ease-in-out 2s infinite; }
+.intro-logo { width: min(400px, 60vw); height: auto; opacity: 0; transform: scale(.82); animation: logoIn 1.5s cubic-bezier(.2,.7,.2,1) .25s forwards, logoFloat 5s ease-in-out 2s infinite; object-fit: contain; }
 .intro-line { width: 0; height: 2px; background: var(--gold); animation: lineGrow 1.1s ease .9s forwards; box-shadow: 0 0 10px var(--gold); }
 .intro-title { letter-spacing: .32em; text-transform: uppercase; font-size: clamp(11px, 3vw, 15px); color: var(--gold); opacity: 0; animation: fadeUp .9s ease 1.25s forwards; font-weight: 900; }
 
