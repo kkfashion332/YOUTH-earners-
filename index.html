@@ -10,12 +10,12 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- COMBINED CSS WITH LIGHT THEME UPDATES -->
+    <!-- COMBINED CSS WITH LIGHT THEME & SLIDER UPDATES -->
     <style>
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #dcae45; border-radius: 10px; }
 
-        /* GLOBAL CSS - Updated for Light Theme */
+        /* GLOBAL CSS */
         :root { 
             --gold: #dcae45; 
             --gold-light: #ffe29a; 
@@ -24,7 +24,7 @@
         html, body { width: 100%; min-height: 100%; background: #f4f6f9; color: #111; font-family: 'Arial', sans-serif; }
         .hidden { display: none !important; }
 
-        /* MZ-FASHION STYLE HEADER (Black Background) */
+        /* MZ-FASHION STYLE HEADER */
         .mz-style-header {
             background: linear-gradient(180deg, #111111 0%, #000000 100%);
             border-bottom-left-radius: 25px; 
@@ -65,6 +65,42 @@
         .btn-play-gold:hover { background: var(--gold-light); box-shadow: 0 4px 15px rgba(220, 174, 69, 0.6); }
         .btn-play-gold:active { transform: scale(0.95); }
 
+        /* CUSTOM RANGE SLIDER CSS */
+        .range-slider-custom {
+            -webkit-appearance: none;
+            appearance: none; 
+            width: 100%;
+            cursor: pointer;
+            outline: none;
+        }
+        .range-slider-custom::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            border: 1px solid #d1d5db;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .range-slider-custom::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 24px;
+            width: 24px;
+            background: var(--gold);
+            border-radius: 50%;
+            margin-top: -9px;
+            box-shadow: 0 0 10px rgba(220,174,69,0.8);
+            border: 2px solid #fff;
+        }
+        .range-slider-custom::-moz-range-thumb {
+            height: 24px;
+            width: 24px;
+            background: var(--gold);
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(220,174,69,0.8);
+            border: 2px solid #fff;
+        }
+
         /* Base Utility Classes */
         .spin-slow { animation: spin 3s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
@@ -76,27 +112,24 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* Intro Screen - Kept Dark to match original image */
         body.intro-running { overflow: hidden; }
         #logoIntro { position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #000; opacity: 1; transition: opacity 900ms ease; }
     </style>
 </head>
 <body class="bg-[#f4f6f9] text-[#111]">
 
-    <!-- INTRO SCREEN (Rectangular Original Shape & Fine Golden Text) -->
+    <!-- INTRO SCREEN -->
     <div id="logoIntro" class="fixed inset-0 bg-[#000] z-[99999] flex flex-col items-center justify-center transition-opacity duration-500">
         <div class="text-center">
-            <!-- Shape Remover: Rectangular Box, No Border Radius -->
             <div class="w-56 mx-auto mb-4 drop-shadow-[0_0_15px_rgba(220,174,69,0.5)] animate-pulse">
                 <img class="w-full h-auto object-contain" src="youth-earners-logo.png" alt="Youth Earner's" />
             </div>
-            <!-- Fine Golden Text styling -->
             <div class="w-12 h-[1.5px] bg-[#dcae45] mx-auto mb-3 shadow-[0_0_5px_#dcae45]"></div>
             <p class="text-2xl font-light text-[#dcae45] tracking-[0.3em] uppercase drop-shadow-[0_0_8px_rgba(220,174,69,0.8)]" style="font-family: Georgia, serif;">YOUTH EARNER'S</p>
         </div>
     </div>
 
-    <!-- GLOBAL T&C MODAL (Light Theme) -->
+    <!-- GLOBAL T&C MODAL -->
     <div id="tcModal" class="hidden fixed inset-0 bg-black/60 z-[9999] flex justify-center items-center p-4 backdrop-blur-sm transition-all duration-300">
         <div class="bg-white border border-gray-300 w-full max-w-md rounded-2xl overflow-hidden flex flex-col max-h-[85vh] shadow-2xl">
             <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
@@ -148,7 +181,7 @@
         </div>
     </div>
 
-    <!-- AUTHENTICATION UI (Light Theme) -->
+    <!-- AUTHENTICATION UI -->
     <div id="authContainer" class="hidden min-h-screen flex items-center justify-center p-4 bg-[#f4f6f9]">
         <div class="bg-white border border-gray-200 p-8 rounded-3xl w-full max-w-sm shadow-xl relative">
             <img class="w-24 h-24 mx-auto mb-6 object-contain" src="youth-earners-logo.png" alt="Logo" />
@@ -200,7 +233,7 @@
     <!-- MAIN REACT APP CONTAINER -->
     <main id="website" class="hidden"><div id="root"></div></main>
 
-    <!-- INTEGRATED FIREBASE & AUTH LOGIC WITH AUTOFILL -->
+    <!-- INTEGRATED FIREBASE & AUTH LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
@@ -223,7 +256,6 @@
         window.db = db;
         window.fs = { collection, query, where, getDocs, doc, getDoc, updateDoc, addDoc, deleteDoc, onSnapshot, setDoc };
 
-        // INTRO AND AUTO-FILL LOGIC
         window.addEventListener('load', () => {
             setTimeout(() => {
                 const intro = document.getElementById('logoIntro');
@@ -233,7 +265,6 @@
                 }
             }, 2000);
 
-            // AUTO-FILL IMPLEMENTATION
             const loginNumInput = document.getElementById('loginNumber');
             const loginPwdInput = document.getElementById('loginPassword');
             
@@ -276,7 +307,6 @@
             const dummyEmail = `${num}@ye.com`; 
             try { 
                 await signInWithEmailAndPassword(auth, dummyEmail, pwd); 
-                // Save to local storage for auto-fill
                 localStorage.setItem('ye_saved_number', num);
                 localStorage.setItem('ye_saved_pwd', pwd);
             } catch(err) { alert("Invalid Number or Password!"); }
@@ -298,7 +328,6 @@
                     avatar: 'youth-earners-logo.png', joined: new Date()
                 });
                 
-                // Save to local storage for auto-fill
                 localStorage.setItem('ye_saved_number', num);
                 localStorage.setItem('ye_saved_pwd', pwd);
                 
@@ -310,7 +339,7 @@
         });
     </script>
 
-    <!-- REACT APP LOGIC (LIGHT THEME UPDATE) -->
+    <!-- REACT APP LOGIC WITH RANGE SLIDER AND 15s TIMER -->
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
@@ -328,9 +357,6 @@
             const [wallet, setWallet] = useState(0);
             const [withdrawable, setWithdrawable] = useState(0);
             const [matchesWon, setMatchesWon] = useState(0); 
-            const [xp, setXp] = useState(0);
-            const level = Math.floor(xp / 100) + 1;
-            const xpProgress = (xp % 100);
             
             const [confirmPopup, setConfirmPopup] = useState(null); 
             const [showWinPopup, setShowWinPopup] = useState(null);
@@ -352,7 +378,12 @@
             const [roomId, setRoomId] = useState(null);
             const [playerRole, setPlayerRole] = useState(null); 
             const [roomData, setRoomData] = useState(null);
-            const [bidInput, setBidInput] = useState('');
+            
+            // Replaced text input with 0 for range slider
+            const [bidInput, setBidInput] = useState(0);
+            
+            // New 15-second round timer state
+            const [roundTimeLeft, setRoundTimeLeft] = useState(15);
             
             const fileInputRef = useRef(null);
             
@@ -410,7 +441,6 @@
                         if(data.wallet !== undefined) setWallet(data.wallet);
                         if(data.withdrawable !== undefined) setWithdrawable(data.withdrawable);
                         if(data.matchesWon !== undefined) setMatchesWon(data.matchesWon);
-                        if(data.xp !== undefined) setXp(data.xp);
                         
                         if(window.auth && window.auth.currentUser) {
                             const uid = window.auth.currentUser.uid;
@@ -420,7 +450,6 @@
                                     if(dbData.wallet !== undefined) setWallet(dbData.wallet);
                                     if(dbData.withdrawable !== undefined) setWithdrawable(dbData.withdrawable);
                                     if(dbData.matchesWon !== undefined) setMatchesWon(dbData.matchesWon);
-                                    if(dbData.xp !== undefined) setXp(dbData.xp);
                                 }
                             });
                             const nQ = window.fs.query(window.fs.collection(window.db, "notifications"), window.fs.where("uid", "==", uid));
@@ -518,7 +547,7 @@
                     setTimeout(() => {
                         setMatchFound(true); setOpponent({ name: 'System Bot', img: 'https://cdn-icons-png.flaticon.com/512/4712/4712010.png' });
                         setTimeout(() => {
-                            setIsMatchmaking(false); setIsPlaying(true); setBidInput('');
+                            setIsMatchmaking(false); setIsPlaying(true); setBidInput(0);
                             setRoomData({ tier: 0, round: 1, p1Tokens: 500, p2Tokens: 500, p1Wins: 0, p2Wins: 0, p1: { name: userProfile.name, img: userProfile.avatar }, p2: { name: 'System Bot', img: 'https://cdn-icons-png.flaticon.com/512/4712/4712010.png' }, lastResult: null, isBotMatch: true, p1Bid: null, p2Bid: null });
                         }, 1500);
                     }, 1500);
@@ -574,7 +603,7 @@
                                     });
                                 }
                             }
-                            setIsMatchmaking(false); setIsPlaying(true); setBidInput(''); 
+                            setIsMatchmaking(false); setIsPlaying(true); setBidInput(0); 
                         }, 3000);
                     }
 
@@ -652,11 +681,42 @@
                 return () => clearInterval(timer);
             }, [isMatchmaking, matchFound, roomId, playerRole]);
 
-            const submitBid = async () => {
+            // --- 15 SECOND ROUND TIMER LOGIC ---
+            const roundNumber = roomData?.round;
+            const hasResult = !!roomData?.lastResult;
+            const myBidStatus = roomData ? (playerRole === 1 ? roomData.p1Bid : roomData.p2Bid) : null;
+
+            useEffect(() => {
+                if (!isPlaying || !roomData || hasResult || myBidStatus !== null) return;
+                
+                setRoundTimeLeft(15);
+                const timer = setInterval(() => {
+                    setRoundTimeLeft(prev => prev > 0 ? prev - 1 : 0);
+                }, 1000);
+
+                return () => clearInterval(timer);
+            }, [isPlaying, roundNumber, hasResult, myBidStatus]);
+
+            // Auto-submit 0 if timer runs out
+            useEffect(() => {
+                if (roundTimeLeft === 0 && isPlaying && roomData && !roomData.lastResult) {
+                    if (myBidStatus === null) {
+                        submitBid(0); // Force bid to 0
+                    }
+                }
+            }, [roundTimeLeft]);
+
+            const submitBid = async (forcedBid = null) => {
                 if(!roomData) return;
                 let myTokens = playerRole === 1 ? roomData.p1Tokens : roomData.p2Tokens;
-                let b = parseInt(bidInput);
-                if(isNaN(b) || b < 0) b = 0; if(b > myTokens) b = myTokens;
+                
+                let b;
+                if (forcedBid !== null) {
+                    b = forcedBid;
+                } else {
+                    b = parseInt(bidInput);
+                    if(isNaN(b) || b < 0) b = 0; if(b > myTokens) b = myTokens;
+                }
 
                 if (roomData.isBotMatch) {
                     setRoomData(prev => ({ ...prev, p1Bid: b })); 
@@ -680,11 +740,12 @@
                                 if (isWinner) alert("🎉 Victory! You beat the System Bot!"); else alert("☠️ Defeat! The System Bot won this match.");
                                 setRoomData(null);
                             } else { setRoomData(prev => ({ ...prev, round: nextRound, lastResult: null, p1Bid: null, p2Bid: null })); }
-                            setBidInput('');
+                            setBidInput(0);
                         }, 3500);
                     }, 1500); 
                     return;
                 }
+                
                 if(!roomId) return;
                 await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomId), { [playerRole === 1 ? 'p1Bid' : 'p2Bid']: b });
             };
@@ -1201,7 +1262,7 @@
                         </div>
                     )}
 
-                    {/* IN-GAME BLIND BID UI (LIGHT THEME) */}
+                    {/* IN-GAME BLIND BID UI WITH TIMER & SLIDER */}
                     {isPlaying && roomData && (
                         <div className="fixed inset-0 bg-[#f4f6f9] text-black flex flex-col p-4 z-[200] pb-20">
                             <div className="flex justify-between items-center mb-6 mt-2">
@@ -1232,19 +1293,45 @@
                             {!roomData.lastResult ? (
                                 <div className="mt-4 flex-1">
                                     {(playerRole === 1 ? roomData.p1Bid : roomData.p2Bid) === null ? (
-                                        <div className="pop-in">
-                                            <div className="text-center text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Enter Your Bid</div>
-                                            <input type="number" value={bidInput} onChange={(e) => setBidInput(e.target.value)} className="w-full bg-white border-2 border-[#dcae45] rounded-2xl text-center text-5xl py-6 focus:outline-none font-black shadow-sm text-black" placeholder="0" />
-                                            <div className="flex gap-3 mt-6">
-                                                <button onClick={() => { playClickSound(); setBidInput(Math.floor((playerRole === 1 ? roomData.p1Tokens : roomData.p2Tokens)/2)); }} className="flex-1 bg-white border border-[#dcae45] py-3 rounded-xl font-black text-[#b8860b] uppercase shadow-sm">Half</button>
-                                                <button onClick={() => { playClickSound(); setBidInput(playerRole === 1 ? roomData.p1Tokens : roomData.p2Tokens); }} className="flex-1 bg-white border border-[#dcae45] py-3 rounded-xl font-black text-[#b8860b] uppercase shadow-sm">Max</button>
+                                        <div className="pop-in bg-white border border-gray-200 p-6 rounded-3xl shadow-lg relative overflow-hidden">
+                                            
+                                            {/* Clock Timer */}
+                                            <div className="flex flex-col items-center justify-center mb-6">
+                                                <div className={`text-5xl font-black flex items-center gap-3 drop-shadow-sm transition-colors ${roundTimeLeft <= 5 ? 'text-red-600 animate-pulse' : 'text-[#b8860b]'}`}>
+                                                    <i className="fa-regular fa-clock"></i> 00:{roundTimeLeft < 10 ? `0${roundTimeLeft}` : roundTimeLeft}
+                                                </div>
+                                                <div className="text-gray-500 text-[10px] font-bold uppercase mt-1 tracking-widest">Time to Bid</div>
                                             </div>
-                                            <button onClick={submitBid} className="w-full mt-6 btn-play-gold py-5 rounded-2xl text-xl tracking-widest font-black shadow-md">LOCK BID</button>
+
+                                            {/* Range Slider UI */}
+                                            <div className="mb-6">
+                                                <div className="flex justify-between items-center text-gray-500 font-bold text-xs mb-3 uppercase tracking-widest">
+                                                    <span>Aapki secret bid</span>
+                                                    <span className="text-[#b8860b] text-2xl bg-gray-50 px-4 py-1 rounded-lg border border-gray-200 shadow-inner">{bidInput}</span>
+                                                </div>
+                                                
+                                                <input 
+                                                    type="range" 
+                                                    min="0" 
+                                                    max={playerRole === 1 ? roomData.p1Tokens : roomData.p2Tokens} 
+                                                    value={bidInput} 
+                                                    onChange={(e) => { playClickSound(); setBidInput(e.target.value); }} 
+                                                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer range-slider-custom"
+                                                />
+                                            </div>
+
+                                            <div className="flex gap-3 mt-6">
+                                                <button onClick={() => { playClickSound(); setBidInput(Math.floor((playerRole === 1 ? roomData.p1Tokens : roomData.p2Tokens)/2)); }} className="flex-1 bg-gray-50 border border-gray-300 py-3 rounded-xl font-black text-gray-600 uppercase shadow-sm hover:bg-gray-100 transition">Half</button>
+                                                <button onClick={() => { playClickSound(); setBidInput(playerRole === 1 ? roomData.p1Tokens : roomData.p2Tokens); }} className="flex-1 bg-gray-50 border border-gray-300 py-3 rounded-xl font-black text-gray-600 uppercase shadow-sm hover:bg-gray-100 transition">Max</button>
+                                            </div>
+                                            
+                                            <button onClick={() => submitBid(null)} className="w-full mt-6 btn-play-gold py-5 rounded-2xl text-xl tracking-widest font-black shadow-md">Bid Lock Karo</button>
                                         </div>
                                     ) : (
                                         <div className="text-center mt-20 animate-pulse">
                                             <i className="fa-solid fa-hourglass-half text-5xl text-[#dcae45] mb-6 drop-shadow-sm animate-bounce"></i>
                                             <div className="text-[#b8860b] font-black text-xl uppercase tracking-widest">Waiting for opponent...</div>
+                                            <div className="text-gray-500 font-bold mt-2">00:{roundTimeLeft < 10 ? `0${roundTimeLeft}` : roundTimeLeft}</div>
                                         </div>
                                     )}
                                 </div>
