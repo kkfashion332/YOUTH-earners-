@@ -65,40 +65,35 @@
         .btn-play-gold:hover { background: var(--gold-light); box-shadow: 0 4px 15px rgba(220, 174, 69, 0.6); }
         .btn-play-gold:active { transform: scale(0.95); }
 
-        /* CUSTOM RANGE SLIDER CSS */
+        /* CUSTOM RANGE SLIDER CSS WITH YELLOW PROGRESS FILL */
         .range-slider-custom {
             -webkit-appearance: none;
-            appearance: none; 
-            width: 100%;
-            cursor: pointer;
-            outline: none;
-        }
-        .range-slider-custom::-webkit-slider-runnable-track {
             width: 100%;
             height: 8px;
-            background: #e5e7eb;
-            border-radius: 4px;
-            border: 1px solid #d1d5db;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+            border-radius: 5px;
+            outline: none;
+            padding: 0;
+            margin: 0;
         }
         .range-slider-custom::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            height: 24px;
-            width: 24px;
-            background: var(--gold);
+            width: 26px;
+            height: 26px;
             border-radius: 50%;
-            margin-top: -9px;
+            background: #dcae45;
+            border: 3px solid #fff;
             box-shadow: 0 0 10px rgba(220,174,69,0.8);
-            border: 2px solid #fff;
+            cursor: pointer;
         }
         .range-slider-custom::-moz-range-thumb {
-            height: 24px;
-            width: 24px;
-            background: var(--gold);
+            width: 26px;
+            height: 26px;
             border-radius: 50%;
+            background: #dcae45;
+            border: 3px solid #fff;
             box-shadow: 0 0 10px rgba(220,174,69,0.8);
-            border: 2px solid #fff;
+            cursor: pointer;
         }
 
         /* Base Utility Classes */
@@ -117,6 +112,10 @@
     </style>
 </head>
 <body class="bg-[#f4f6f9] text-[#111]">
+
+    <!-- AUDIO ENGINE FOR SOUND EFFECTS -->
+    <audio id="tickSound" src="https://assets.mixkit.co/active_storage/sfx/2505/2505-preview.mp3" preload="auto"></audio>
+    <audio id="clickSound" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
 
     <!-- INTRO SCREEN -->
     <div id="logoIntro" class="fixed inset-0 bg-[#000] z-[99999] flex flex-col items-center justify-center transition-opacity duration-500">
@@ -137,43 +136,10 @@
                 <button onclick="document.getElementById('tcModal').classList.add('hidden')" class="text-gray-500 hover:text-black text-2xl transition"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="p-5 overflow-y-auto text-sm text-gray-700 space-y-5 custom-scrollbar">
-                <div>
-                    <h4 class="text-black font-bold mb-1 text-base">1. Age Restriction (18+)</h4>
-                    <p class="text-gray-600">You must be exactly 18 years of age or older to register and play on Youth Earner's. By proceeding, you legally confirm your age.</p>
-                </div>
-                <div>
-                    <h4 class="text-black font-bold mb-2 text-base">2. Restricted States (Banned)</h4>
-                    <p class="text-gray-600 mb-2">Due to government regulations on Real Money Gaming, users residing in the following states are STRICTLY PROHIBITED from using this app:</p>
-                    <ul class="list-none pl-2 text-rose-600 font-bold space-y-1 bg-rose-50 border border-rose-200 p-3 rounded-lg">
-                        <li><i class="fa-solid fa-ban mr-2 text-xs"></i>Assam</li>
-                        <li><i class="fa-solid fa-ban mr-2 text-xs"></i>Odisha</li>
-                        <li><i class="fa-solid fa-ban mr-2 text-xs"></i>Telangana</li>
-                        <li><i class="fa-solid fa-ban mr-2 text-xs"></i>Andhra Pradesh</li>
-                        <li><i class="fa-solid fa-ban mr-2 text-xs"></i>Nagaland</li>
-                        <li><i class="fa-solid fa-ban mr-2 text-xs"></i>Sikkim</li>
-                        <li><i class="fa-solid fa-ban mr-2 text-xs"></i>Meghalaya</li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-black font-bold mb-1 text-base">3. Fair Play & Anti-Cheating</h4>
-                    <p class="text-gray-600">We maintain a strict zero-tolerance policy. Agar kisi bhi account mein cheating, fraud, ya hacking detect hoti hai, toh admin ko right hai ki account ko bina notice diye instantly <b>Temporarily Suspend</b> ya <b>Permanently Ban</b> kar diya jayega.</p>
-                </div>
-                <div>
-                    <h4 class="text-black font-bold mb-1 text-base">4. Entry Fees & Refunds</h4>
-                    <p class="text-gray-600">Clear Rule: Match start hone ke baad entry fee kisi bhi haal mein <b>NON-REFUNDABLE</b> hai. Refund tabhi process hoga jab koi server error ya system issue ki wajah se match system dwara cancel kiya jaye.</p>
-                </div>
-                <div>
-                    <h4 class="text-black font-bold mb-1 text-base">5. Withdrawal Rules</h4>
-                    <p class="text-gray-600">Ek baar withdrawal request lagane ke baad, payment processing mein <b>24 se 48 hours</b> (working hours) lag sakte hain. Future dispute se bachne ke liye bank/UPI details dhyan se bharein.</p>
-                </div>
-                <div>
-                    <h4 class="text-black font-bold mb-1 text-base">6. Technical Issues & Liability</h4>
-                    <p class="text-gray-600">Agar match ke beech mein user ka internet connection chala jaye, ping high ho, game auto-close ho, ya device lag kare, toh iski poori zimmedari player ki hogi. Iske liye platform koi compensation ya refund provide nahi karega.</p>
-                </div>
-                <div>
-                    <h4 class="text-black font-bold mb-1 text-base">7. Right to Modify</h4>
-                    <p class="text-[#b8860b] font-bold">Admin/Management reserves the exclusive right to amend, change, or modify the game rules, prize pool distributions, or platform policies at any given time without prior notice.</p>
-                </div>
+                <div><h4 class="text-black font-bold mb-1 text-base">1. Age Restriction (18+)</h4><p class="text-gray-600">You must be exactly 18 years of age or older to register and play on Youth Earner's.</p></div>
+                <div><h4 class="text-black font-bold mb-1 text-base">2. Restricted States (Banned)</h4><p class="text-gray-600 mb-2">Assam, Odisha, Telangana, Andhra Pradesh, Nagaland, Sikkim, Meghalaya are restricted.</p></div>
+                <div><h4 class="text-black font-bold mb-1 text-base">3. Fair Play & Anti-Cheating</h4><p class="text-gray-600">Zero-tolerance policy against hacking and fraud.</p></div>
+                <div><h4 class="text-black font-bold mb-1 text-base">4. Entry Fees & Refunds</h4><p class="text-gray-600">Entry fee kisi bhi haal mein <b>NON-REFUNDABLE</b> hai.</p></div>
             </div>
             <div class="p-4 bg-gray-50 border-t border-gray-200 text-center">
                 <button onclick="document.getElementById('tcModal').classList.add('hidden')" class="bg-[#dcae45] text-black font-black px-8 py-3 rounded-xl hover:bg-[#ffe29a] transition uppercase tracking-widest w-full shadow-md">I Understand & Agree</button>
@@ -339,7 +305,7 @@
         });
     </script>
 
-    <!-- REACT APP LOGIC WITH RANGE SLIDER AND 15s TIMER -->
+    <!-- REACT APP LOGIC WITH ADVANCED FEATURES -->
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
@@ -359,7 +325,8 @@
             const [matchesWon, setMatchesWon] = useState(0); 
             
             const [confirmPopup, setConfirmPopup] = useState(null); 
-            const [showWinPopup, setShowWinPopup] = useState(null);
+            const [gameResult, setGameResult] = useState(null); // PRO POPUP STATE
+            const [showExitWarning, setShowExitWarning] = useState(false); // EXIT WARNING STATE
             
             const [isMatchmaking, setIsMatchmaking] = useState(false);
             const [matchTime, setMatchTime] = useState(20);
@@ -379,11 +346,8 @@
             const [playerRole, setPlayerRole] = useState(null); 
             const [roomData, setRoomData] = useState(null);
             
-            // Replaced text input with 0 for range slider
             const [bidInput, setBidInput] = useState(0);
-            
-            // New 15-second round timer state
-            const [roundTimeLeft, setRoundTimeLeft] = useState(15);
+            const [roundTimeLeft, setRoundTimeLeft] = useState(15); 
             
             const fileInputRef = useRef(null);
             
@@ -402,11 +366,7 @@
 
             const [adminSettings, setAdminSettings] = useState({ upiId: 'youthearners@nyes', qrUrl: 'payment-qr.png' });
 
-            const formatSafeDate = (dateObj) => {
-                if (!dateObj) return 'N/A';
-                try { return dateObj.toDate ? new Date(dateObj.toDate()).toLocaleString() : new Date(dateObj).toLocaleString(); } catch(e) { return 'Invalid Date'; }
-            };
-
+            const formatSafeDate = (dateObj) => { try { return dateObj.toDate ? new Date(dateObj.toDate()).toLocaleString() : new Date(dateObj).toLocaleString(); } catch(e) { return 'Invalid Date'; } };
             const playClickSound = () => { const a = document.getElementById('clickSound'); if(a) { a.currentTime=0; a.play().catch(()=>{}); } };
 
             useEffect(() => {
@@ -426,9 +386,7 @@
             }, []);
 
             useEffect(() => {
-                let unsubWallet = null;
-                let unsubNotif = null;
-                
+                let unsubWallet = null; let unsubNotif = null;
                 const handleGameStart = (e) => {
                     const data = e.detail;
                     if(data) {
@@ -436,7 +394,6 @@
                         const dbName = data.name || localStorage.getItem('userName') || 'Player';
                         localStorage.setItem('userAvatar', dbAvatar); localStorage.setItem('userName', dbName);
                         setUserProfile(prev => ({ ...prev, name: dbName, number: data.number || prev.number, avatar: dbAvatar }));
-                        setEditNameInput(dbName);
                         
                         if(data.wallet !== undefined) setWallet(data.wallet);
                         if(data.withdrawable !== undefined) setWithdrawable(data.withdrawable);
@@ -475,70 +432,19 @@
                             let playersData = [];
                             querySnapshot.forEach((doc) => {
                                 const data = doc.data();
-                                playersData.push({ 
-                                    name: data.name || "Player", 
-                                    matchesWon: data.matchesWon || 0, 
-                                    img: data.avatar || "youth-earners-logo.png",
-                                    number: data.number 
-                                });
+                                playersData.push({ name: data.name || "Player", matchesWon: data.matchesWon || 0, img: data.avatar || "youth-earners-logo.png", number: data.number });
                             });
                             playersData.sort((a, b) => b.matchesWon - a.matchesWon);
                             playersData = playersData.slice(0, 10).map((p, index) => ({ ...p, rank: index + 1 }));
-                            
                             let padData = [...playersData];
                             while (padData.length < 3) { padData.push({ rank: padData.length + 1, name: "Empty", matchesWon: 0, img: "youth-earners-logo.png" }); }
                             setTopPlayers(padData);
-                        } catch (error) { console.log(error); }
+                        } catch (error) {}
                         setIsLoadingLeaderboard(false);
                     };
                     fetchRealLeaderboard();
                 }
             }, [activeTab]);
-
-            const openHistory = async (type) => {
-                setHistoryView(type);
-                if(window.auth && window.auth.currentUser) {
-                    const uid = window.auth.currentUser.uid;
-                    try {
-                        if(type === 'deposit') {
-                            const dQ = window.fs.query(window.fs.collection(window.db, "deposits"), window.fs.where("uid", "==", uid));
-                            const dSnap = await window.fs.getDocs(dQ);
-                            let dData = []; dSnap.forEach(d => dData.push(d.data()));
-                            dData.sort((a,b) => (b.date?.toDate ? b.date.toDate() : new Date(b.date)) - (a.date?.toDate ? a.date.toDate() : new Date(a.date)));
-                            setDepHistory(dData);
-                        } else if(type === 'withdraw') {
-                            const wQ = window.fs.query(window.fs.collection(window.db, "withdrawals"), window.fs.where("uid", "==", uid));
-                            const wSnap = await window.fs.getDocs(wQ);
-                            let wData = []; wSnap.forEach(w => wData.push(w.data()));
-                            wData.sort((a,b) => (b.date?.toDate ? b.date.toDate() : new Date(b.date)) - (a.date?.toDate ? a.date.toDate() : new Date(a.date)));
-                            setWithHistory(wData);
-                        } else if(type === 'match') {
-                            const mQ1 = window.fs.query(window.fs.collection(window.db, "rooms"), window.fs.where("p1.uid", "==", uid), window.fs.where("status", "==", "finished"));
-                            const mQ2 = window.fs.query(window.fs.collection(window.db, "rooms"), window.fs.where("p2.uid", "==", uid), window.fs.where("status", "==", "finished"));
-                            const [mSnap1, mSnap2] = await Promise.all([window.fs.getDocs(mQ1), window.fs.getDocs(mQ2)]);
-                            let mData = [];
-                            mSnap1.forEach(m => mData.push({...m.data(), id: m.id}));
-                            mSnap2.forEach(m => mData.push({...m.data(), id: m.id}));
-                            
-                            const uniqueMData = Array.from(new Set(mData.map(a => a.id))).map(id => mData.find(a => a.id === id));
-                            const processedMatches = uniqueMData.map(match => {
-                                const isP1 = match.p1.uid === uid; let isWinner = false;
-                                if(match.p1Wins > match.p2Wins || (match.p1Wins === match.p2Wins && match.p1Tokens > match.p2Tokens)) { isWinner = isP1; } 
-                                else if(match.p2Wins > match.p1Wins || (match.p2Wins === match.p1Wins && match.p2Tokens > match.p1Tokens)) { isWinner = !isP1; } 
-                                else { isWinner = 'draw'; }
-                                return { ...match, isWinner, date: match.createdAt || new Date() };
-                            });
-                            processedMatches.sort((a,b) => (b.date?.toDate ? b.date.toDate() : new Date(b.date)) - (a.date?.toDate ? a.date.toDate() : new Date(a.date)));
-                            setMatchHistory(processedMatches);
-                        }
-                    } catch(e) { console.log(e); }
-                }
-            };
-
-            const markAsRead = async (id) => { try { await window.fs.updateDoc(window.fs.doc(window.db, "notifications", id), { read: true }); } catch(e) {} };
-            const syncProfileToDatabase = async (updateData) => { if (window.auth && window.auth.currentUser) { try { await window.fs.updateDoc(window.fs.doc(window.db, "users", window.auth.currentUser.uid), updateData); } catch (e) {} } };
-            const saveProfileName = () => { if(!editNameInput.trim()) return; setUserProfile(prev => ({...prev, name: editNameInput})); localStorage.setItem('userName', editNameInput); syncProfileToDatabase({ name: editNameInput }); setIsEditingName(false); };
-            const logoutUser = async () => { if(window.auth) { await window.auth.signOut(); } localStorage.clear(); window.location.reload(); };
 
             const startPractice = async (type) => {
                 setConfirmPopup(null); setMatchFound(false); setMatchTime(type === 'bot' ? 3 : 20); setIsMatchmaking(true);
@@ -586,6 +492,28 @@
 
             const cancelMatchmaking = async () => { setIsMatchmaking(false); if(playerRole === 1 && roomId) { await window.fs.deleteDoc(window.fs.doc(window.db, "rooms", roomId)); } setRoomId(null); };
 
+            // EXIT WARNING CONFIRM LOGIC
+            const handleConfirmExit = async () => {
+                setShowExitWarning(false);
+                setIsPlaying(false);
+                if (roomData?.tier > 0 && window.auth.currentUser) {
+                    try {
+                        const userRef = window.fs.doc(window.db, "users", window.auth.currentUser.uid);
+                        const uSnap = await window.fs.getDoc(userRef);
+                        if (uSnap.exists()) {
+                            let dbW = uSnap.data().wallet || 0;
+                            await window.fs.updateDoc(userRef, { wallet: Math.max(0, dbW - roomData.tier) });
+                        }
+                    } catch(e){}
+                }
+                if (roomId && !roomData?.isBotMatch) {
+                    try { await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomId), { status: 'finished' }); } catch(e){}
+                }
+                setRoomData(null);
+                setRoomId(null);
+                setActiveTab('home');
+            };
+
             useEffect(() => {
                 if (!roomId) return;
                 const unsub = window.fs.onSnapshot(window.fs.doc(window.db, "rooms", roomId), async (doc) => {
@@ -615,9 +543,9 @@
                         else { isWinner = 'draw'; }
                         
                         if (data.tier === 0) {
-                            if(isWinner === true) alert("Victory! You won the free practice match!");
-                            else if(isWinner === false) alert("Defeat! You lost the free practice match.");
-                            else alert("Practice match ended in a Draw!");
+                            if(isWinner === true) setGameResult({ status: 'win', amount: 0, text: 'You won the free practice match!' });
+                            else if(isWinner === false) setGameResult({ status: 'loss', amount: 0, text: 'You lost the free practice match.' });
+                            else setGameResult({ status: 'draw', amount: 0, text: 'Practice match ended in a Draw.' });
                         } else {
                             if(isWinner === true) {
                                 let winnings = data.tier * 1.8;
@@ -630,7 +558,7 @@
                                         }
                                     });
                                 }
-                                setShowWinPopup(winnings); 
+                                setGameResult({ status: 'win', amount: winnings, text: 'Amount added to Winning Wallet' });
                             } else if(isWinner === 'draw') {
                                 if(window.auth.currentUser) {
                                     const userRef = window.fs.doc(window.db, "users", window.auth.currentUser.uid);
@@ -638,7 +566,9 @@
                                         if(uSnap.exists()){ let dbW = uSnap.data().wallet || 0; window.fs.updateDoc(userRef, { wallet: dbW + data.tier }); }
                                     });
                                 }
-                                alert("Match Draw! Entry fee refunded.");
+                                setGameResult({ status: 'draw', amount: data.tier, text: 'Entry fee refunded to your wallet.' });
+                            } else {
+                                setGameResult({ status: 'loss', amount: data.tier, text: 'Better luck next time!' });
                             }
                         }
                     }
@@ -681,7 +611,7 @@
                 return () => clearInterval(timer);
             }, [isMatchmaking, matchFound, roomId, playerRole]);
 
-            // --- 15 SECOND ROUND TIMER LOGIC ---
+            // --- 15 SECOND TIMER & TICK-TOCK LOGIC ---
             const roundNumber = roomData?.round;
             const hasResult = !!roomData?.lastResult;
             const myBidStatus = roomData ? (playerRole === 1 ? roomData.p1Bid : roomData.p2Bid) : null;
@@ -691,18 +621,25 @@
                 
                 setRoundTimeLeft(15);
                 const timer = setInterval(() => {
-                    setRoundTimeLeft(prev => prev > 0 ? prev - 1 : 0);
+                    setRoundTimeLeft(prev => {
+                        if (prev > 0) {
+                            if (prev <= 6) { // triggers sound when going 5 -> 0
+                                const tickAudio = document.getElementById('tickSound');
+                                if (tickAudio) { tickAudio.currentTime = 0; tickAudio.play().catch(()=>{}); }
+                            }
+                            return prev - 1;
+                        }
+                        return 0;
+                    });
                 }, 1000);
 
                 return () => clearInterval(timer);
             }, [isPlaying, roundNumber, hasResult, myBidStatus]);
 
-            // Auto-submit 0 if timer runs out
+            // Auto-submit 0 if timer ends
             useEffect(() => {
                 if (roundTimeLeft === 0 && isPlaying && roomData && !roomData.lastResult) {
-                    if (myBidStatus === null) {
-                        submitBid(0); // Force bid to 0
-                    }
+                    if (myBidStatus === null) { submitBid(0); }
                 }
             }, [roundTimeLeft]);
 
@@ -711,12 +648,8 @@
                 let myTokens = playerRole === 1 ? roomData.p1Tokens : roomData.p2Tokens;
                 
                 let b;
-                if (forcedBid !== null) {
-                    b = forcedBid;
-                } else {
-                    b = parseInt(bidInput);
-                    if(isNaN(b) || b < 0) b = 0; if(b > myTokens) b = myTokens;
-                }
+                if (forcedBid !== null) { b = forcedBid; } 
+                else { b = parseInt(bidInput); if(isNaN(b) || b < 0) b = 0; if(b > myTokens) b = myTokens; }
 
                 if (roomData.isBotMatch) {
                     setRoomData(prev => ({ ...prev, p1Bid: b })); 
@@ -737,7 +670,10 @@
                             if(nextRound > 3) {
                                 setIsPlaying(false); let isWinner = false;
                                 if(p1W > p2W || (p1W === p2W && p1T > p2T)) isWinner = true;
-                                if (isWinner) alert("🎉 Victory! You beat the System Bot!"); else alert("☠️ Defeat! The System Bot won this match.");
+                                
+                                if (isWinner) setGameResult({ status: 'win', amount: 0, text: 'You beat the System Bot!' }); 
+                                else setGameResult({ status: 'loss', amount: 0, text: 'The System Bot won this match.' });
+                                
                                 setRoomData(null);
                             } else { setRoomData(prev => ({ ...prev, round: nextRound, lastResult: null, p1Bid: null, p2Bid: null })); }
                             setBidInput(0);
@@ -745,85 +681,20 @@
                     }, 1500); 
                     return;
                 }
-                
                 if(!roomId) return;
                 await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomId), { [playerRole === 1 ? 'p1Bid' : 'p2Bid']: b });
             };
 
-            const submitDepositRequest = async () => {
-                if(!utrInput || !depositAmount) return alert("Fill all details!");
-                const amt = Number(depositAmount);
-                if(amt < 10) return alert("Minimum deposit amount is ₹10!");
-                
-                try {
-                    let autoVerified = false;
-                    const qUtr = window.fs.query(window.fs.collection(window.db, "auto_utrs"), window.fs.where("utr", "==", utrInput), window.fs.where("used", "==", false));
-                    const utrSnap = await window.fs.getDocs(qUtr);
-                    
-                    if (!utrSnap.empty) {
-                        const matchedUtrDoc = utrSnap.docs[0]; const matchedUtrData = matchedUtrDoc.data();
-                        if (Number(matchedUtrData.amount) === amt) {
-                            autoVerified = true;
-                            await window.fs.updateDoc(window.fs.doc(window.db, "auto_utrs", matchedUtrDoc.id), { used: true });
-                            
-                            const userRef = window.fs.doc(window.db, "users", window.auth.currentUser.uid);
-                            const uSnap = await window.fs.getDoc(userRef);
-                            if(uSnap.exists()){ let dbW = uSnap.data().wallet || 0; await window.fs.updateDoc(userRef, { wallet: dbW + amt }); }
-                            
-                            await window.fs.addDoc(window.fs.collection(window.db, "deposits"), { uid: window.auth.currentUser.uid, name: userProfile.name, utr: utrInput, amount: amt, status: 'approved', date: new Date() });
-                            alert("Payment Auto-Verified Successfully! Wallet Updated Instantly.");
-                        }
-                    }
-                    if(!autoVerified) {
-                        await window.fs.addDoc(window.fs.collection(window.db, "deposits"), { uid: window.auth.currentUser.uid, name: userProfile.name, utr: utrInput, amount: amt, status: 'pending', date: new Date() });
-                        alert("Deposit proof sent to Admin! Wallet will be updated soon.");
-                    }
-                    setDepositModal(false); setUtrInput(''); setDepositAmount('');
-                } catch(e) { alert("Error submitting request!"); }
-            };
-
-            const submitWithdrawRequest = async () => {
-                if(!withdrawId || !withdrawAmount) return alert("Fill all details!");
-                const wAmt = Number(withdrawAmount);
-                if(wAmt > withdrawable) return alert("You don't have enough Winning Balance!");
-                
-                try {
-                    await window.fs.addDoc(window.fs.collection(window.db, "withdrawals"), { uid: window.auth.currentUser.uid, name: userProfile.name, type: withdrawType, id: withdrawId, amount: wAmt, status: 'pending', date: new Date() });
-                    if(window.auth.currentUser) {
-                        const userRef = window.fs.doc(window.db, "users", window.auth.currentUser.uid);
-                        const uSnap = await window.fs.getDoc(userRef);
-                        if(uSnap.exists()){
-                            let dbW = uSnap.data().wallet || 0; let dbWith = uSnap.data().withdrawable || 0;
-                            await window.fs.updateDoc(userRef, { wallet: dbW - wAmt, withdrawable: dbWith - wAmt });
-                        }
-                    }
-                    alert("Withdrawal request sent successfully!");
-                    setWithdrawModal(false); setWithdrawId(''); setWithdrawAmount('');
-                } catch(e) { alert("Error submitting request!"); }
-            };
-
-            const handleImageUpload = (e) => { 
-                const file = e.target.files[0]; 
-                if (file) { 
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                        const img = new Image(); img.src = event.target.result;
-                        img.onload = () => {
-                            const canvas = document.createElement("canvas");
-                            const MAX_SIZE = 250; let width = img.width; let height = img.height;
-                            if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
-                            canvas.width = width; canvas.height = height;
-                            const ctx = canvas.getContext("2d"); ctx.drawImage(img, 0, 0, width, height);
-                            const compressedBase64 = canvas.toDataURL("image/jpeg", 0.7); 
-                            localStorage.setItem('userAvatar', compressedBase64); setUserProfile(prev => ({ ...prev, avatar: compressedBase64 })); syncProfileToDatabase({ avatar: compressedBase64 }); 
-                        };
-                    };
-                    reader.readAsDataURL(file);
-                } 
-            };
-
             const myRankObj = topPlayers.find(p => p.number === userProfile.number);
             const myRank = myRankObj ? myRankObj.rank : '-';
+
+            // Custom Slider Background Logic
+            const getSliderBackground = () => {
+                let maxTokens = roomData ? (playerRole === 1 ? roomData.p1Tokens : roomData.p2Tokens) : 500;
+                if(maxTokens === 0) return '#e5e7eb';
+                let percentage = (bidInput / maxTokens) * 100;
+                return `linear-gradient(to right, #dcae45 ${percentage}%, #e5e7eb ${percentage}%)`;
+            };
 
             return (
                 <div className="max-w-md mx-auto bg-transparent min-h-screen relative pb-24">
@@ -837,64 +708,43 @@
                                 <span className="line"></span><span className="text">PLAY • EARN • GROW</span><span className="line"></span>
                             </div>
                         </div>
-                        <div className="mz-header-right relative cursor-pointer" onClick={() => setShowNotifications(true)}>
-                            <i className="fa-solid fa-bell text-[#dcae45] text-xl"></i>
-                            {unreadCount > 0 && ( <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full border border-black animate-pulse">{unreadCount > 9 ? '9+' : unreadCount}</span> )}
-                        </div>
+                        <div className="mz-header-right"></div>
                     </div>
 
                     <div className="p-4 pt-4">
-                        
-                        {/* HOME TAB (LIGHT THEME) */}
+                        {/* HOME TAB */}
                         {activeTab === 'home' && (
                             <div className="space-y-6 pop-in">
                                 <div className="bg-white border border-[#dcae45] rounded-2xl p-5 shadow-[0_4px_15px_rgba(220,174,69,0.15)] relative overflow-hidden">
                                     <div className="absolute -right-10 -top-10 w-32 h-32 bg-[#dcae45] opacity-20 blur-3xl rounded-full"></div>
                                     <div className="flex justify-between items-center relative z-10">
-                                        <div>
-                                            <p className="text-gray-500 text-xs font-bold uppercase tracking-wider mb-1">Total Balance</p>
-                                            <h2 className="text-3xl font-black text-black">₹{wallet.toFixed(2)}</h2>
-                                        </div>
-                                        <div className="w-12 h-12 rounded-full bg-gray-50 border-2 border-[#dcae45] flex items-center justify-center shadow-[0_0_10px_rgba(220,174,69,0.2)]">
-                                            <i className="fa-solid fa-wallet text-[#b8860b] text-xl"></i>
-                                        </div>
+                                        <div><p className="text-gray-500 text-xs font-bold uppercase tracking-wider mb-1">Total Balance</p><h2 className="text-3xl font-black text-black">₹{wallet.toFixed(2)}</h2></div>
+                                        <div className="w-12 h-12 rounded-full bg-gray-50 border-2 border-[#dcae45] flex items-center justify-center shadow-[0_0_10px_rgba(220,174,69,0.2)]"><i className="fa-solid fa-wallet text-[#b8860b] text-xl"></i></div>
                                     </div>
                                     <div className="flex gap-3 mt-5 relative z-10">
-                                        <button onClick={() => setDepositModal(true)} className="flex-1 bg-[#dcae45] text-black py-2.5 rounded-xl font-black text-sm tracking-wide shadow-sm flex justify-center items-center gap-2 hover:bg-[#ffe29a] transition">
-                                            <i className="fa-solid fa-plus-circle"></i> Add Cash
-                                        </button>
-                                        <button onClick={() => setWithdrawModal(true)} className="flex-1 bg-white border border-[#dcae45] text-[#b8860b] py-2.5 rounded-xl font-bold text-sm tracking-wide hover:bg-gray-50 transition flex justify-center items-center gap-2">
-                                            <i className="fa-solid fa-building-columns"></i> Withdraw
-                                        </button>
+                                        <button className="flex-1 bg-[#dcae45] text-black py-2.5 rounded-xl font-black text-sm tracking-wide shadow-sm flex justify-center items-center gap-2"><i className="fa-solid fa-plus-circle"></i> Add Cash</button>
+                                        <button className="flex-1 bg-white border border-[#dcae45] text-[#b8860b] py-2.5 rounded-xl font-bold text-sm tracking-wide flex justify-center items-center gap-2"><i className="fa-solid fa-building-columns"></i> Withdraw</button>
                                     </div>
                                 </div>
 
                                 <div className="mt-8">
-                                    <h3 className="font-bold mb-4 text-black text-lg flex items-center gap-2">
-                                        <i className="fa-solid fa-gamepad text-[#10b981]"></i> Practice Mode (Free)
-                                    </h3>
+                                    <h3 className="font-bold mb-4 text-black text-lg flex items-center gap-2"><i className="fa-solid fa-gamepad text-[#10b981]"></i> Practice Mode (Free)</h3>
                                     <div className="flex gap-4">
-                                        <button onClick={() => startPractice('bot')} className="flex-1 bg-white border border-[#10b981]/50 p-4 rounded-2xl text-center hover:border-[#10b981] transition shadow-sm">
-                                            <i className="fa-solid fa-robot text-4xl text-[#10b981] mb-2 drop-shadow-[0_0_5px_#10b981]"></i>
-                                            <div className="font-bold text-black text-sm">Play vs Bot</div>
+                                        <button onClick={() => startPractice('bot')} className="flex-1 bg-white border border-[#10b981]/50 p-4 rounded-2xl text-center shadow-sm">
+                                            <i className="fa-solid fa-robot text-4xl text-[#10b981] mb-2"></i><div className="font-bold text-black text-sm">Play vs Bot</div>
                                         </button>
-                                        <button onClick={() => startPractice('player')} className="flex-1 bg-white border border-[#3b82f6]/50 p-4 rounded-2xl text-center hover:border-[#3b82f6] transition shadow-sm">
-                                            <i className="fa-solid fa-user-ninja text-4xl text-[#3b82f6] mb-2 drop-shadow-[0_0_5px_#3b82f6]"></i>
-                                            <div className="font-bold text-black text-sm">vs Real Player</div>
+                                        <button onClick={() => startPractice('player')} className="flex-1 bg-white border border-[#3b82f6]/50 p-4 rounded-2xl text-center shadow-sm">
+                                            <i className="fa-solid fa-user-ninja text-4xl text-[#3b82f6] mb-2"></i><div className="font-bold text-black text-sm">vs Real Player</div>
                                         </button>
                                     </div>
                                 </div>
 
                                 <div className="mt-8">
-                                    <h3 className="font-bold mb-4 text-black text-lg flex items-center gap-2">
-                                        <i className="fa-solid fa-users text-[#b8860b]"></i> Play for Real Cash
-                                    </h3>
+                                    <h3 className="font-bold mb-4 text-black text-lg flex items-center gap-2"><i className="fa-solid fa-users text-[#b8860b]"></i> Play for Real Cash</h3>
                                     <div className="grid grid-cols-2 gap-4">
                                         {playTiers.map((tier, index) => (
-                                            <div key={tier.id || index} className="gold-card bg-white rounded-2xl p-4 flex flex-col items-center text-center relative overflow-hidden">
-                                                <div className="bg-gray-100 border border-[#dcae45]/30 rounded-lg px-4 py-1.5 mb-3 shadow-sm">
-                                                    <img src={tier.logo || "youth-earners-logo.png"} style={{mixBlendMode:'multiply'}} className="h-6 w-auto opacity-90" alt="game-icon" />
-                                                </div>
+                                            <div key={index} className="gold-card bg-white rounded-2xl p-4 flex flex-col items-center text-center relative overflow-hidden">
+                                                <div className="bg-gray-100 border border-[#dcae45]/30 rounded-lg px-4 py-1.5 mb-3 shadow-sm"><img src={tier.logo || "youth-earners-logo.png"} style={{mixBlendMode:'multiply'}} className="h-6 w-auto opacity-90" /></div>
                                                 <div className="text-xs text-gray-500 mb-1">Entry: <span className="font-bold text-black text-base">₹{tier.entry}</span></div>
                                                 <div className="text-[22px] text-[#b8860b] font-black mb-5 drop-shadow-[0_0_5px_rgba(220,174,69,0.2)] tracking-wide">WIN: ₹{tier.win}</div>
                                                 <button onClick={() => setConfirmPopup(tier)} className="w-full btn-play-gold py-2.5 rounded-full font-black text-[13px] tracking-wide flex items-center justify-center gap-2"><i className="fa-solid fa-play"></i> Play Now</button>
@@ -904,324 +754,13 @@
                                 </div>
                             </div>
                         )}
-
-                        {/* RANKING TAB (LIGHT THEME) */}
-                        {activeTab === 'ranking' && (
-                            <div className="space-y-6 pt-2 pop-in">
-                                <h2 className="text-2xl font-black text-[#b8860b] text-center mb-6 tracking-widest uppercase"><i className="fa-solid fa-ranking-star"></i> Top Earners</h2>
-                                {isLoadingLeaderboard ? (
-                                    <div className="text-center text-[#dcae45] font-bold mt-10 animate-pulse">Loading Leaderboard...</div>
-                                ) : (
-                                    <>
-                                        <div className="flex justify-center items-end gap-2 mb-8 mt-10">
-                                            <div className="flex flex-col items-center w-28">
-                                                <div className="relative">
-                                                    <img src={topPlayers[1]?.img} className="w-16 h-16 rounded-full object-cover border-4 border-gray-400 p-0.5 bg-white z-10 relative" />
-                                                    <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-gray-400 text-white text-xs font-black px-2 py-0.5 rounded-full z-20">#2</div>
-                                                </div>
-                                                <div className="bg-white w-full pt-6 pb-2 rounded-t-lg mt-[-10px] border-t-2 border-gray-400 text-center flex flex-col shadow-sm">
-                                                    <span className="text-xs font-bold truncate px-1 text-gray-700">{topPlayers[1]?.name || 'Empty'}</span>
-                                                    <span className="text-sm font-black text-[#b8860b]">🏆 {topPlayers[1]?.matchesWon || 0} Wins</span>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex flex-col items-center w-32 relative z-20">
-                                                <div className="relative">
-                                                    <i className="fa-solid fa-crown absolute -top-6 left-1/2 transform -translate-x-1/2 text-3xl text-[#dcae45] drop-shadow-[0_0_10px_rgba(220,174,69,0.5)] z-30"></i>
-                                                    <img src={topPlayers[0]?.img} className="w-20 h-20 rounded-full object-cover border-4 border-[#dcae45] p-0.5 bg-white z-10 relative shadow-[0_0_15px_rgba(220,174,69,0.3)]" />
-                                                    <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-[#dcae45] text-white text-sm font-black px-3 py-0.5 rounded-full z-20">#1</div>
-                                                </div>
-                                                <div className="bg-gradient-to-t from-gray-50 to-white w-full pt-8 pb-3 rounded-t-xl mt-[-15px] border-t-2 border-[#dcae45] text-center flex flex-col h-[100px] justify-start shadow-md">
-                                                    <span className="text-sm font-black truncate px-1 text-black">{topPlayers[0]?.name || 'Empty'}</span>
-                                                    <span className="text-lg font-black text-[#b8860b]">🏆 {topPlayers[0]?.matchesWon || 0} Wins</span>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex flex-col items-center w-28">
-                                                <div className="relative">
-                                                    <img src={topPlayers[2]?.img} className="w-16 h-16 rounded-full object-cover border-4 border-[#cd7f32] p-0.5 bg-white z-10 relative" />
-                                                    <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-[#cd7f32] text-white text-xs font-black px-2 py-0.5 rounded-full z-20">#3</div>
-                                                </div>
-                                                <div className="bg-white w-full pt-6 pb-2 rounded-t-lg mt-[-10px] border-t-2 border-[#cd7f32] text-center flex flex-col h-[70px] justify-start shadow-sm">
-                                                    <span className="text-xs font-bold truncate px-1 text-gray-700">{topPlayers[2]?.name || 'Empty'}</span>
-                                                    <span className="text-sm font-black text-[#b8860b]">🏆 {topPlayers[2]?.matchesWon || 0} Wins</span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="space-y-3 pb-8">
-                                            {topPlayers.slice(3).map((player) => (
-                                                <div key={player.rank} className="flex items-center justify-between bg-white border border-gray-200 p-3 rounded-xl shadow-sm">
-                                                    <div className="flex items-center gap-4">
-                                                        <span className="font-black text-gray-400 w-6 text-center">#{player.rank}</span>
-                                                        <img src={player.img} className="w-10 h-10 rounded-full object-cover border border-gray-300" />
-                                                        <span className="font-bold text-gray-800">{player.name}</span>
-                                                    </div>
-                                                    <div className="font-black text-[#10b981]">🏆 {player.matchesWon}</div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </>
-                                )}
-                            </div>
-                        )}
-
-                        {/* WALLET TAB (LIGHT THEME) */}
-                        {activeTab === 'wallet' && !historyView && (
-                            <div className="space-y-6 pt-2 pop-in">
-                                <div className="bg-white p-6 rounded-3xl border border-[#dcae45]/40 shadow-[0_10px_30px_rgba(220,174,69,0.15)] relative overflow-hidden mt-4">
-                                    <div className="text-gray-500 text-sm font-semibold uppercase tracking-widest">Total Balance</div>
-                                    <div className="text-5xl font-black text-black my-2 tracking-wide">₹{wallet.toFixed(2)}</div>
-                                </div>
-
-                                <div className="bg-white p-5 rounded-2xl border border-gray-200 flex justify-between items-center shadow-sm">
-                                    <div>
-                                        <div className="text-gray-500 text-xs font-semibold mb-1">Winning Balance (Withdrawable)</div>
-                                        <div className="text-2xl font-black text-[#10b981]">₹{withdrawable.toFixed(2)}</div>
-                                    </div>
-                                    <i className="fa-solid fa-money-bill-wave text-3xl text-gray-300"></i>
-                                </div>
-
-                                <div className="flex gap-4 mt-8">
-                                    <button onClick={() => setDepositModal(true)} className="flex-1 btn-play-gold py-4 rounded-2xl font-bold text-lg shadow-[0_0_15px_rgba(220,174,69,0.2)]"><i className="fa-solid fa-plus-circle"></i> Add Money</button>
-                                    <button onClick={() => setWithdrawModal(true)} className="flex-1 bg-white border-2 border-[#dcae45] py-4 rounded-2xl font-bold text-lg text-[#b8860b] hover:bg-gray-50 transition-colors"><i className="fa-solid fa-building-columns"></i> Withdraw</button>
-                                </div>
-
-                                <div className="mt-8 space-y-3">
-                                    <button onClick={() => openHistory('deposit')} className="w-full flex items-center justify-between bg-white border border-gray-200 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors shadow-sm">
-                                        <div className="flex items-center gap-4 text-gray-700 font-bold"><div className="w-8 h-8 rounded-full bg-[#10b981]/10 text-[#10b981] flex items-center justify-center"><i className="fa-solid fa-arrow-down"></i></div>Deposit History</div><i className="fa-solid fa-chevron-right text-gray-400"></i>
-                                    </button>
-                                    <button onClick={() => openHistory('withdraw')} className="w-full flex items-center justify-between bg-white border border-gray-200 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors shadow-sm">
-                                        <div className="flex items-center gap-4 text-gray-700 font-bold"><div className="w-8 h-8 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center"><i className="fa-solid fa-arrow-up"></i></div>Withdrawal History</div><i className="fa-solid fa-chevron-right text-gray-400"></i>
-                                    </button>
-                                    <button onClick={() => openHistory('match')} className="w-full flex items-center justify-between bg-white border border-gray-200 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors shadow-sm">
-                                        <div className="flex items-center gap-4 text-gray-700 font-bold"><div className="w-8 h-8 rounded-full bg-blue-50 text-[#3b82f6] flex items-center justify-center"><i className="fa-solid fa-gamepad"></i></div>Match History</div><i className="fa-solid fa-chevron-right text-gray-400"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* HISTORY VIEWS (LIGHT THEME) */}
-                        {activeTab === 'wallet' && historyView && (
-                            <div className="fixed inset-0 bg-[#f4f6f9] z-[80] flex flex-col pop-in pb-20 pt-4">
-                                <div className="flex items-center p-4 border-b border-[#dcae45]/30 bg-white shadow-sm">
-                                    <button onClick={() => setHistoryView(null)} className="text-[#b8860b] text-xl px-2"><i className="fa-solid fa-arrow-left"></i></button>
-                                    <h2 className="text-xl font-black text-black ml-4 tracking-widest uppercase">{historyView === 'deposit' ? 'Deposit History' : historyView === 'withdraw' ? 'Withdrawal History' : 'Match History'}</h2>
-                                </div>
-                                <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                                    {historyView === 'deposit' && depHistory.length === 0 && <p className="text-center text-gray-500 font-bold mt-10">No deposits found.</p>}
-                                    {historyView === 'deposit' && depHistory.map((tx, idx) => (
-                                        <div key={idx} className="bg-white border border-gray-200 p-4 rounded-xl shadow-sm">
-                                            <div className="flex justify-between items-start mb-2">
-                                                <div><span className="text-[#10b981] font-black text-lg">+₹{tx.amount}</span><span className={`ml-3 text-[10px] font-bold uppercase px-2 py-1 rounded-full ${tx.status === 'pending' ? 'bg-yellow-100 text-yellow-600' : tx.status === 'approved' ? 'bg-[#10b981]/10 text-[#10b981]' : 'bg-red-50 text-red-500'}`}>{tx.status}</span></div>
-                                                <div className="text-[10px] text-gray-500 font-bold text-right">{formatSafeDate(tx.date)}</div>
-                                            </div>
-                                            <div className="text-xs text-gray-500 font-bold">UTR: <span className="text-black">{tx.utr}</span></div>
-                                        </div>
-                                    ))}
-                                    
-                                    {historyView === 'withdraw' && withHistory.length === 0 && <p className="text-center text-gray-500 font-bold mt-10">No withdrawals found.</p>}
-                                    {historyView === 'withdraw' && withHistory.map((tx, idx) => (
-                                        <div key={idx} className="bg-white border border-gray-200 p-4 rounded-xl shadow-sm">
-                                            <div className="flex justify-between items-start mb-2">
-                                                <div><span className="text-rose-500 font-black text-lg">-₹{tx.amount}</span><span className={`ml-3 text-[10px] font-bold uppercase px-2 py-1 rounded-full ${tx.status === 'pending' ? 'bg-yellow-100 text-yellow-600' : tx.status === 'approved' ? 'bg-[#10b981]/10 text-[#10b981]' : 'bg-red-50 text-red-500'}`}>{tx.status}</span></div>
-                                                <div className="text-[10px] text-gray-500 font-bold text-right">{formatSafeDate(tx.date)}</div>
-                                            </div>
-                                            <div className="text-xs text-gray-500 font-bold uppercase">{tx.type}: <span className="text-black">{tx.id}</span></div>
-                                        </div>
-                                    ))}
-                                    
-                                    {historyView === 'match' && matchHistory.length === 0 && <p className="text-center text-gray-500 font-bold mt-10">No matches found.</p>}
-                                    {historyView === 'match' && matchHistory.map((match, idx) => (
-                                        <div key={idx} className={`bg-white border border-gray-200 p-4 rounded-xl shadow-sm relative overflow-hidden`}>
-                                            <div className={`absolute top-0 left-0 w-1 h-full ${match.isWinner === true ? 'bg-[#10b981]' : match.isWinner === false ? 'bg-rose-500' : 'bg-gray-400'}`}></div>
-                                            <div className="flex justify-between items-center mb-2 pl-2">
-                                                <span className={`font-black uppercase text-lg ${match.isWinner === true ? 'text-[#10b981]' : match.isWinner === false ? 'text-rose-500' : 'text-gray-500'}`}>{match.isWinner === true ? 'VICTORY' : match.isWinner === false ? 'DEFEAT' : 'DRAW'}</span>
-                                                <div className="text-[10px] text-gray-500 font-bold text-right">{formatSafeDate(match.date)}</div>
-                                            </div>
-                                            <div className="flex justify-between text-xs font-bold pl-2">
-                                                <span className="text-gray-500">Entry: <span className="text-black">₹{match.tier}</span></span>
-                                                <span className="text-gray-500">Win Amount: <span className="text-[#b8860b]">₹{match.isWinner === true ? (match.tier * 1.8).toFixed(2) : '0'}</span></span>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* REFER TAB (LIGHT THEME) */}
-                        {activeTab === 'refer' && (
-                            <div className="space-y-6 pt-4 pop-in">
-                                <div className="bg-white border border-[#dcae45] w-full rounded-3xl p-6 shadow-[0_0_20px_rgba(220,174,69,0.15)] text-center relative overflow-hidden">
-                                    <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#dcae45] opacity-10 blur-3xl rounded-full"></div>
-                                    <i className="fa-solid fa-gifts text-6xl text-[#dcae45] mb-4 drop-shadow-[0_0_10px_rgba(220,174,69,0.4)]"></i>
-                                    <h3 className="text-3xl font-black text-[#b8860b] mb-2 uppercase tracking-wider">Refer & Earn</h3>
-                                    
-                                    <p className="text-gray-600 text-sm mb-2 font-bold">Invite friends & earn ₹10 Bonus!</p>
-                                    <p className="text-red-500 font-bold text-xs mb-6 px-2 border border-red-200 bg-red-50 py-2 rounded-lg">* You will get ₹10 Bonus ONLY when your referred friend makes a minimum deposit of ₹30!</p>
-                                    
-                                    <div className="bg-gray-50 border-2 border-dashed border-[#dcae45] p-4 rounded-xl mb-6">
-                                        <p className="text-xs text-gray-500 mb-1 uppercase tracking-widest font-bold">Your Invite Code</p>
-                                        <div className="flex items-center justify-between px-2">
-                                            <span className="text-3xl font-black text-black tracking-widest">YE-{userProfile.number.slice(-4) || '9999'}</span>
-                                            <i className="fa-solid fa-copy text-[#b8860b] text-2xl cursor-pointer hover:scale-110 transition" onClick={()=>alert("Invite Code Copied!")}></i>
-                                        </div>
-                                    </div>
-                                    <button onClick={() => alert("Share Link Copied!")} className="w-full btn-play-gold py-4 rounded-xl font-black uppercase text-lg shadow-md">Share Now</button>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* PROFILE TAB (LIGHT THEME) */}
-                        {activeTab === 'profile' && (
-                            <div className="space-y-6 pt-4 pop-in">
-                                <div className="text-center relative bg-white border border-[#dcae45]/40 p-6 rounded-3xl shadow-sm">
-                                    <div className="relative inline-block mb-4">
-                                        <img src={userProfile.avatar} alt="Profile" className="w-28 h-28 rounded-full object-cover border-4 border-[#dcae45] p-1 mx-auto bg-gray-50 shadow-[0_0_15px_rgba(220,174,69,0.2)]" />
-                                        <button onClick={() => fileInputRef.current.click()} className="absolute bottom-0 right-0 bg-[#dcae45] text-black w-10 h-10 flex items-center justify-center rounded-full border-2 border-white shadow-md"><i className="fa-solid fa-camera text-lg"></i></button>
-                                        <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
-                                    </div>
-                                    
-                                    <div className="mt-2 h-10 flex justify-center items-center">
-                                        {isEditingName ? (
-                                            <div className="flex items-center gap-3">
-                                                <input type="text" value={editNameInput} onChange={(e) => setEditNameInput(e.target.value)} className="bg-transparent text-black text-2xl font-black text-center border-b-2 border-[#dcae45] focus:outline-none w-[180px]" autoFocus />
-                                                <button onClick={saveProfileName} className="text-[#10b981] bg-[#10b981]/10 w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition"><i className="fa-solid fa-check"></i></button>
-                                            </div>
-                                        ) : (
-                                            <div className="flex items-center gap-3">
-                                                <h2 className="text-2xl font-black text-black">{userProfile.name}</h2>
-                                                <button onClick={() => setIsEditingName(true)} className="text-gray-400 hover:text-[#b8860b] transition"><i className="fa-solid fa-pen"></i></button>
-                                            </div>
-                                        )}
-                                    </div>
-                                    <p className="text-[#b8860b] mt-3 tracking-widest font-bold text-sm bg-gray-50 inline-block px-4 py-1.5 rounded-full border border-[#dcae45]/30"><i className="fa-solid fa-phone text-xs mr-1"></i> +91 {userProfile.number}</p>
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-2">
-                                    <div className="bg-white p-3 rounded-xl border border-gray-200 text-center shadow-sm">
-                                        <div className="text-[#10b981] font-black text-lg">🏆 {matchesWon}</div>
-                                        <div className="text-[9px] text-gray-500 font-bold uppercase">Matches Won</div>
-                                    </div>
-                                    <div className="bg-white p-3 rounded-xl border border-gray-200 text-center shadow-sm">
-                                        <div className="text-black font-black text-lg">#{myRank}</div>
-                                        <div className="text-[9px] text-gray-500 font-bold uppercase">Global Rank</div>
-                                    </div>
-                                </div>
-
-                                <div className="mt-8 space-y-3">
-                                    <h3 className="text-gray-500 font-bold uppercase tracking-widest text-xs mb-4 pl-2">Settings & Info</h3>
-                                    
-                                    <button onClick={() => document.getElementById('tcModal').classList.remove('hidden')} className="w-full flex items-center justify-between bg-white border border-gray-200 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors shadow-sm">
-                                        <div className="flex items-center gap-4 text-gray-700 font-bold"><i className="fa-solid fa-file-contract text-[#dcae45] text-xl w-6"></i> Terms & Conditions</div><i className="fa-solid fa-chevron-right text-gray-400"></i>
-                                    </button>
-                                    
-                                    <button onClick={() => alert("Support Chat Opening...")} className="w-full flex items-center justify-between bg-white border border-gray-200 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors shadow-sm">
-                                        <div className="flex items-center gap-4 text-gray-700 font-bold"><i className="fa-solid fa-headset text-[#dcae45] text-xl w-6"></i> Support Chat</div><i className="fa-solid fa-chevron-right text-gray-400"></i>
-                                    </button>
-                                    
-                                    <button onClick={logoutUser} className="w-full flex items-center justify-between bg-white border border-red-200 p-4 rounded-xl mt-4 hover:bg-red-50 transition-colors shadow-sm">
-                                        <div className="flex items-center gap-4 text-red-500 font-bold"><i className="fa-solid fa-right-from-bracket text-xl w-6"></i> Logout</div>
-                                    </button>
-                                </div>
-                            </div>
-                        )}
                     </div>
 
-                    {/* NOTIFICATION MODAL (LIGHT THEME) */}
-                    {showNotifications && (
-                        <div className="fixed inset-0 bg-black/60 z-[100] flex flex-col pop-in pb-20 pt-4 backdrop-blur-sm">
-                            <div className="flex items-center justify-between p-4 border-b border-[#dcae45]/30 bg-white rounded-t-2xl shadow-sm">
-                                <h2 className="text-xl font-black text-black tracking-widest uppercase">
-                                    <i className="fa-solid fa-bell text-[#dcae45] mr-2"></i> Notifications
-                                </h2>
-                                <button onClick={() => setShowNotifications(false)} className="text-gray-500 text-2xl hover:text-black transition">
-                                    <i className="fa-solid fa-xmark"></i>
-                                </button>
-                            </div>
-                            <div className="flex-1 bg-[#f4f6f9] overflow-y-auto p-4 space-y-4">
-                                {notifications.length === 0 ? (
-                                    <div className="text-center text-gray-500 font-bold mt-10">No new notifications.</div>
-                                ) : (
-                                    notifications.map(notif => (
-                                        <div key={notif.id} className={`bg-white border ${notif.read ? 'border-gray-200' : 'border-[#dcae45] shadow-[0_0_15px_rgba(220,174,69,0.1)]'} p-4 rounded-xl relative overflow-hidden transition`}>
-                                            {!notif.read && <div className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse border border-white"></div>}
-                                            <div className="text-xs text-[#b8860b] mb-3 font-bold">
-                                                <i className="fa-regular fa-clock mr-1"></i> {notif.date ? new Date(notif.date.toDate()).toLocaleString() : ''}
-                                            </div>
-                                            {notif.imageUrl && (
-                                                <img src={notif.imageUrl} alt="banner" className="w-full h-32 md:h-40 object-cover rounded-lg mb-3 border border-gray-200" />
-                                            )}
-                                            <p className="text-gray-700 text-sm whitespace-pre-wrap">{notif.text}</p>
-                                            
-                                            {!notif.read && (
-                                                <div className="mt-4 pt-3 border-t border-gray-100 text-right">
-                                                    <button onClick={() => markAsRead(notif.id)} className="text-xs bg-[#dcae45] text-black px-4 py-1.5 rounded-full font-bold uppercase tracking-widest hover:bg-[#ffe29a] transition shadow-sm">
-                                                        Mark as Read <i className="fa-solid fa-check ml-1"></i>
-                                                    </button>
-                                                </div>
-                                            )}
-                                        </div>
-                                    ))
-                                )}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* PAYMENT MODALS (LIGHT THEME) */}
-                    {depositModal && (
-                        <div className="fixed inset-0 bg-black/60 z-[90] flex items-center justify-center p-4 backdrop-blur-sm pop-in">
-                            <div className="bg-white border border-gray-300 w-full max-w-sm rounded-3xl p-6 shadow-2xl">
-                                <h3 className="text-xl font-bold text-[#b8860b] mb-4 text-center">Deposit Money</h3>
-                                <div className="bg-gray-50 p-2 rounded-xl w-40 h-40 mx-auto mb-4 border border-gray-200">
-                                    <img src={adminSettings.qrUrl} className="w-full h-full object-contain" alt="Payment QR Code" />
-                                </div>
-                                <div className="text-center mb-6">
-                                    <p className="text-gray-500 text-xs mb-1">Scan QR or Pay to UPI ID</p>
-                                    <div className="flex items-center justify-center gap-2 text-black font-bold bg-gray-100 py-2 rounded-lg border border-gray-300">
-                                        {adminSettings.upiId} <i className="fa-solid fa-copy text-[#dcae45] cursor-pointer" onClick={() => alert('UPI ID Copied!')}></i>
-                                    </div>
-                                </div>
-                                <div className="space-y-3 mb-6">
-                                    <input type="number" placeholder="Enter Amount Paid (Min: ₹10)" value={depositAmount} onChange={e=>setDepositAmount(e.target.value)} className="w-full bg-gray-50 border border-gray-300 p-3 rounded-xl text-black focus:border-[#dcae45] outline-none" min="10" />
-                                    <input type="text" placeholder="12-Digit UTR / Ref Number" value={utrInput} onChange={e=>setUtrInput(e.target.value)} className="w-full bg-gray-50 border border-gray-300 p-3 rounded-xl text-black focus:border-[#dcae45] outline-none" />
-                                </div>
-                                <div className="flex gap-3">
-                                    <button onClick={() => setDepositModal(false)} className="flex-1 border border-gray-300 bg-gray-50 py-3 rounded-xl font-bold text-gray-500">Cancel</button>
-                                    <button onClick={submitDepositRequest} className="flex-1 btn-play-gold py-3 rounded-xl font-bold shadow-sm">Submit Proof</button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {withdrawModal && (
-                        <div className="fixed inset-0 bg-black/60 z-[90] flex items-center justify-center p-4 backdrop-blur-sm pop-in">
-                            <div className="bg-white border border-gray-300 w-full max-w-sm rounded-3xl p-6 shadow-2xl">
-                                <h3 className="text-xl font-bold text-[#b8860b] mb-2 text-center">Withdraw Money</h3>
-                                <p className="text-center text-gray-500 text-sm mb-6">Available: <span className="text-[#10b981] font-bold">₹{withdrawable.toFixed(2)}</span></p>
-                                <div className="flex gap-2 mb-4 bg-gray-50 p-1 rounded-xl border border-gray-200">
-                                    <button onClick={() => setWithdrawType('upi')} className={`flex-1 py-2 rounded-lg font-bold text-sm ${withdrawType==='upi'?'bg-[#dcae45] text-black shadow-sm':'text-gray-500'}`}>UPI ID</button>
-                                    <button onClick={() => setWithdrawType('number')} className={`flex-1 py-2 rounded-lg font-bold text-sm ${withdrawType==='number'?'bg-[#dcae45] text-black shadow-sm':'text-gray-500'}`}>Mobile No.</button>
-                                </div>
-                                <div className="space-y-3 mb-6">
-                                    <input type="text" placeholder={withdrawType==='upi'?"Enter UPI ID":"Enter Mobile Number"} value={withdrawId} onChange={e=>setWithdrawId(e.target.value)} className="w-full bg-gray-50 border border-gray-300 p-3 rounded-xl text-black focus:border-[#dcae45] outline-none" />
-                                    <input type="number" placeholder="Enter Amount to Withdraw" value={withdrawAmount} onChange={e=>setWithdrawAmount(e.target.value)} className="w-full bg-gray-50 border border-gray-300 p-3 rounded-xl text-black focus:border-[#dcae45] outline-none" />
-                                </div>
-                                <div className="flex gap-3">
-                                    <button onClick={() => setWithdrawModal(false)} className="flex-1 border border-gray-300 bg-gray-50 py-3 rounded-xl font-bold text-gray-500">Cancel</button>
-                                    <button onClick={submitWithdrawRequest} className="flex-1 btn-play-gold py-3 rounded-xl font-bold shadow-sm">Withdraw</button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* CONFIRM MATCH MODAL (LIGHT THEME) */}
+                    {/* CONFIRM MATCH MODAL */}
                     {confirmPopup && (
                         <div className="fixed inset-0 bg-black/60 z-[80] flex flex-col items-center justify-center p-6 pop-in backdrop-blur-sm">
                             <div className="w-full max-w-sm flex flex-col gap-8">
-                                <div className="mx-auto w-24 h-24 bg-gradient-to-tr from-[#dcae45] to-[#ffe29a] rounded-full flex items-center justify-center text-black text-5xl shadow-[0_0_20px_rgba(220,174,69,0.4)]">
-                                    <i className="fa-solid fa-coins"></i>
-                                </div>
+                                <div className="mx-auto w-24 h-24 bg-gradient-to-tr from-[#dcae45] to-[#ffe29a] rounded-full flex items-center justify-center text-black text-5xl shadow-[0_0_30px_rgba(220,174,69,0.6)]"><i className="fa-solid fa-coins"></i></div>
                                 <h2 className="text-3xl font-black text-center text-white tracking-widest uppercase drop-shadow-lg">Confirm Match</h2>
                                 <div className="bg-white border border-gray-200 rounded-3xl p-8 flex flex-col gap-6 text-center shadow-xl">
                                     <div><div className="text-gray-500 text-sm mb-1 uppercase tracking-wider">Entry Amount</div><div className="text-black font-black text-4xl">₹{confirmPopup.entry}</div></div>
@@ -1236,7 +775,7 @@
                         </div>
                     )}
 
-                    {/* MATCHMAKING SCREEN (LIGHT THEME) */}
+                    {/* MATCHMAKING SCREEN */}
                     {isMatchmaking && (
                         <div className="fixed inset-0 z-[100] bg-[#f4f6f9] text-black flex flex-col items-center pt-20 px-6">
                             <div className="absolute top-10 w-full text-center">
@@ -1258,14 +797,65 @@
                                     <span className="font-bold mt-4 text-lg">{opponent.name}</span>
                                 </div>
                             </div>
-                            {!matchFound && ( <button onClick={cancelMatchmaking} className="absolute bottom-20 px-8 py-3 rounded-full border-2 border-red-500 text-red-500 font-bold hover:bg-red-50 hover:text-red-600 transition-colors shadow-sm"> Cancel Search </button> )}
+                            {!matchFound && ( <button onClick={cancelMatchmaking} className="absolute bottom-20 px-8 py-3 rounded-full border-2 border-red-500 text-red-500 font-bold shadow-sm"> Cancel Search </button> )}
                         </div>
                     )}
 
-                    {/* IN-GAME BLIND BID UI WITH TIMER & SLIDER */}
+                    {/* EXIT WARNING MODAL */}
+                    {showExitWarning && (
+                        <div className="fixed inset-0 bg-black/80 z-[300] flex items-center justify-center p-4 backdrop-blur-sm pop-in">
+                            <div className="bg-white border-2 border-red-500 rounded-3xl p-6 w-full max-w-sm text-center shadow-2xl">
+                                <i className="fa-solid fa-triangle-exclamation text-6xl text-red-500 mb-4 animate-pulse"></i>
+                                <h3 className="text-2xl font-black text-black mb-2 uppercase tracking-widest">Warning!</h3>
+                                <p className="text-gray-600 font-bold mb-6">Agar aap confirm par click karenge toh aapke poore paise account mein se cut jayenge aur match quit ho jayega.</p>
+                                <div className="flex gap-3">
+                                    <button onClick={() => setShowExitWarning(false)} className="flex-1 bg-gray-100 border border-gray-300 py-3 rounded-xl font-bold text-gray-700">Back</button>
+                                    <button onClick={handleConfirmExit} className="flex-1 bg-red-500 py-3 rounded-xl font-black text-white shadow-md">Confirm</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* GAME RESULT CUSTOM POPUP */}
+                    {gameResult && (
+                        <div className="fixed inset-0 bg-black/90 z-[300] flex items-center justify-center p-4 backdrop-blur-md pop-in">
+                            <div className="bg-white border-4 border-[#dcae45] rounded-3xl p-8 w-full max-w-sm text-center shadow-[0_0_40px_rgba(220,174,69,0.4)]">
+                                {gameResult.status === 'win' && (
+                                    <>
+                                        <i className="fa-solid fa-trophy text-7xl text-[#dcae45] mb-4 drop-shadow-md"></i>
+                                        <h2 className="text-3xl font-black text-black uppercase tracking-widest mb-2">Congratulations!</h2>
+                                        <p className="text-gray-500 font-bold mb-4">{gameResult.text}</p>
+                                        <div className="text-5xl font-black text-[#10b981] mb-8">+₹{gameResult.amount.toFixed(2)}</div>
+                                    </>
+                                )}
+                                {gameResult.status === 'loss' && (
+                                    <>
+                                        <i className="fa-solid fa-skull-crossbones text-7xl text-red-500 mb-4 drop-shadow-md"></i>
+                                        <h2 className="text-3xl font-black text-black uppercase tracking-widest mb-2">Defeat!</h2>
+                                        <p className="text-gray-500 font-bold mb-8">{gameResult.text}</p>
+                                        <div className="text-5xl font-black text-red-500 mb-8">-₹{gameResult.amount.toFixed(2)}</div>
+                                    </>
+                                )}
+                                {gameResult.status === 'draw' && (
+                                    <>
+                                        <i className="fa-solid fa-handshake text-7xl text-[#3b82f6] mb-4 drop-shadow-md"></i>
+                                        <h2 className="text-3xl font-black text-black uppercase tracking-widest mb-2">Match Draw!</h2>
+                                        <p className="text-gray-500 font-bold mb-4">{gameResult.text}</p>
+                                        <div className="text-4xl font-black text-[#3b82f6] mb-8">+₹{gameResult.amount.toFixed(2)}</div>
+                                    </>
+                                )}
+                                <button onClick={() => { setGameResult(null); setActiveTab('home'); }} className="w-full btn-play-gold py-4 rounded-xl font-black uppercase text-lg shadow-md">Back to Home</button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* IN-GAME BLIND BID UI */}
                     {isPlaying && roomData && (
                         <div className="fixed inset-0 bg-[#f4f6f9] text-black flex flex-col p-4 z-[200] pb-20">
+                            
+                            {/* Exit Button & Round Header */}
                             <div className="flex justify-between items-center mb-6 mt-2">
+                                <button onClick={() => setShowExitWarning(true)} className="text-gray-400 hover:text-red-500 transition text-2xl"><i className="fa-solid fa-right-from-bracket"></i></button>
                                 <h2 className="text-lg font-black text-[#b8860b] tracking-widest uppercase"><i className="fa-solid fa-bolt"></i> BLIND BID</h2>
                                 <div className="bg-white px-4 py-1 rounded-full border border-gray-300 text-xs font-bold text-gray-600 shadow-sm">ROUND {roomData.round}/3</div>
                             </div>
@@ -1275,18 +865,12 @@
                                     <img src={playerRole === 1 ? roomData.p1.img : roomData.p2.img} className="w-12 h-12 rounded-full mx-auto mb-2 border-2 border-[#3b82f6] bg-gray-50"/>
                                     <div className="text-2xl font-black text-[#b8860b]">{playerRole === 1 ? roomData.p1Tokens : roomData.p2Tokens}</div>
                                     <div className="text-[10px] text-gray-500 uppercase font-bold mt-1">My Tokens</div>
-                                    <div className="flex gap-1 justify-center mt-2">
-                                        {[...Array(playerRole === 1 ? roomData.p1Wins : roomData.p2Wins)].map((_,i) => <i key={i} className="fa-solid fa-star text-[#3b82f6] text-[10px]"></i>)}
-                                    </div>
                                 </div>
                                 <div className="text-3xl font-black text-gray-300 italic">VS</div>
                                 <div className="text-center w-1/3">
                                     <img src={playerRole === 1 ? roomData.p2.img : roomData.p1.img} className="w-12 h-12 rounded-full mx-auto mb-2 border-2 border-[#ef4444] bg-gray-50"/>
                                     <div className="text-2xl font-black text-rose-500">{playerRole === 1 ? roomData.p2Tokens : roomData.p1Tokens}</div>
                                     <div className="text-[10px] text-gray-500 uppercase font-bold mt-1">Opponent</div>
-                                    <div className="flex gap-1 justify-center mt-2">
-                                        {[...Array(playerRole === 1 ? roomData.p2Wins : roomData.p1Wins)].map((_,i) => <i key={i} className="fa-solid fa-star text-[#ef4444] text-[10px]"></i>)}
-                                    </div>
                                 </div>
                             </div>
                             
@@ -1295,32 +879,29 @@
                                     {(playerRole === 1 ? roomData.p1Bid : roomData.p2Bid) === null ? (
                                         <div className="pop-in bg-white border border-gray-200 p-6 rounded-3xl shadow-lg relative overflow-hidden">
                                             
-                                            {/* Clock Timer */}
-                                            <div className="flex flex-col items-center justify-center mb-6">
-                                                <div className={`text-5xl font-black flex items-center gap-3 drop-shadow-sm transition-colors ${roundTimeLeft <= 5 ? 'text-red-600 animate-pulse' : 'text-[#b8860b]'}`}>
-                                                    <i className="fa-regular fa-clock"></i> 00:{roundTimeLeft < 10 ? `0${roundTimeLeft}` : roundTimeLeft}
+                                            {/* CLOCK TIMER */}
+                                            <div className="flex flex-col items-center justify-center mb-8">
+                                                <div className={`text-6xl font-black flex items-center gap-3 drop-shadow-sm transition-colors ${roundTimeLeft <= 5 ? 'text-red-500 animate-pulse' : 'text-[#b8860b]'}`}>
+                                                    <i className="fa-regular fa-clock text-4xl"></i> 00:{roundTimeLeft < 10 ? `0${roundTimeLeft}` : roundTimeLeft}
                                                 </div>
-                                                <div className="text-gray-500 text-[10px] font-bold uppercase mt-1 tracking-widest">Time to Bid</div>
+                                                <div className="text-gray-400 text-[10px] font-bold uppercase mt-2 tracking-widest">Time to Bid</div>
                                             </div>
 
-                                            {/* Range Slider UI */}
+                                            {/* RANGE SLIDER UI */}
                                             <div className="mb-6">
                                                 <div className="flex justify-between items-center text-gray-500 font-bold text-xs mb-3 uppercase tracking-widest">
                                                     <span>Aapki secret bid</span>
-                                                    <span className="text-[#b8860b] text-2xl bg-gray-50 px-4 py-1 rounded-lg border border-gray-200 shadow-inner">{bidInput}</span>
+                                                    <span className="text-[#b8860b] text-2xl font-black bg-gray-50 px-4 py-1 rounded-lg border border-gray-200 shadow-inner">{bidInput}</span>
                                                 </div>
-                                                
                                                 <input 
-                                                    type="range" 
-                                                    min="0" 
-                                                    max={playerRole === 1 ? roomData.p1Tokens : roomData.p2Tokens} 
-                                                    value={bidInput} 
-                                                    onChange={(e) => { playClickSound(); setBidInput(e.target.value); }} 
-                                                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer range-slider-custom"
+                                                    type="range" min="0" max={playerRole === 1 ? roomData.p1Tokens : roomData.p2Tokens} 
+                                                    value={bidInput} onChange={(e) => { playClickSound(); setBidInput(e.target.value); }} 
+                                                    className="w-full h-2 rounded-lg appearance-none cursor-pointer range-slider-custom"
+                                                    style={{ background: getSliderBackground() }}
                                                 />
                                             </div>
 
-                                            <div className="flex gap-3 mt-6">
+                                            <div className="flex gap-3 mt-8">
                                                 <button onClick={() => { playClickSound(); setBidInput(Math.floor((playerRole === 1 ? roomData.p1Tokens : roomData.p2Tokens)/2)); }} className="flex-1 bg-gray-50 border border-gray-300 py-3 rounded-xl font-black text-gray-600 uppercase shadow-sm hover:bg-gray-100 transition">Half</button>
                                                 <button onClick={() => { playClickSound(); setBidInput(playerRole === 1 ? roomData.p1Tokens : roomData.p2Tokens); }} className="flex-1 bg-gray-50 border border-gray-300 py-3 rounded-xl font-black text-gray-600 uppercase shadow-sm hover:bg-gray-100 transition">Max</button>
                                             </div>
@@ -1331,7 +912,7 @@
                                         <div className="text-center mt-20 animate-pulse">
                                             <i className="fa-solid fa-hourglass-half text-5xl text-[#dcae45] mb-6 drop-shadow-sm animate-bounce"></i>
                                             <div className="text-[#b8860b] font-black text-xl uppercase tracking-widest">Waiting for opponent...</div>
-                                            <div className="text-gray-500 font-bold mt-2">00:{roundTimeLeft < 10 ? `0${roundTimeLeft}` : roundTimeLeft}</div>
+                                            <div className="text-gray-500 font-bold mt-2 text-3xl">00:{roundTimeLeft < 10 ? `0${roundTimeLeft}` : roundTimeLeft}</div>
                                         </div>
                                     )}
                                 </div>
@@ -1350,21 +931,6 @@
                                     </div>
                                 </div>
                             )}
-                        </div>
-                    )}
-
-                    {/* BOTTOM NAVIGATION (LIGHT THEME) */}
-                    {!isPlaying && !historyView && (
-                        <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-gray-200 flex justify-between items-center h-[70px] px-6 z-50 rounded-t-3xl shadow-[0_-5px_20px_rgba(0,0,0,0.05)]">
-                            <button onClick={()=>setActiveTab('home')} className={`flex flex-col items-center gap-1 w-10 ${activeTab==='home'?'text-[#b8860b]':'text-gray-400'}`}><i className="fa-solid fa-house text-xl"></i><span className="text-[10px] font-bold">Home</span></button>
-                            <button onClick={()=>setActiveTab('ranking')} className={`flex flex-col items-center gap-1 w-12 ${activeTab==='ranking'?'text-[#b8860b]':'text-gray-400'}`}><i className="fa-solid fa-ranking-star text-xl"></i><span className="text-[10px] font-bold">Ranking</span></button>
-                            <div className="relative -top-6">
-                                <button onClick={()=>setActiveTab('wallet')} className={`w-16 h-16 rounded-full flex items-center justify-center border-4 border-[#f4f6f9] shadow-md transition-transform ${activeTab==='wallet'?'bg-gradient-to-b from-[#ffe29a] to-[#dcae45] text-black scale-105':'bg-white border border-gray-200 text-[#b8860b]'}`}>
-                                    <i className="fa-solid fa-wallet text-2xl"></i>
-                                </button>
-                            </div>
-                            <button onClick={()=>setActiveTab('refer')} className={`flex flex-col items-center gap-1 w-10 ${activeTab==='refer'?'text-[#b8860b]':'text-gray-400'}`}><i className="fa-solid fa-gift text-xl"></i><span className="text-[10px] font-bold">Refer</span></button>
-                            <button onClick={()=>setActiveTab('profile')} className={`flex flex-col items-center gap-1 w-10 ${activeTab==='profile'?'text-[#b8860b]':'text-gray-400'}`}><i className="fa-solid fa-user text-xl"></i><span className="text-[10px] font-bold">Profile</span></button>
                         </div>
                     )}
                 </div>
