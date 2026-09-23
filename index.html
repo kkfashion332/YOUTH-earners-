@@ -11,11 +11,16 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- COMBINED CSS WITH LIGHT THEME & SLIDER UPDATES -->
     <style>
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #dcae45; border-radius: 10px; }
 
-        :root { --gold: #dcae45; --gold-light: #ffe29a; }
+        /* GLOBAL CSS */
+        :root { 
+            --gold: #dcae45; 
+            --gold-light: #ffe29a; 
+        }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html, body { width: 100%; min-height: 100%; background: #f4f6f9; color: #111; font-family: 'Arial', sans-serif; }
         .hidden { display: none !important; }
@@ -23,10 +28,16 @@
         /* MZ-FASHION STYLE HEADER */
         .mz-style-header {
             background: linear-gradient(180deg, #111111 0%, #000000 100%);
-            border-bottom-left-radius: 25px; border-bottom-right-radius: 25px;
-            border-bottom: 2px solid var(--gold); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-            padding: 15px 20px; display: flex; align-items: center; justify-content: space-between;
-            position: relative; z-index: 10;
+            border-bottom-left-radius: 25px; 
+            border-bottom-right-radius: 25px;
+            border-bottom: 2px solid var(--gold); 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 10;
         }
         .mz-header-left { width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; }
         .mz-header-left img { max-width: 100%; max-height: 100%; object-fit: contain; }
@@ -38,47 +49,91 @@
         .mz-header-right { width: 45px; display: flex; justify-content: flex-end; align-items: center; }
 
         /* Light Theme Match Cards */
-        .gold-card { background: #ffffff; border: 1px solid var(--gold); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); border-radius: 12px; position: relative; overflow: hidden; transition: all 0.3s ease; }
+        .gold-card { 
+            background: #ffffff; 
+            border: 1px solid var(--gold); 
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); 
+            border-radius: 12px; position: relative; overflow: hidden; transition: all 0.3s ease; 
+        }
         .gold-card:hover { border-color: #b8860b; box-shadow: 0 6px 15px rgba(220,174,69, 0.2); }
         .gold-card > * { position: relative; z-index: 1; }
 
-        .btn-play-gold { position: relative; overflow: hidden; background: var(--gold); color: #000; box-shadow: 0 4px 10px rgba(220, 174, 69, 0.4); border: none; font-weight: 900; z-index: 1; transition: 0.3s; cursor: pointer; }
+        /* Solid Neon Play Buttons */
+        .btn-play-gold { 
+            position: relative; overflow: hidden; background: var(--gold); color: #000; 
+            box-shadow: 0 4px 10px rgba(220, 174, 69, 0.4); border: none; font-weight: 900; z-index: 1; transition: 0.3s; cursor: pointer;
+        }
         .btn-play-gold:hover { background: var(--gold-light); box-shadow: 0 4px 15px rgba(220, 174, 69, 0.6); }
         .btn-play-gold:active { transform: scale(0.95); }
 
-        /* CUSTOM RANGE SLIDER CSS */
-        .range-slider-custom { -webkit-appearance: none; width: 100%; height: 8px; border-radius: 5px; outline: none; padding: 0; margin: 0; background: #e5e7eb; }
-        .range-slider-custom::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 26px; height: 26px; border-radius: 50%; background: #dcae45; border: 3px solid #fff; box-shadow: 0 0 10px rgba(220,174,69,0.8); cursor: pointer; }
-        .range-slider-custom::-moz-range-thumb { width: 26px; height: 26px; border-radius: 50%; background: #dcae45; border: 3px solid #fff; box-shadow: 0 0 10px rgba(220,174,69,0.8); cursor: pointer; }
+        /* CUSTOM RANGE SLIDER CSS WITH YELLOW PROGRESS FILL */
+        .range-slider-custom {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            outline: none;
+            padding: 0;
+            margin: 0;
+            background: #e5e7eb;
+        }
+        .range-slider-custom::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: #dcae45;
+            border: 3px solid #fff;
+            box-shadow: 0 0 10px rgba(220,174,69,0.8);
+            cursor: pointer;
+        }
+        .range-slider-custom::-moz-range-thumb {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: #dcae45;
+            border: 3px solid #fff;
+            box-shadow: 0 0 10px rgba(220,174,69,0.8);
+            cursor: pointer;
+        }
 
+        /* Base Utility Classes */
         .spin-slow { animation: spin 3s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .pop-in { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
+        /* Fixes & Spacing */
         .pb-24 { padding-bottom: 6.5rem; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
         body.intro-running { overflow: hidden; }
-        #logoIntro { position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #000; opacity: 1; transition: opacity 900ms ease; }
+        
+        /* Updated Intro Background */
+        #logoIntro { 
+            position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; overflow: hidden; 
+            background: #f4f6f9; /* Changed to off-white to match theme */
+            opacity: 1; transition: opacity 900ms ease; 
+        }
     </style>
 </head>
 <body class="bg-[#f4f6f9] text-[#111]">
 
-    <!-- AUDIO ENGINE (BGM removed, Added Heavy Tick & Winzo style Win Sound) -->
+    <!-- AUDIO ENGINE -->
     <audio id="tickSound" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3" preload="auto"></audio>
     <audio id="clickSound" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
     <audio id="winSound" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3" preload="auto"></audio>
 
-    <!-- INTRO SCREEN -->
-    <div id="logoIntro" class="fixed inset-0 bg-[#000] z-[99999] flex flex-col items-center justify-center transition-opacity duration-500">
+    <!-- INTRO SCREEN (Light Background & Blend Mode applied to remove rectangular box) -->
+    <div id="logoIntro" class="fixed inset-0 bg-[#f4f6f9] z-[99999] flex flex-col items-center justify-center transition-opacity duration-500">
         <div class="text-center">
-            <div class="w-56 mx-auto mb-4 drop-shadow-[0_0_15px_rgba(220,174,69,0.5)] animate-pulse">
-                <img class="w-full h-auto object-contain" src="youth-earners-logo.png" alt="Youth Earner's" />
+            <div class="w-56 mx-auto mb-4 animate-pulse">
+                <img class="w-full h-auto object-contain" src="youth-earners-logo.png" alt="Youth Earner's" style="mix-blend-mode: multiply;" />
             </div>
             <div class="w-12 h-[1.5px] bg-[#dcae45] mx-auto mb-3 shadow-[0_0_5px_#dcae45]"></div>
-            <p class="text-2xl font-light text-[#dcae45] tracking-[0.3em] uppercase drop-shadow-[0_0_8px_rgba(220,174,69,0.8)]" style="font-family: Georgia, serif;">YOUTH EARNER'S</p>
+            <p class="text-2xl font-black text-[#dcae45] tracking-[0.3em] uppercase drop-shadow-md" style="font-family: Georgia, serif;">YOUTH EARNER'S</p>
         </div>
     </div>
 
@@ -92,7 +147,8 @@
             <div class="p-5 overflow-y-auto text-sm text-gray-700 space-y-5 custom-scrollbar">
                 <div><h4 class="text-black font-bold mb-1 text-base">1. Age Restriction (18+)</h4><p class="text-gray-600">You must be exactly 18 years of age or older.</p></div>
                 <div><h4 class="text-black font-bold mb-1 text-base">2. Restricted States (Banned)</h4><p class="text-gray-600 mb-2">Assam, Odisha, Telangana, Andhra Pradesh, Nagaland, Sikkim, Meghalaya are restricted.</p></div>
-                <div><h4 class="text-black font-bold mb-1 text-base">3. Entry Fees & Refunds</h4><p class="text-gray-600">Clear Rule: Match start hone ke baad entry fee kisi bhi haal mein <b>NON-REFUNDABLE</b> hai.</p></div>
+                <div><h4 class="text-black font-bold mb-1 text-base">3. Fair Play & Anti-Cheating</h4><p class="text-gray-600">Zero-tolerance policy against hacking and fraud. Any violation leads to a permanent ban.</p></div>
+                <div><h4 class="text-black font-bold mb-1 text-base">4. Entry Fees & Refunds</h4><p class="text-gray-600">Clear Rule: Match start hone ke baad entry fee kisi bhi haal mein <b>NON-REFUNDABLE</b> hai.</p></div>
             </div>
             <div class="p-4 bg-gray-50 border-t border-gray-200 text-center">
                 <button onclick="document.getElementById('tcModal').classList.add('hidden')" class="bg-[#dcae45] text-black font-black px-8 py-3 rounded-xl hover:bg-[#ffe29a] transition uppercase tracking-widest w-full shadow-md">I Understand & Agree</button>
@@ -103,11 +159,13 @@
     <!-- AUTHENTICATION UI -->
     <div id="authContainer" class="hidden min-h-screen flex items-center justify-center p-4 bg-[#f4f6f9]">
         <div class="bg-white border border-gray-200 p-8 rounded-3xl w-full max-w-sm shadow-xl relative">
-            <img class="w-24 h-24 mx-auto mb-6 object-contain" src="youth-earners-logo.png" alt="Logo" />
+            <img class="w-24 h-24 mx-auto mb-6 object-contain" src="youth-earners-logo.png" alt="Logo" style="mix-blend-mode: multiply;" />
+            
             <form id="loginForm" class="flex flex-col gap-4">
                 <h2 class="text-2xl font-black text-center text-black mb-2 uppercase tracking-widest">Welcome Back</h2>
                 <input type="tel" id="loginNumber" placeholder="Mobile Number" pattern="[0-9]{10}" maxlength="10" required class="w-full bg-gray-50 border border-gray-300 p-4 rounded-xl text-black focus:border-[#dcae45] outline-none">
                 <input type="password" id="loginPassword" placeholder="Password (Min 6 digits)" minlength="6" required class="w-full bg-gray-50 border border-gray-300 p-4 rounded-xl text-black focus:border-[#dcae45] outline-none">
+                
                 <div class="flex gap-2 mt-2">
                     <div class="flex-1 flex items-center justify-center gap-2 bg-gray-50 p-3 border border-gray-300 rounded-xl">
                         <input type="checkbox" id="logAgeCheck" required class="w-4 h-4 accent-[#dcae45] cursor-pointer">
@@ -118,23 +176,29 @@
                         <label for="logTcCheck" class="text-[10px] text-gray-700 cursor-pointer uppercase font-bold">Agree <span onclick="document.getElementById('tcModal').classList.remove('hidden');" class="text-[#b8860b] underline font-black">T&C</span></label>
                     </div>
                 </div>
+
                 <button type="submit" id="loginBtn" class="w-full bg-[#dcae45] text-black font-black py-4 rounded-xl text-lg tracking-widest mt-2 uppercase shadow-md hover:bg-[#ffe29a] transition">Log In</button>
                 <p class="text-center text-sm text-gray-500 mt-2">New user? <span id="showRegister" class="text-[#b8860b] font-bold cursor-pointer hover:underline">Register here</span></p>
             </form>
+
             <form id="registerForm" class="hidden flex flex-col gap-4">
                 <h2 class="text-2xl font-black text-center text-black mb-2 uppercase tracking-widest">Create Account</h2>
                 <input type="text" id="regName" placeholder="Full Name" required class="w-full bg-gray-50 border border-gray-300 p-3 rounded-xl text-black focus:border-[#dcae45] outline-none">
                 <input type="tel" id="regNumber" placeholder="Mobile Number" pattern="[0-9]{10}" maxlength="10" required class="w-full bg-gray-50 border border-gray-300 p-3 rounded-xl text-black focus:border-[#dcae45] outline-none">
                 <input type="password" id="regPassword" placeholder="Password (Min 6 digits)" minlength="6" required class="w-full bg-gray-50 border border-gray-300 p-3 rounded-xl text-black focus:border-[#dcae45] outline-none">
                 <input type="text" id="regReferral" placeholder="Referral Code (Optional)" class="w-full bg-gray-50 border border-gray-300 p-3 rounded-xl text-black focus:border-[#dcae45] outline-none">
+                
                 <div class="flex gap-2 mt-2">
                     <div class="flex-1 flex items-center justify-center gap-2 bg-gray-50 p-3 border border-gray-300 rounded-xl">
-                        <input type="checkbox" id="regAgeCheck" required class="w-4 h-4 accent-[#dcae45] cursor-pointer"><label for="regAgeCheck" class="text-[10px] text-gray-700 font-bold cursor-pointer uppercase">I am 18+</label>
+                        <input type="checkbox" id="regAgeCheck" required class="w-4 h-4 accent-[#dcae45] cursor-pointer">
+                        <label for="regAgeCheck" class="text-[10px] text-gray-700 font-bold cursor-pointer uppercase">I am 18+</label>
                     </div>
                     <div class="flex-1 flex items-center justify-center gap-2 bg-gray-50 p-3 border border-gray-300 rounded-xl">
-                        <input type="checkbox" id="regTcCheck" required class="w-4 h-4 accent-[#dcae45] cursor-pointer"><label for="regTcCheck" class="text-[10px] text-gray-700 cursor-pointer uppercase font-bold">Agree <span onclick="document.getElementById('tcModal').classList.remove('hidden');" class="text-[#b8860b] underline font-black">T&C</span></label>
+                        <input type="checkbox" id="regTcCheck" required class="w-4 h-4 accent-[#dcae45] cursor-pointer">
+                        <label for="regTcCheck" class="text-[10px] text-gray-700 cursor-pointer uppercase font-bold">Agree <span onclick="document.getElementById('tcModal').classList.remove('hidden');" class="text-[#b8860b] underline font-black">T&C</span></label>
                     </div>
                 </div>
+
                 <button type="submit" id="regBtn" class="w-full bg-[#dcae45] text-black font-black py-4 rounded-xl text-lg tracking-widest mt-2 uppercase shadow-md hover:bg-[#ffe29a] transition">Register</button>
                 <p class="text-center text-sm text-gray-500 mt-2">Already have an account? <span id="showLogin" class="text-[#b8860b] font-bold cursor-pointer hover:underline">Log In</span></p>
             </form>
@@ -150,29 +214,108 @@
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs, updateDoc, addDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        const firebaseConfig = { apiKey: "AIzaSyA4pTWtUMbZFhrMORZibUhV7gpPRy6DreY", authDomain: "youth-earners-d34ca.firebaseapp.com", projectId: "youth-earners-d34ca", storageBucket: "youth-earners-d34ca.firebasestorage.app", messagingSenderId: "568087034965", appId: "1:568087034965:web:b4f79488d22db53af128dc" };
-        const app = initializeApp(firebaseConfig); const auth = getAuth(app); const db = getFirestore(app);
-        window.auth = auth; window.db = db; window.fs = { collection, query, where, getDocs, doc, getDoc, updateDoc, addDoc, deleteDoc, onSnapshot, setDoc };
+        const firebaseConfig = {
+            apiKey: "AIzaSyA4pTWtUMbZFhrMORZibUhV7gpPRy6DreY",
+            authDomain: "youth-earners-d34ca.firebaseapp.com",
+            projectId: "youth-earners-d34ca",
+            storageBucket: "youth-earners-d34ca.firebasestorage.app",
+            messagingSenderId: "568087034965",
+            appId: "1:568087034965:web:b4f79488d22db53af128dc"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        window.auth = auth;
+        window.db = db;
+        window.fs = { collection, query, where, getDocs, doc, getDoc, updateDoc, addDoc, deleteDoc, onSnapshot, setDoc };
 
         window.addEventListener('load', () => {
-            setTimeout(() => { const intro = document.getElementById('logoIntro'); if(intro) { intro.style.opacity = '0'; setTimeout(() => { intro.style.display = 'none'; }, 500); } }, 2000);
-            const loginNumInput = document.getElementById('loginNumber'); const loginPwdInput = document.getElementById('loginPassword');
-            const autoFillCredentials = () => { const savedNum = localStorage.getItem('ye_saved_number'); const savedPwd = localStorage.getItem('ye_saved_pwd'); if(savedNum && savedPwd && loginNumInput.value === '') { loginNumInput.value = savedNum; loginPwdInput.value = savedPwd; } };
-            loginNumInput.addEventListener('click', autoFillCredentials); loginNumInput.addEventListener('focus', autoFillCredentials);
+            setTimeout(() => {
+                const intro = document.getElementById('logoIntro');
+                if(intro) {
+                    intro.style.opacity = '0'; 
+                    setTimeout(() => { intro.style.display = 'none'; }, 500);
+                }
+            }, 2000);
+
+            const loginNumInput = document.getElementById('loginNumber');
+            const loginPwdInput = document.getElementById('loginPassword');
+            
+            const autoFillCredentials = () => {
+                const savedNum = localStorage.getItem('ye_saved_number');
+                const savedPwd = localStorage.getItem('ye_saved_pwd');
+                if(savedNum && savedPwd && loginNumInput.value === '') {
+                    loginNumInput.value = savedNum;
+                    loginPwdInput.value = savedPwd;
+                }
+            };
+            
+            loginNumInput.addEventListener('click', autoFillCredentials);
+            loginNumInput.addEventListener('focus', autoFillCredentials);
         });
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                document.getElementById('authContainer').classList.add('hidden'); document.getElementById('website').classList.remove('hidden');
-                try { const docSnap = await getDoc(doc(db, "users", user.uid)); if (docSnap.exists()) { window.dispatchEvent(new CustomEvent('gameStart', { detail: docSnap.data() })); } } catch(e) {}
-            } else { document.getElementById('authContainer').classList.remove('hidden'); document.getElementById('website').classList.add('hidden'); }
+                document.getElementById('authContainer').classList.add('hidden');
+                document.getElementById('website').classList.remove('hidden');
+                try {
+                    const docSnap = await getDoc(doc(db, "users", user.uid));
+                    if (docSnap.exists()) {
+                        window.dispatchEvent(new CustomEvent('gameStart', { detail: docSnap.data() }));
+                    }
+                } catch(e) { console.log(e); }
+            } else {
+                document.getElementById('authContainer').classList.remove('hidden');
+                document.getElementById('website').classList.add('hidden');
+            }
         });
 
-        document.getElementById('showRegister').addEventListener('click', () => { document.getElementById('loginForm').classList.add('hidden'); document.getElementById('registerForm').classList.remove('hidden'); });
-        document.getElementById('showLogin').addEventListener('click', () => { document.getElementById('registerForm').classList.add('hidden'); document.getElementById('loginForm').classList.remove('hidden'); });
+        document.getElementById('showRegister').addEventListener('click', () => { 
+            document.getElementById('loginForm').classList.add('hidden'); 
+            document.getElementById('registerForm').classList.remove('hidden'); 
+        });
+        document.getElementById('showLogin').addEventListener('click', () => { 
+            document.getElementById('registerForm').classList.add('hidden'); 
+            document.getElementById('loginForm').classList.remove('hidden'); 
+        });
 
-        document.getElementById('loginForm').addEventListener('submit', async (e) => { e.preventDefault(); const num = document.getElementById('loginNumber').value; const pwd = document.getElementById('loginPassword').value; const dummyEmail = `${num}@ye.com`; try { await signInWithEmailAndPassword(auth, dummyEmail, pwd); localStorage.setItem('ye_saved_number', num); localStorage.setItem('ye_saved_pwd', pwd); } catch(err) { alert("Invalid Number or Password!"); } });
-        document.getElementById('registerForm').addEventListener('submit', async (e) => { e.preventDefault(); const name = document.getElementById('regName').value; const num = document.getElementById('regNumber').value; const pwd = document.getElementById('regPassword').value; const ref = document.getElementById('regReferral').value; const dummyEmail = `${num}@ye.com`; try { const userCredential = await createUserWithEmailAndPassword(auth, dummyEmail, pwd); const user = userCredential.user; await setDoc(doc(db, "users", user.uid), { name, number: num, pwd, wallet: 0, withdrawable: 0, matchesWon: 0, referralUsed: ref, avatar: 'youth-earners-logo.png', joined: new Date() }); localStorage.setItem('ye_saved_number', num); localStorage.setItem('ye_saved_pwd', pwd); alert("Registration Successful!"); } catch (error) { if(error.code === 'auth/email-already-in-use') { alert("This Number is already registered! Please Login."); } else { alert("Error: " + error.message); } } });
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const num = document.getElementById('loginNumber').value;
+            const pwd = document.getElementById('loginPassword').value;
+            const dummyEmail = `${num}@ye.com`; 
+            try { 
+                await signInWithEmailAndPassword(auth, dummyEmail, pwd); 
+                localStorage.setItem('ye_saved_number', num);
+                localStorage.setItem('ye_saved_pwd', pwd);
+            } catch(err) { alert("Invalid Number or Password!"); }
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('regName').value;
+            const num = document.getElementById('regNumber').value;
+            const pwd = document.getElementById('regPassword').value;
+            const ref = document.getElementById('regReferral').value;
+            const dummyEmail = `${num}@ye.com`; 
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, dummyEmail, pwd);
+                const user = userCredential.user;
+                await setDoc(doc(db, "users", user.uid), {
+                    name, number: num, pwd, wallet: 0, withdrawable: 0, matchesWon: 0, referralUsed: ref, 
+                    avatar: 'youth-earners-logo.png', joined: new Date()
+                });
+                localStorage.setItem('ye_saved_number', num);
+                localStorage.setItem('ye_saved_pwd', pwd);
+                alert("Registration Successful!");
+            } catch (error) {
+                if(error.code === 'auth/email-already-in-use') { alert("This Number is already registered! Please Login."); } 
+                else { alert("Error: " + error.message); }
+            }
+        });
     </script>
 
     <!-- REACT APP LOGIC -->
@@ -221,9 +364,7 @@
             
             const fileInputRef = useRef(null);
             
-            const [playTiers, setPlayTiers] = useState([
-                { entry: 5, win: 9 }, { entry: 10, win: 18 }, { entry: 15, win: 27 }, { entry: 20, win: 36 }
-            ]);
+            const [playTiers, setPlayTiers] = useState([{ entry: 5, win: 9 }, { entry: 10, win: 18 }, { entry: 15, win: 27 }, { entry: 20, win: 36 }]);
             const [topPlayers, setTopPlayers] = useState([]);
             const [isLoadingLeaderboard, setIsLoadingLeaderboard] = useState(false);
             
@@ -690,6 +831,7 @@
             return (
                 <div className="max-w-md mx-auto bg-transparent min-h-screen relative pb-24">
                     
+                    {/* MZ HEADER */}
                     <div className="mz-style-header">
                         <div className="mz-header-left"><img src="youth-earners-logo.png" alt="Logo" /></div>
                         <div className="mz-header-center">
@@ -706,6 +848,7 @@
 
                     <div className="p-4 pt-4">
                         
+                        {/* HOME TAB (LIGHT THEME) */}
                         {activeTab === 'home' && (
                             <div className="space-y-6 pop-in">
                                 <div className="bg-white border border-[#dcae45] rounded-2xl p-5 shadow-[0_4px_15px_rgba(220,174,69,0.15)] relative overflow-hidden">
@@ -752,6 +895,7 @@
                             </div>
                         )}
 
+                        {/* RANKING TAB (LIGHT THEME) */}
                         {activeTab === 'ranking' && (
                             <div className="space-y-6 pt-2 pop-in">
                                 <h2 className="text-2xl font-black text-[#b8860b] text-center mb-6 tracking-widest uppercase"><i className="fa-solid fa-ranking-star"></i> Top Earners</h2>
@@ -812,6 +956,7 @@
                             </div>
                         )}
 
+                        {/* WALLET TAB (LIGHT THEME) */}
                         {activeTab === 'wallet' && !historyView && (
                             <div className="space-y-6 pt-2 pop-in">
                                 <div className="bg-white p-6 rounded-3xl border border-[#dcae45]/40 shadow-[0_10px_30px_rgba(220,174,69,0.15)] relative overflow-hidden mt-4">
@@ -846,6 +991,7 @@
                             </div>
                         )}
 
+                        {/* HISTORY VIEWS (LIGHT THEME) */}
                         {activeTab === 'wallet' && historyView && (
                             <div className="fixed inset-0 bg-[#f4f6f9] z-[80] flex flex-col pop-in pb-20 pt-4">
                                 <div className="flex items-center p-4 border-b border-[#dcae45]/30 bg-white shadow-sm">
@@ -893,6 +1039,7 @@
                             </div>
                         )}
 
+                        {/* REFER TAB (LIGHT THEME) */}
                         {activeTab === 'refer' && (
                             <div className="space-y-6 pt-4 pop-in">
                                 <div className="bg-white border border-[#dcae45] w-full rounded-3xl p-6 shadow-[0_0_20px_rgba(220,174,69,0.15)] text-center relative overflow-hidden">
@@ -917,6 +1064,7 @@
                             </div>
                         )}
 
+                        {/* PROFILE TAB (LIGHT THEME) */}
                         {activeTab === 'profile' && (
                             <div className="space-y-6 pt-4 pop-in">
                                 <div className="text-center relative bg-white border border-[#dcae45]/40 p-6 rounded-3xl shadow-sm">
@@ -972,14 +1120,16 @@
                         )}
                     </div>
 
-                    {/* NOTIFICATION MODAL */}
+                    {/* NOTIFICATION MODAL (LIGHT THEME) */}
                     {showNotifications && (
                         <div className="fixed inset-0 bg-black/60 z-[100] flex flex-col pop-in pb-20 pt-4 backdrop-blur-sm">
                             <div className="flex items-center justify-between p-4 border-b border-[#dcae45]/30 bg-white rounded-t-2xl shadow-sm">
                                 <h2 className="text-xl font-black text-black tracking-widest uppercase">
                                     <i className="fa-solid fa-bell text-[#dcae45] mr-2"></i> Notifications
                                 </h2>
-                                <button onClick={() => setShowNotifications(false)} className="text-gray-500 text-2xl hover:text-black transition"><i className="fa-solid fa-xmark"></i></button>
+                                <button onClick={() => setShowNotifications(false)} className="text-gray-500 text-2xl hover:text-black transition">
+                                    <i className="fa-solid fa-xmark"></i>
+                                </button>
                             </div>
                             <div className="flex-1 bg-[#f4f6f9] overflow-y-auto p-4 space-y-4">
                                 {notifications.length === 0 ? (
@@ -991,7 +1141,9 @@
                                             <div className="text-xs text-[#b8860b] mb-3 font-bold">
                                                 <i className="fa-regular fa-clock mr-1"></i> {notif.date ? new Date(notif.date.toDate()).toLocaleString() : ''}
                                             </div>
-                                            {notif.imageUrl && <img src={notif.imageUrl} alt="banner" className="w-full h-32 md:h-40 object-cover rounded-lg mb-3 border border-gray-200" />}
+                                            {notif.imageUrl && (
+                                                <img src={notif.imageUrl} alt="banner" className="w-full h-32 md:h-40 object-cover rounded-lg mb-3 border border-gray-200" />
+                                            )}
                                             <p className="text-gray-700 text-sm whitespace-pre-wrap">{notif.text}</p>
                                             
                                             {!notif.read && (
@@ -1008,7 +1160,7 @@
                         </div>
                     )}
 
-                    {/* PAYMENT MODALS */}
+                    {/* PAYMENT MODALS (LIGHT THEME) */}
                     {depositModal && (
                         <div className="fixed inset-0 bg-black/60 z-[90] flex items-center justify-center p-4 backdrop-blur-sm pop-in">
                             <div className="bg-white border border-gray-300 w-full max-w-sm rounded-3xl p-6 shadow-2xl">
@@ -1055,11 +1207,13 @@
                         </div>
                     )}
 
-                    {/* CONFIRM MATCH MODAL */}
+                    {/* CONFIRM MATCH MODAL (LIGHT THEME) */}
                     {confirmPopup && (
                         <div className="fixed inset-0 bg-black/60 z-[80] flex flex-col items-center justify-center p-6 pop-in backdrop-blur-sm">
                             <div className="w-full max-w-sm flex flex-col gap-8">
-                                <div className="mx-auto w-24 h-24 bg-gradient-to-tr from-[#dcae45] to-[#ffe29a] rounded-full flex items-center justify-center text-black text-5xl shadow-[0_0_20px_rgba(220,174,69,0.4)]"><i className="fa-solid fa-coins"></i></div>
+                                <div className="mx-auto w-24 h-24 bg-gradient-to-tr from-[#dcae45] to-[#ffe29a] rounded-full flex items-center justify-center text-black text-5xl shadow-[0_0_20px_rgba(220,174,69,0.4)]">
+                                    <i className="fa-solid fa-coins"></i>
+                                </div>
                                 <h2 className="text-3xl font-black text-center text-white tracking-widest uppercase drop-shadow-lg">Confirm Match</h2>
                                 <div className="bg-white border border-gray-200 rounded-3xl p-8 flex flex-col gap-6 text-center shadow-xl">
                                     <div><div className="text-gray-500 text-sm mb-1 uppercase tracking-wider">Entry Amount</div><div className="text-black font-black text-4xl">₹{confirmPopup.entry}</div></div>
@@ -1074,7 +1228,7 @@
                         </div>
                     )}
 
-                    {/* MATCHMAKING SCREEN */}
+                    {/* MATCHMAKING SCREEN (LIGHT THEME) */}
                     {isMatchmaking && (
                         <div className="fixed inset-0 z-[100] bg-[#f4f6f9] text-black flex flex-col items-center pt-20 px-6">
                             <div className="absolute top-10 w-full text-center">
@@ -1100,75 +1254,22 @@
                         </div>
                     )}
 
-                    {/* EXIT WARNING MODAL */}
-                    {showExitWarning && (
-                        <div className="fixed inset-0 bg-black/80 z-[300] flex items-center justify-center p-4 backdrop-blur-sm pop-in">
-                            <div className="bg-white border-2 border-red-500 rounded-3xl p-6 w-full max-w-sm text-center shadow-2xl">
-                                <i className="fa-solid fa-triangle-exclamation text-6xl text-red-500 mb-4 animate-pulse"></i>
-                                <h3 className="text-2xl font-black text-black mb-2 uppercase tracking-widest">Warning!</h3>
-                                <p className="text-gray-600 font-bold mb-6">Agar aap confirm par click karenge toh aapke poore paise account mein se cut jayenge aur match quit ho jayega.</p>
-                                <div className="flex gap-3">
-                                    <button onClick={() => setShowExitWarning(false)} className="flex-1 bg-gray-100 border border-gray-300 py-3 rounded-xl font-bold text-gray-700">Back</button>
-                                    <button onClick={handleConfirmExit} className="flex-1 bg-red-500 py-3 rounded-xl font-black text-white shadow-md">Confirm</button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* GAME RESULT CUSTOM POPUP */}
-                    {gameResult && (
-                        <div className="fixed inset-0 bg-black/90 z-[300] flex items-center justify-center p-4 backdrop-blur-md pop-in">
-                            <div className="bg-white border-4 border-[#dcae45] rounded-3xl p-8 w-full max-w-sm text-center shadow-[0_0_40px_rgba(220,174,69,0.4)]">
-                                {gameResult.status === 'win' && (
-                                    <div className="animate-bounce">
-                                        <i className="fa-solid fa-trophy text-7xl text-[#dcae45] mb-4 drop-shadow-md"></i>
-                                        <h2 className="text-3xl font-black text-black uppercase tracking-widest mb-2">🎉 CONGRATULATION</h2>
-                                        <h3 className="text-xl font-bold text-gray-800 mb-4">YOU WIN!</h3>
-                                        <div className="text-5xl font-black text-[#10b981] mb-8">+₹{gameResult.amount.toFixed(2)}</div>
-                                    </div>
-                                )}
-                                {gameResult.status === 'loss' && (
-                                    <>
-                                        <i className="fa-solid fa-skull-crossbones text-7xl text-red-500 mb-4 drop-shadow-md"></i>
-                                        <h2 className="text-3xl font-black text-black uppercase tracking-widest mb-2">Defeat!</h2>
-                                        <p className="text-gray-500 font-bold mb-8">{gameResult.text}</p>
-                                        <div className="text-5xl font-black text-red-500 mb-8">-₹{gameResult.amount.toFixed(2)}</div>
-                                    </>
-                                )}
-                                {gameResult.status === 'draw' && (
-                                    <>
-                                        <i className="fa-solid fa-handshake text-7xl text-[#3b82f6] mb-4 drop-shadow-md"></i>
-                                        <h2 className="text-3xl font-black text-black uppercase tracking-widest mb-2">Match Draw!</h2>
-                                        <p className="text-gray-500 font-bold mb-4">{gameResult.text}</p>
-                                        <div className="text-4xl font-black text-[#3b82f6] mb-8">+₹{gameResult.amount.toFixed(2)}</div>
-                                    </>
-                                )}
-                                <button onClick={() => { setGameResult(null); setActiveTab('home'); }} className="w-full btn-play-gold py-4 rounded-xl font-black uppercase text-lg shadow-md">Back to Home</button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* IN-GAME BLIND BID UI WITH TIMER & SLIDER */}
+                    {/* IN-GAME BLIND BID UI (LIGHT THEME) */}
                     {isPlaying && roomData && (
                         <div className="fixed inset-0 bg-[#f4f6f9] text-black flex flex-col p-4 z-[200] pb-20">
-                            
-                            {/* Exit Button & Round Header */}
                             <div className="flex justify-between items-center mb-6 mt-2">
                                 <button onClick={() => setShowExitWarning(true)} className="text-gray-400 hover:text-red-500 transition text-2xl"><i className="fa-solid fa-right-from-bracket"></i></button>
                                 <h2 className="text-lg font-black text-[#b8860b] tracking-widest uppercase"><i className="fa-solid fa-bolt"></i> BLIND BID</h2>
                                 <div className="bg-white px-4 py-1 rounded-full border border-gray-300 text-xs font-bold text-gray-600 shadow-sm">ROUND {roomData.round}/3</div>
                             </div>
 
-                            {/* PLAYERS & TOKENS & ROUND WINS (STARS) */}
                             <div className="bg-white border border-gray-200 shadow-sm p-4 rounded-xl flex justify-between items-center mb-8">
                                 <div className="text-center w-1/3">
                                     <img src={playerRole === 1 ? roomData.p1.img : roomData.p2.img} className="w-12 h-12 rounded-full mx-auto mb-2 border-2 border-[#3b82f6] bg-gray-50"/>
                                     <div className="text-2xl font-black text-[#b8860b]">{playerRole === 1 ? roomData.p1Tokens : roomData.p2Tokens}</div>
                                     <div className="text-[10px] text-gray-500 uppercase font-bold mt-1">My Tokens</div>
-                                    
-                                    {/* Round Win Stars */}
                                     <div className="flex gap-1 justify-center mt-2">
-                                        {[...Array(playerRole === 1 ? roomData.p1Wins : roomData.p2Wins)].map((_,i) => <i key={i} className="fa-solid fa-star text-sm text-[#3b82f6]"></i>)}
+                                        {[...Array(playerRole === 1 ? roomData.p1Wins : roomData.p2Wins)].map((_,i) => <i key={i} className="fa-solid fa-star text-[#3b82f6] text-[10px]"></i>)}
                                     </div>
                                 </div>
                                 <div className="text-3xl font-black text-gray-300 italic">VS</div>
@@ -1176,10 +1277,8 @@
                                     <img src={playerRole === 1 ? roomData.p2.img : roomData.p1.img} className="w-12 h-12 rounded-full mx-auto mb-2 border-2 border-[#ef4444] bg-gray-50"/>
                                     <div className="text-2xl font-black text-rose-500">{playerRole === 1 ? roomData.p2Tokens : roomData.p1Tokens}</div>
                                     <div className="text-[10px] text-gray-500 uppercase font-bold mt-1">Opponent</div>
-                                    
-                                    {/* Round Win Stars */}
                                     <div className="flex gap-1 justify-center mt-2">
-                                        {[...Array(playerRole === 1 ? roomData.p2Wins : roomData.p1Wins)].map((_,i) => <i key={i} className="fa-solid fa-star text-sm text-[#ef4444]"></i>)}
+                                        {[...Array(playerRole === 1 ? roomData.p2Wins : roomData.p1Wins)].map((_,i) => <i key={i} className="fa-solid fa-star text-[#ef4444] text-[10px]"></i>)}
                                     </div>
                                 </div>
                             </div>
@@ -1189,20 +1288,21 @@
                                     {(playerRole === 1 ? roomData.p1Bid : roomData.p2Bid) === null ? (
                                         <div className="pop-in bg-white border border-gray-200 p-6 rounded-3xl shadow-lg relative overflow-hidden">
                                             
-                                            {/* CLOCK TIMER */}
-                                            <div className="flex flex-col items-center justify-center mb-8">
-                                                <div className={`text-6xl font-black flex items-center gap-3 drop-shadow-sm transition-colors ${roundTimeLeft <= 5 ? 'text-red-500 animate-pulse' : 'text-[#b8860b]'}`}>
-                                                    <i className="fa-regular fa-clock text-4xl"></i> 00:{roundTimeLeft < 10 ? `0${roundTimeLeft}` : roundTimeLeft}
+                                            {/* Clock Timer */}
+                                            <div className="flex flex-col items-center justify-center mb-6">
+                                                <div className={`text-5xl font-black flex items-center gap-3 drop-shadow-sm transition-colors ${roundTimeLeft <= 5 ? 'text-red-600 animate-pulse' : 'text-[#b8860b]'}`}>
+                                                    <i className="fa-regular fa-clock"></i> 00:{roundTimeLeft < 10 ? `0${roundTimeLeft}` : roundTimeLeft}
                                                 </div>
-                                                <div className="text-gray-400 text-[10px] font-bold uppercase mt-2 tracking-widest">Time to Bid</div>
+                                                <div className="text-gray-500 text-[10px] font-bold uppercase mt-1 tracking-widest">Time to Bid</div>
                                             </div>
 
-                                            {/* RANGE SLIDER UI */}
+                                            {/* Range Slider UI */}
                                             <div className="mb-6">
                                                 <div className="flex justify-between items-center text-gray-500 font-bold text-xs mb-3 uppercase tracking-widest">
                                                     <span>Aapki secret bid</span>
-                                                    <span className="text-[#b8860b] text-2xl font-black bg-gray-50 px-4 py-1 rounded-lg border border-gray-200 shadow-inner">{bidInput}</span>
+                                                    <span className="text-[#b8860b] text-2xl bg-gray-50 px-4 py-1 rounded-lg border border-gray-200 shadow-inner">{bidInput}</span>
                                                 </div>
+                                                
                                                 <input 
                                                     type="range" min="0" max={playerRole === 1 ? roomData.p1Tokens : roomData.p2Tokens} 
                                                     value={bidInput} onChange={(e) => { playClickSound(); setBidInput(e.target.value); }} 
@@ -1211,7 +1311,7 @@
                                                 />
                                             </div>
 
-                                            <div className="flex gap-3 mt-8">
+                                            <div className="flex gap-3 mt-6">
                                                 <button onClick={() => { playClickSound(); setBidInput(Math.floor((playerRole === 1 ? roomData.p1Tokens : roomData.p2Tokens)/2)); }} className="flex-1 bg-gray-50 border border-gray-300 py-3 rounded-xl font-black text-gray-600 uppercase shadow-sm hover:bg-gray-100 transition">Half</button>
                                                 <button onClick={() => { playClickSound(); setBidInput(playerRole === 1 ? roomData.p1Tokens : roomData.p2Tokens); }} className="flex-1 bg-gray-50 border border-gray-300 py-3 rounded-xl font-black text-gray-600 uppercase shadow-sm hover:bg-gray-100 transition">Max</button>
                                             </div>
