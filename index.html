@@ -10,38 +10,28 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- COMBINED CSS -->
+    <!-- COMBINED CSS WITH LIGHT THEME UPDATES -->
     <style>
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #dcae45; border-radius: 10px; }
 
-        /* GLOBAL CSS */
+        /* GLOBAL CSS - Updated for Light Theme */
         :root { 
-            --black: #000000; 
-            --dark: #0a0a0a;  
-            --gold: #ffcc00; 
-            --gold-light: #ffe600; 
-            --text: #f8fafc; 
+            --gold: #dcae45; 
+            --gold-light: #ffe29a; 
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        html, body { width: 100%; min-height: 100%; background: var(--black); color: var(--text); font-family: 'Arial', sans-serif; }
+        html, body { width: 100%; min-height: 100%; background: #f4f6f9; color: #111; font-family: 'Arial', sans-serif; }
         .hidden { display: none !important; }
 
-        /* Pure Gaming Dark Background */
-        .bg-premium-dark {
-            background-color: var(--black);
-            background-image: radial-gradient(circle at top, rgba(255, 204, 0, 0.05) 0%, transparent 60%);
-            min-height: 100vh;
-        }
-
-        /* MZ-FASHION STYLE HEADER */
+        /* MZ-FASHION STYLE HEADER (Black Background) */
         .mz-style-header {
             background: linear-gradient(180deg, #111111 0%, #000000 100%);
             border-bottom-left-radius: 25px; 
             border-bottom-right-radius: 25px;
-            border-bottom: 1.5px solid var(--gold); 
-            box-shadow: 0 4px 20px rgba(255, 204, 0, 0.15);
-            padding: 12px 20px;
+            border-bottom: 2px solid var(--gold); 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            padding: 15px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -57,101 +47,71 @@
         .mz-header-subtitle .text { color: var(--gold); font-size: 8px; font-weight: bold; letter-spacing: 3px; text-transform: uppercase; }
         .mz-header-right { width: 45px; display: flex; justify-content: flex-end; align-items: center; }
 
-        /* Gaming Match Cards */
+        /* Light Theme Match Cards */
         .gold-card { 
-            background: var(--dark); border: 1px solid var(--gold); 
-            box-shadow: 0 0 15px rgba(255, 204, 0, 0.15), inset 0 0 10px rgba(255, 204, 0, 0.05); 
+            background: #ffffff; 
+            border: 1px solid var(--gold); 
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); 
             border-radius: 12px; position: relative; overflow: hidden; transition: all 0.3s ease; 
         }
-        .gold-card:hover { border-color: var(--gold-light); box-shadow: 0 0 25px rgba(255, 204, 0, 0.4); }
-        .gold-card::before { content: ''; position: absolute; top: 0; left: 0; width: 40px; height: 40px; background: linear-gradient(135deg, var(--gold) 45%, transparent 50%); z-index: 0; }
-        .gold-card::after { content: ''; position: absolute; bottom: 0; right: 0; width: 30px; height: 30px; background: linear-gradient(315deg, var(--gold) 45%, transparent 50%); z-index: 0; }
+        .gold-card:hover { border-color: #b8860b; box-shadow: 0 6px 15px rgba(220,174,69, 0.2); }
         .gold-card > * { position: relative; z-index: 1; }
 
         /* Solid Neon Play Buttons */
         .btn-play-gold { 
             position: relative; overflow: hidden; background: var(--gold); color: #000; 
-            box-shadow: 0 4px 15px rgba(255, 204, 0, 0.4); border: none; font-weight: 900; z-index: 1; transition: 0.3s; cursor: pointer;
+            box-shadow: 0 4px 10px rgba(220, 174, 69, 0.4); border: none; font-weight: 900; z-index: 1; transition: 0.3s; cursor: pointer;
         }
-        .btn-play-gold:hover { background: var(--gold-light); box-shadow: 0 4px 20px rgba(255, 204, 0, 0.6); }
+        .btn-play-gold:hover { background: var(--gold-light); box-shadow: 0 4px 15px rgba(220, 174, 69, 0.6); }
         .btn-play-gold:active { transform: scale(0.95); }
-        .btn-play-gold::before {
-            content: ""; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
-            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0) 100%);
-            transform: skewX(-25deg); animation: shineSweeper 3s infinite; z-index: -1;
-        }
 
         /* Base Utility Classes */
-        .text-gold-gradient { color: var(--gold); text-shadow: 0 0 10px rgba(255, 204, 0, 0.3); }
         .spin-slow { animation: spin 3s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .pop-in { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        @keyframes shineSweeper { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
 
         /* Fixes & Spacing */
         .pb-24 { padding-bottom: 6.5rem; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* Auth Forms */
-        .auth-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at center, rgba(255,204,0,0.05), var(--black) 70%); padding: 20px; }
-        .form-container { background: var(--dark); border: 2px solid var(--gold); border-radius: 15px; padding: 40px 30px; width: 100%; max-width: 400px; box-shadow: 0 0 25px rgba(255,204,0,0.15); text-align: center; }
-        .auth-logo { width: 220px; margin: 0 auto 20px; mix-blend-mode: screen; }
-        .auth-form h2 { color: var(--gold); margin-bottom: 25px; font-size: 24px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px;}
-        .input-group { margin-bottom: 15px; }
-        .input-group input { width: 100%; padding: 14px 20px; border-radius: 8px; background: #000; border: 1px solid rgba(255,204,0,0.3); color: white; font-size: 16px; outline: none; transition: border 0.3s; }
-        .input-group input:focus { border: 1px solid var(--gold); box-shadow: 0 0 10px rgba(255,204,0,0.2); }
-        .auth-btn { width: 100%; padding: 15px; border-radius: 8px; background: var(--gold); color: #000; font-size: 16px; font-weight: 900; text-transform: uppercase; border: none; cursor: pointer; transition: transform 0.2s; margin-top: 10px; box-shadow: 0 0 15px rgba(255,204,0,0.4); }
-        .auth-btn:hover { transform: translateY(-2px); background: var(--gold-light); }
-        .switch-form { margin-top: 20px; font-size: 14px; color: #94a3b8; }
-        .switch-form span { color: var(--gold); cursor: pointer; font-weight: bold; text-decoration: underline; }
-
-        /* Intro Animations (Circle removed, glow adjusted) */
+        /* Intro Screen - Kept Dark to match original image */
         body.intro-running { overflow: hidden; }
         #logoIntro { position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #000; opacity: 1; transition: opacity 900ms ease; }
-        #logoIntro::before { content: ""; position: absolute; width: 150vmin; height: 150vmin; background: radial-gradient(circle, rgba(255,204,0,.08) 0%, transparent 40%); animation: glowPulse 4.5s ease-in-out infinite; }
-        .intro-stage { position: relative; display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 24px; text-align: center; }
-        .intro-logo { width: min(400px, 60vw); height: auto; opacity: 0; transform: scale(.82); animation: logoIn 1.5s cubic-bezier(.2,.7,.2,1) .25s forwards, logoFloat 5s ease-in-out 2s infinite; object-fit: contain; }
-        .intro-line { width: 0; height: 2px; background: var(--gold); animation: lineGrow 1.1s ease .9s forwards; box-shadow: 0 0 10px var(--gold); }
-        .intro-title { letter-spacing: .32em; text-transform: uppercase; font-size: clamp(11px, 3vw, 15px); color: var(--gold); opacity: 0; animation: fadeUp .9s ease 1.25s forwards; font-weight: 900; }
-
-        @keyframes logoIn { 0%{opacity:0;transform:scale(.82) translateY(14px);filter:blur(8px)} 60%{opacity:1;filter:blur(0)} 100%{opacity:1;transform:scale(1) translateY(0);filter:blur(0)} }
-        @keyframes logoFloat { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-8px) scale(1.015)} }
-        @keyframes lineGrow { to{width:min(420px,62vw)} }
-        @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-        @keyframes glowPulse { 0%,100%{opacity:.55;transform:scale(1)} 50%{opacity:1;transform:scale(1.08)} }
     </style>
 </head>
-<body class="bg-[#050505] text-white">
+<body class="bg-[#f4f6f9] text-[#111]">
 
-    <!-- INTRO SCREEN -->
-    <div id="logoIntro" class="fixed inset-0 bg-[#050505] z-[99999] flex flex-col items-center justify-center transition-opacity duration-500">
+    <!-- INTRO SCREEN (Rectangular Original Shape & Fine Golden Text) -->
+    <div id="logoIntro" class="fixed inset-0 bg-[#000] z-[99999] flex flex-col items-center justify-center transition-opacity duration-500">
         <div class="text-center">
-            <div class="w-48 mx-auto mb-6 drop-shadow-[0_0_20px_rgba(220,174,69,0.8)] animate-pulse">
+            <!-- Shape Remover: Rectangular Box, No Border Radius -->
+            <div class="w-56 mx-auto mb-4 drop-shadow-[0_0_15px_rgba(220,174,69,0.5)] animate-pulse">
                 <img class="w-full h-auto object-contain" src="youth-earners-logo.png" alt="Youth Earner's" />
             </div>
-            <div class="w-16 h-1 bg-[#dcae45] mx-auto mb-4 rounded-full"></div>
-            <p class="text-3xl font-black text-[#ffe29a] tracking-[0.2em] uppercase drop-shadow-[0_0_10px_rgba(220,174,69,0.8)]">Youth Earner's</p>
+            <!-- Fine Golden Text styling -->
+            <div class="w-12 h-[1.5px] bg-[#dcae45] mx-auto mb-3 shadow-[0_0_5px_#dcae45]"></div>
+            <p class="text-2xl font-light text-[#dcae45] tracking-[0.3em] uppercase drop-shadow-[0_0_8px_rgba(220,174,69,0.8)]" style="font-family: Georgia, serif;">YOUTH EARNER'S</p>
         </div>
     </div>
 
-    <!-- GLOBAL T&C MODAL -->
-    <div id="tcModal" class="hidden fixed inset-0 bg-[#050505]/95 z-[9999] flex justify-center items-center p-4 backdrop-blur-sm transition-all duration-300">
-        <div class="bg-[#111] border border-[#dcae45] w-full max-w-md rounded-2xl overflow-hidden flex flex-col max-h-[85vh] shadow-[0_0_30px_rgba(220,174,69,0.3)]">
-            <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-black">
-                <h2 class="text-lg font-black text-[#dcae45] tracking-widest uppercase"><i class="fa-solid fa-file-contract mr-2"></i> Terms & Conditions</h2>
-                <button onclick="document.getElementById('tcModal').classList.add('hidden')" class="text-gray-400 hover:text-white text-2xl transition"><i class="fa-solid fa-xmark"></i></button>
+    <!-- GLOBAL T&C MODAL (Light Theme) -->
+    <div id="tcModal" class="hidden fixed inset-0 bg-black/60 z-[9999] flex justify-center items-center p-4 backdrop-blur-sm transition-all duration-300">
+        <div class="bg-white border border-gray-300 w-full max-w-md rounded-2xl overflow-hidden flex flex-col max-h-[85vh] shadow-2xl">
+            <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+                <h2 class="text-lg font-black text-[#b8860b] tracking-widest uppercase"><i class="fa-solid fa-file-contract mr-2"></i> Terms & Conditions</h2>
+                <button onclick="document.getElementById('tcModal').classList.add('hidden')" class="text-gray-500 hover:text-black text-2xl transition"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div class="p-5 overflow-y-auto text-sm text-gray-300 space-y-5 custom-scrollbar">
+            <div class="p-5 overflow-y-auto text-sm text-gray-700 space-y-5 custom-scrollbar">
                 <div>
-                    <h4 class="text-white font-bold mb-1 text-base">1. Age Restriction (18+)</h4>
-                    <p class="text-gray-400">You must be exactly 18 years of age or older to register and play on Youth Earner's. By proceeding, you legally confirm your age.</p>
+                    <h4 class="text-black font-bold mb-1 text-base">1. Age Restriction (18+)</h4>
+                    <p class="text-gray-600">You must be exactly 18 years of age or older to register and play on Youth Earner's. By proceeding, you legally confirm your age.</p>
                 </div>
                 <div>
-                    <h4 class="text-white font-bold mb-2 text-base">2. Restricted States (Banned)</h4>
-                    <p class="text-gray-400 mb-2">Due to government regulations on Real Money Gaming, users residing in the following states are STRICTLY PROHIBITED from using this app:</p>
-                    <ul class="list-none pl-2 text-rose-400 font-bold space-y-1 bg-rose-500/10 border border-rose-500/30 p-3 rounded-lg">
+                    <h4 class="text-black font-bold mb-2 text-base">2. Restricted States (Banned)</h4>
+                    <p class="text-gray-600 mb-2">Due to government regulations on Real Money Gaming, users residing in the following states are STRICTLY PROHIBITED from using this app:</p>
+                    <ul class="list-none pl-2 text-rose-600 font-bold space-y-1 bg-rose-50 border border-rose-200 p-3 rounded-lg">
                         <li><i class="fa-solid fa-ban mr-2 text-xs"></i>Assam</li>
                         <li><i class="fa-solid fa-ban mr-2 text-xs"></i>Odisha</li>
                         <li><i class="fa-solid fa-ban mr-2 text-xs"></i>Telangana</li>
@@ -162,77 +122,77 @@
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-white font-bold mb-1 text-base">3. Fair Play & Anti-Cheating</h4>
-                    <p class="text-gray-400">We maintain a strict zero-tolerance policy. Agar kisi bhi account mein cheating, fraud, ya hacking detect hoti hai, toh admin ko right hai ki account ko bina notice diye instantly <b>Temporarily Suspend</b> ya <b>Permanently Ban</b> kar diya jayega.</p>
+                    <h4 class="text-black font-bold mb-1 text-base">3. Fair Play & Anti-Cheating</h4>
+                    <p class="text-gray-600">We maintain a strict zero-tolerance policy. Agar kisi bhi account mein cheating, fraud, ya hacking detect hoti hai, toh admin ko right hai ki account ko bina notice diye instantly <b>Temporarily Suspend</b> ya <b>Permanently Ban</b> kar diya jayega.</p>
                 </div>
                 <div>
-                    <h4 class="text-white font-bold mb-1 text-base">4. Entry Fees & Refunds</h4>
-                    <p class="text-gray-400">Clear Rule: Match start hone ke baad entry fee kisi bhi haal mein <b>NON-REFUNDABLE</b> hai. Refund tabhi process hoga jab koi server error ya system issue ki wajah se match system dwara cancel kiya jaye.</p>
+                    <h4 class="text-black font-bold mb-1 text-base">4. Entry Fees & Refunds</h4>
+                    <p class="text-gray-600">Clear Rule: Match start hone ke baad entry fee kisi bhi haal mein <b>NON-REFUNDABLE</b> hai. Refund tabhi process hoga jab koi server error ya system issue ki wajah se match system dwara cancel kiya jaye.</p>
                 </div>
                 <div>
-                    <h4 class="text-white font-bold mb-1 text-base">5. Withdrawal Rules</h4>
-                    <p class="text-gray-400">Ek baar withdrawal request lagane ke baad, payment processing mein <b>24 se 48 hours</b> (working hours) lag sakte hain. Future dispute se bachne ke liye bank/UPI details dhyan se bharein.</p>
+                    <h4 class="text-black font-bold mb-1 text-base">5. Withdrawal Rules</h4>
+                    <p class="text-gray-600">Ek baar withdrawal request lagane ke baad, payment processing mein <b>24 se 48 hours</b> (working hours) lag sakte hain. Future dispute se bachne ke liye bank/UPI details dhyan se bharein.</p>
                 </div>
                 <div>
-                    <h4 class="text-white font-bold mb-1 text-base">6. Technical Issues & Liability</h4>
-                    <p class="text-gray-400">Agar match ke beech mein user ka internet connection chala jaye, ping high ho, game auto-close ho, ya device lag kare, toh iski poori zimmedari player ki hogi. Iske liye platform koi compensation ya refund provide nahi karega.</p>
+                    <h4 class="text-black font-bold mb-1 text-base">6. Technical Issues & Liability</h4>
+                    <p class="text-gray-600">Agar match ke beech mein user ka internet connection chala jaye, ping high ho, game auto-close ho, ya device lag kare, toh iski poori zimmedari player ki hogi. Iske liye platform koi compensation ya refund provide nahi karega.</p>
                 </div>
                 <div>
-                    <h4 class="text-white font-bold mb-1 text-base">7. Right to Modify</h4>
-                    <p class="text-[#ffe29a] font-bold">Admin/Management reserves the exclusive right to amend, change, or modify the game rules, prize pool distributions, or platform policies at any given time without prior notice.</p>
+                    <h4 class="text-black font-bold mb-1 text-base">7. Right to Modify</h4>
+                    <p class="text-[#b8860b] font-bold">Admin/Management reserves the exclusive right to amend, change, or modify the game rules, prize pool distributions, or platform policies at any given time without prior notice.</p>
                 </div>
             </div>
-            <div class="p-4 bg-black border-t border-gray-800 text-center">
-                <button onclick="document.getElementById('tcModal').classList.add('hidden')" class="bg-[#dcae45] text-black font-black px-8 py-3 rounded-xl hover:bg-[#ffe29a] transition uppercase tracking-widest w-full shadow-[0_0_15px_rgba(220,174,69,0.3)]">I Understand & Agree</button>
+            <div class="p-4 bg-gray-50 border-t border-gray-200 text-center">
+                <button onclick="document.getElementById('tcModal').classList.add('hidden')" class="bg-[#dcae45] text-black font-black px-8 py-3 rounded-xl hover:bg-[#ffe29a] transition uppercase tracking-widest w-full shadow-md">I Understand & Agree</button>
             </div>
         </div>
     </div>
 
-    <!-- AUTHENTICATION UI -->
-    <div id="authContainer" class="hidden auth-wrapper min-h-screen flex items-center justify-center p-4">
-        <div class="form-container bg-[#111] border border-[#dcae45]/50 p-8 rounded-3xl w-full max-w-sm shadow-[0_0_30px_rgba(220,174,69,0.15)] relative">
-            <img class="w-24 h-24 mx-auto mb-6 rounded-full border-2 border-[#dcae45] p-1 bg-black" src="youth-earners-logo.png" alt="Logo" />
+    <!-- AUTHENTICATION UI (Light Theme) -->
+    <div id="authContainer" class="hidden min-h-screen flex items-center justify-center p-4 bg-[#f4f6f9]">
+        <div class="bg-white border border-gray-200 p-8 rounded-3xl w-full max-w-sm shadow-xl relative">
+            <img class="w-24 h-24 mx-auto mb-6 object-contain" src="youth-earners-logo.png" alt="Logo" />
             
-            <form id="loginForm" class="auth-form flex flex-col gap-4">
-                <h2 class="text-2xl font-black text-center text-white mb-2 uppercase tracking-widest">Welcome Back</h2>
-                <input type="tel" id="loginNumber" placeholder="Mobile Number" pattern="[0-9]{10}" maxlength="10" required class="w-full bg-black border border-gray-700 p-4 rounded-xl text-white focus:border-[#dcae45] outline-none">
-                <input type="password" id="loginPassword" placeholder="Password (Min 6 digits)" minlength="6" required class="w-full bg-black border border-gray-700 p-4 rounded-xl text-white focus:border-[#dcae45] outline-none">
+            <form id="loginForm" class="flex flex-col gap-4">
+                <h2 class="text-2xl font-black text-center text-black mb-2 uppercase tracking-widest">Welcome Back</h2>
+                <input type="tel" id="loginNumber" placeholder="Mobile Number" pattern="[0-9]{10}" maxlength="10" required class="w-full bg-gray-50 border border-gray-300 p-4 rounded-xl text-black focus:border-[#dcae45] outline-none">
+                <input type="password" id="loginPassword" placeholder="Password (Min 6 digits)" minlength="6" required class="w-full bg-gray-50 border border-gray-300 p-4 rounded-xl text-black focus:border-[#dcae45] outline-none">
                 
                 <div class="flex gap-2 mt-2">
-                    <div class="flex-1 flex items-center justify-center gap-2 bg-black p-3 border border-gray-700 rounded-xl">
+                    <div class="flex-1 flex items-center justify-center gap-2 bg-gray-50 p-3 border border-gray-300 rounded-xl">
                         <input type="checkbox" id="logAgeCheck" required class="w-4 h-4 accent-[#dcae45] cursor-pointer">
-                        <label for="logAgeCheck" class="text-[10px] text-gray-300 font-bold cursor-pointer uppercase">I am 18+</label>
+                        <label for="logAgeCheck" class="text-[10px] text-gray-700 font-bold cursor-pointer uppercase">I am 18+</label>
                     </div>
-                    <div class="flex-1 flex items-center justify-center gap-2 bg-black p-3 border border-gray-700 rounded-xl">
+                    <div class="flex-1 flex items-center justify-center gap-2 bg-gray-50 p-3 border border-gray-300 rounded-xl">
                         <input type="checkbox" id="logTcCheck" required class="w-4 h-4 accent-[#dcae45] cursor-pointer">
-                        <label for="logTcCheck" class="text-[10px] text-gray-300 cursor-pointer uppercase font-bold">Agree <span onclick="document.getElementById('tcModal').classList.remove('hidden');" class="text-[#dcae45] underline font-black">T&C</span></label>
+                        <label for="logTcCheck" class="text-[10px] text-gray-700 cursor-pointer uppercase font-bold">Agree <span onclick="document.getElementById('tcModal').classList.remove('hidden');" class="text-[#b8860b] underline font-black">T&C</span></label>
                     </div>
                 </div>
 
-                <button type="submit" id="loginBtn" class="w-full bg-[#dcae45] text-black font-black py-4 rounded-xl text-lg tracking-widest mt-2 uppercase shadow-[0_0_15px_rgba(220,174,69,0.3)] hover:bg-[#ffe29a] transition">Log In</button>
-                <p class="text-center text-sm text-gray-400 mt-2">New user? <span id="showRegister" class="text-[#dcae45] font-bold cursor-pointer hover:underline">Register here</span></p>
+                <button type="submit" id="loginBtn" class="w-full bg-[#dcae45] text-black font-black py-4 rounded-xl text-lg tracking-widest mt-2 uppercase shadow-md hover:bg-[#ffe29a] transition">Log In</button>
+                <p class="text-center text-sm text-gray-500 mt-2">New user? <span id="showRegister" class="text-[#b8860b] font-bold cursor-pointer hover:underline">Register here</span></p>
             </form>
 
-            <form id="registerForm" class="auth-form hidden flex flex-col gap-4">
-                <h2 class="text-2xl font-black text-center text-white mb-2 uppercase tracking-widest">Create Account</h2>
-                <input type="text" id="regName" placeholder="Full Name" required class="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none">
-                <input type="tel" id="regNumber" placeholder="Mobile Number" pattern="[0-9]{10}" maxlength="10" required class="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none">
-                <input type="password" id="regPassword" placeholder="Password (Min 6 digits)" minlength="6" required class="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none">
-                <input type="text" id="regReferral" placeholder="Referral Code (Optional)" class="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none">
+            <form id="registerForm" class="hidden flex flex-col gap-4">
+                <h2 class="text-2xl font-black text-center text-black mb-2 uppercase tracking-widest">Create Account</h2>
+                <input type="text" id="regName" placeholder="Full Name" required class="w-full bg-gray-50 border border-gray-300 p-3 rounded-xl text-black focus:border-[#dcae45] outline-none">
+                <input type="tel" id="regNumber" placeholder="Mobile Number" pattern="[0-9]{10}" maxlength="10" required class="w-full bg-gray-50 border border-gray-300 p-3 rounded-xl text-black focus:border-[#dcae45] outline-none">
+                <input type="password" id="regPassword" placeholder="Password (Min 6 digits)" minlength="6" required class="w-full bg-gray-50 border border-gray-300 p-3 rounded-xl text-black focus:border-[#dcae45] outline-none">
+                <input type="text" id="regReferral" placeholder="Referral Code (Optional)" class="w-full bg-gray-50 border border-gray-300 p-3 rounded-xl text-black focus:border-[#dcae45] outline-none">
                 
                 <div class="flex gap-2 mt-2">
-                    <div class="flex-1 flex items-center justify-center gap-2 bg-black p-3 border border-gray-700 rounded-xl">
+                    <div class="flex-1 flex items-center justify-center gap-2 bg-gray-50 p-3 border border-gray-300 rounded-xl">
                         <input type="checkbox" id="regAgeCheck" required class="w-4 h-4 accent-[#dcae45] cursor-pointer">
-                        <label for="regAgeCheck" class="text-[10px] text-gray-300 font-bold cursor-pointer uppercase">I am 18+</label>
+                        <label for="regAgeCheck" class="text-[10px] text-gray-700 font-bold cursor-pointer uppercase">I am 18+</label>
                     </div>
-                    <div class="flex-1 flex items-center justify-center gap-2 bg-black p-3 border border-gray-700 rounded-xl">
+                    <div class="flex-1 flex items-center justify-center gap-2 bg-gray-50 p-3 border border-gray-300 rounded-xl">
                         <input type="checkbox" id="regTcCheck" required class="w-4 h-4 accent-[#dcae45] cursor-pointer">
-                        <label for="regTcCheck" class="text-[10px] text-gray-300 cursor-pointer uppercase font-bold">Agree <span onclick="document.getElementById('tcModal').classList.remove('hidden');" class="text-[#dcae45] underline font-black">T&C</span></label>
+                        <label for="regTcCheck" class="text-[10px] text-gray-700 cursor-pointer uppercase font-bold">Agree <span onclick="document.getElementById('tcModal').classList.remove('hidden');" class="text-[#b8860b] underline font-black">T&C</span></label>
                     </div>
                 </div>
 
-                <button type="submit" id="regBtn" class="w-full bg-[#dcae45] text-black font-black py-4 rounded-xl text-lg tracking-widest mt-2 uppercase shadow-[0_0_15px_rgba(220,174,69,0.3)] hover:bg-[#ffe29a] transition">Register</button>
-                <p class="text-center text-sm text-gray-400 mt-2">Already have an account? <span id="showLogin" class="text-[#dcae45] font-bold cursor-pointer hover:underline">Log In</span></p>
+                <button type="submit" id="regBtn" class="w-full bg-[#dcae45] text-black font-black py-4 rounded-xl text-lg tracking-widest mt-2 uppercase shadow-md hover:bg-[#ffe29a] transition">Register</button>
+                <p class="text-center text-sm text-gray-500 mt-2">Already have an account? <span id="showLogin" class="text-[#b8860b] font-bold cursor-pointer hover:underline">Log In</span></p>
             </form>
         </div>
     </div>
@@ -240,7 +200,7 @@
     <!-- MAIN REACT APP CONTAINER -->
     <main id="website" class="hidden"><div id="root"></div></main>
 
-    <!-- INTEGRATED FIREBASE & AUTH LOGIC -->
+    <!-- INTEGRATED FIREBASE & AUTH LOGIC WITH AUTOFILL -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
@@ -263,6 +223,7 @@
         window.db = db;
         window.fs = { collection, query, where, getDocs, doc, getDoc, updateDoc, addDoc, deleteDoc, onSnapshot, setDoc };
 
+        // INTRO AND AUTO-FILL LOGIC
         window.addEventListener('load', () => {
             setTimeout(() => {
                 const intro = document.getElementById('logoIntro');
@@ -271,6 +232,22 @@
                     setTimeout(() => { intro.style.display = 'none'; }, 500);
                 }
             }, 2000);
+
+            // AUTO-FILL IMPLEMENTATION
+            const loginNumInput = document.getElementById('loginNumber');
+            const loginPwdInput = document.getElementById('loginPassword');
+            
+            const autoFillCredentials = () => {
+                const savedNum = localStorage.getItem('ye_saved_number');
+                const savedPwd = localStorage.getItem('ye_saved_pwd');
+                if(savedNum && savedPwd && loginNumInput.value === '') {
+                    loginNumInput.value = savedNum;
+                    loginPwdInput.value = savedPwd;
+                }
+            };
+            
+            loginNumInput.addEventListener('click', autoFillCredentials);
+            loginNumInput.addEventListener('focus', autoFillCredentials);
         });
 
         onAuthStateChanged(auth, async (user) => {
@@ -297,7 +274,12 @@
             const num = document.getElementById('loginNumber').value;
             const pwd = document.getElementById('loginPassword').value;
             const dummyEmail = `${num}@ye.com`; 
-            try { await signInWithEmailAndPassword(auth, dummyEmail, pwd); } catch(err) { alert("Invalid Number or Password!"); }
+            try { 
+                await signInWithEmailAndPassword(auth, dummyEmail, pwd); 
+                // Save to local storage for auto-fill
+                localStorage.setItem('ye_saved_number', num);
+                localStorage.setItem('ye_saved_pwd', pwd);
+            } catch(err) { alert("Invalid Number or Password!"); }
         });
 
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
@@ -315,6 +297,11 @@
                     name, number: num, pwd, wallet: 0, withdrawable: 0, matchesWon: 0, referralUsed: ref, 
                     avatar: 'youth-earners-logo.png', joined: new Date()
                 });
+                
+                // Save to local storage for auto-fill
+                localStorage.setItem('ye_saved_number', num);
+                localStorage.setItem('ye_saved_pwd', pwd);
+                
                 alert("Registration Successful!");
             } catch (error) {
                 if(error.code === 'auth/email-already-in-use') { alert("This Number is already registered! Please Login."); } 
@@ -323,7 +310,7 @@
         });
     </script>
 
-    <!-- REACT APP LOGIC (WITH REAL DATA & HISTORY FIX) -->
+    <!-- REACT APP LOGIC (LIGHT THEME UPDATE) -->
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
@@ -383,11 +370,6 @@
             const [unreadCount, setUnreadCount] = useState(0);
 
             const [adminSettings, setAdminSettings] = useState({ upiId: 'youthearners@nyes', qrUrl: 'payment-qr.png' });
-            
-            // Tasks related
-            const [completedTasks, setCompletedTasks] = useState([]);
-            const [claimedDays, setClaimedDays] = useState([]);
-            const [transactions, setTransactions] = useState([]);
 
             const formatSafeDate = (dateObj) => {
                 if (!dateObj) return 'N/A';
@@ -395,8 +377,6 @@
             };
 
             const playClickSound = () => { const a = document.getElementById('clickSound'); if(a) { a.currentTime=0; a.play().catch(()=>{}); } };
-            
-            const addToast = (msg, type='success') => { /* Implement later if needed */ };
 
             useEffect(() => {
                 let unsubMatches = null;
@@ -457,7 +437,6 @@
                 return () => { window.removeEventListener('gameStart', handleGameStart); if(unsubWallet) unsubWallet(); if(unsubNotif) unsubNotif(); };
             }, []);
 
-            // 1. LEADERBOARD FIX: FETCHING REAL ACCOUNTS BY "MATCHES WON"
             useEffect(() => {
                 if (activeTab === 'ranking') { 
                     const fetchRealLeaderboard = async () => {
@@ -474,11 +453,9 @@
                                     number: data.number 
                                 });
                             });
-                            // SORT BY MATCHES WON
                             playersData.sort((a, b) => b.matchesWon - a.matchesWon);
                             playersData = playersData.slice(0, 10).map((p, index) => ({ ...p, rank: index + 1 }));
                             
-                            // Keep spacing neat if fewer than 3 players exist
                             let padData = [...playersData];
                             while (padData.length < 3) { padData.push({ rank: padData.length + 1, name: "Empty", matchesWon: 0, img: "youth-earners-logo.png" }); }
                             setTopPlayers(padData);
@@ -489,7 +466,6 @@
                 }
             }, [activeTab]);
 
-            // 2. HISTORY FIX: DIRECT EXPLICIT FETCH ON CLICK
             const openHistory = async (type) => {
                 setHistoryView(type);
                 if(window.auth && window.auth.currentUser) {
@@ -530,6 +506,7 @@
                 }
             };
 
+            const markAsRead = async (id) => { try { await window.fs.updateDoc(window.fs.doc(window.db, "notifications", id), { read: true }); } catch(e) {} };
             const syncProfileToDatabase = async (updateData) => { if (window.auth && window.auth.currentUser) { try { await window.fs.updateDoc(window.fs.doc(window.db, "users", window.auth.currentUser.uid), updateData); } catch (e) {} } };
             const saveProfileName = () => { if(!editNameInput.trim()) return; setUserProfile(prev => ({...prev, name: editNameInput})); localStorage.setItem('userName', editNameInput); syncProfileToDatabase({ name: editNameInput }); setIsEditingName(false); };
             const logoutUser = async () => { if(window.auth) { await window.auth.signOut(); } localStorage.clear(); window.location.reload(); };
@@ -712,12 +689,85 @@
                 await window.fs.updateDoc(window.fs.doc(window.db, "rooms", roomId), { [playerRole === 1 ? 'p1Bid' : 'p2Bid']: b });
             };
 
+            const submitDepositRequest = async () => {
+                if(!utrInput || !depositAmount) return alert("Fill all details!");
+                const amt = Number(depositAmount);
+                if(amt < 10) return alert("Minimum deposit amount is ₹10!");
+                
+                try {
+                    let autoVerified = false;
+                    const qUtr = window.fs.query(window.fs.collection(window.db, "auto_utrs"), window.fs.where("utr", "==", utrInput), window.fs.where("used", "==", false));
+                    const utrSnap = await window.fs.getDocs(qUtr);
+                    
+                    if (!utrSnap.empty) {
+                        const matchedUtrDoc = utrSnap.docs[0]; const matchedUtrData = matchedUtrDoc.data();
+                        if (Number(matchedUtrData.amount) === amt) {
+                            autoVerified = true;
+                            await window.fs.updateDoc(window.fs.doc(window.db, "auto_utrs", matchedUtrDoc.id), { used: true });
+                            
+                            const userRef = window.fs.doc(window.db, "users", window.auth.currentUser.uid);
+                            const uSnap = await window.fs.getDoc(userRef);
+                            if(uSnap.exists()){ let dbW = uSnap.data().wallet || 0; await window.fs.updateDoc(userRef, { wallet: dbW + amt }); }
+                            
+                            await window.fs.addDoc(window.fs.collection(window.db, "deposits"), { uid: window.auth.currentUser.uid, name: userProfile.name, utr: utrInput, amount: amt, status: 'approved', date: new Date() });
+                            alert("Payment Auto-Verified Successfully! Wallet Updated Instantly.");
+                        }
+                    }
+                    if(!autoVerified) {
+                        await window.fs.addDoc(window.fs.collection(window.db, "deposits"), { uid: window.auth.currentUser.uid, name: userProfile.name, utr: utrInput, amount: amt, status: 'pending', date: new Date() });
+                        alert("Deposit proof sent to Admin! Wallet will be updated soon.");
+                    }
+                    setDepositModal(false); setUtrInput(''); setDepositAmount('');
+                } catch(e) { alert("Error submitting request!"); }
+            };
+
+            const submitWithdrawRequest = async () => {
+                if(!withdrawId || !withdrawAmount) return alert("Fill all details!");
+                const wAmt = Number(withdrawAmount);
+                if(wAmt > withdrawable) return alert("You don't have enough Winning Balance!");
+                
+                try {
+                    await window.fs.addDoc(window.fs.collection(window.db, "withdrawals"), { uid: window.auth.currentUser.uid, name: userProfile.name, type: withdrawType, id: withdrawId, amount: wAmt, status: 'pending', date: new Date() });
+                    if(window.auth.currentUser) {
+                        const userRef = window.fs.doc(window.db, "users", window.auth.currentUser.uid);
+                        const uSnap = await window.fs.getDoc(userRef);
+                        if(uSnap.exists()){
+                            let dbW = uSnap.data().wallet || 0; let dbWith = uSnap.data().withdrawable || 0;
+                            await window.fs.updateDoc(userRef, { wallet: dbW - wAmt, withdrawable: dbWith - wAmt });
+                        }
+                    }
+                    alert("Withdrawal request sent successfully!");
+                    setWithdrawModal(false); setWithdrawId(''); setWithdrawAmount('');
+                } catch(e) { alert("Error submitting request!"); }
+            };
+
+            const handleImageUpload = (e) => { 
+                const file = e.target.files[0]; 
+                if (file) { 
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const img = new Image(); img.src = event.target.result;
+                        img.onload = () => {
+                            const canvas = document.createElement("canvas");
+                            const MAX_SIZE = 250; let width = img.width; let height = img.height;
+                            if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
+                            canvas.width = width; canvas.height = height;
+                            const ctx = canvas.getContext("2d"); ctx.drawImage(img, 0, 0, width, height);
+                            const compressedBase64 = canvas.toDataURL("image/jpeg", 0.7); 
+                            localStorage.setItem('userAvatar', compressedBase64); setUserProfile(prev => ({ ...prev, avatar: compressedBase64 })); syncProfileToDatabase({ avatar: compressedBase64 }); 
+                        };
+                    };
+                    reader.readAsDataURL(file);
+                } 
+            };
+
             const myRankObj = topPlayers.find(p => p.number === userProfile.number);
             const myRank = myRankObj ? myRankObj.rank : '-';
 
             return (
                 <div className="max-w-md mx-auto bg-transparent min-h-screen relative pb-24">
                     
+                    {/* MZ HEADER */}
                     <div className="mz-style-header">
                         <div className="mz-header-left"><img src="youth-earners-logo.png" alt="Logo" /></div>
                         <div className="mz-header-center">
@@ -734,58 +784,58 @@
 
                     <div className="p-4 pt-4">
                         
-                        {/* HOME TAB */}
+                        {/* HOME TAB (LIGHT THEME) */}
                         {activeTab === 'home' && (
                             <div className="space-y-6 pop-in">
-                                <div className="bg-gradient-to-r from-[#111] to-[#0a0a0a] border border-[#dcae45]/40 rounded-2xl p-5 shadow-[0_4px_15px_rgba(220,174,69,0.15)] relative overflow-hidden">
-                                    <div className="absolute -right-10 -top-10 w-32 h-32 bg-[#dcae45] opacity-10 blur-3xl rounded-full"></div>
+                                <div className="bg-white border border-[#dcae45] rounded-2xl p-5 shadow-[0_4px_15px_rgba(220,174,69,0.15)] relative overflow-hidden">
+                                    <div className="absolute -right-10 -top-10 w-32 h-32 bg-[#dcae45] opacity-20 blur-3xl rounded-full"></div>
                                     <div className="flex justify-between items-center relative z-10">
                                         <div>
-                                            <p className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Total Balance</p>
-                                            <h2 className="text-3xl font-black text-white">₹{wallet.toFixed(2)}</h2>
+                                            <p className="text-gray-500 text-xs font-bold uppercase tracking-wider mb-1">Total Balance</p>
+                                            <h2 className="text-3xl font-black text-black">₹{wallet.toFixed(2)}</h2>
                                         </div>
-                                        <div className="w-12 h-12 rounded-full bg-black border-2 border-[#dcae45] flex items-center justify-center shadow-[0_0_10px_rgba(220,174,69,0.3)]">
-                                            <i className="fa-solid fa-wallet text-[#dcae45] text-xl"></i>
+                                        <div className="w-12 h-12 rounded-full bg-gray-50 border-2 border-[#dcae45] flex items-center justify-center shadow-[0_0_10px_rgba(220,174,69,0.2)]">
+                                            <i className="fa-solid fa-wallet text-[#b8860b] text-xl"></i>
                                         </div>
                                     </div>
                                     <div className="flex gap-3 mt-5 relative z-10">
-                                        <button onClick={() => setDepositModal(true)} className="flex-1 bg-[#dcae45] text-black py-2.5 rounded-xl font-black text-sm tracking-wide shadow-[0_0_10px_rgba(220,174,69,0.3)] flex justify-center items-center gap-2 hover:bg-[#ffe29a] transition">
+                                        <button onClick={() => setDepositModal(true)} className="flex-1 bg-[#dcae45] text-black py-2.5 rounded-xl font-black text-sm tracking-wide shadow-sm flex justify-center items-center gap-2 hover:bg-[#ffe29a] transition">
                                             <i className="fa-solid fa-plus-circle"></i> Add Cash
                                         </button>
-                                        <button onClick={() => setWithdrawModal(true)} className="flex-1 bg-transparent border border-[#dcae45] text-[#ffe29a] py-2.5 rounded-xl font-bold text-sm tracking-wide hover:bg-[#111] transition flex justify-center items-center gap-2">
+                                        <button onClick={() => setWithdrawModal(true)} className="flex-1 bg-white border border-[#dcae45] text-[#b8860b] py-2.5 rounded-xl font-bold text-sm tracking-wide hover:bg-gray-50 transition flex justify-center items-center gap-2">
                                             <i className="fa-solid fa-building-columns"></i> Withdraw
                                         </button>
                                     </div>
                                 </div>
 
                                 <div className="mt-8">
-                                    <h3 className="font-bold mb-4 text-white text-lg flex items-center gap-2">
+                                    <h3 className="font-bold mb-4 text-black text-lg flex items-center gap-2">
                                         <i className="fa-solid fa-gamepad text-[#10b981]"></i> Practice Mode (Free)
                                     </h3>
                                     <div className="flex gap-4">
-                                        <button onClick={() => startPractice('bot')} className="flex-1 bg-[#111] border border-[#10b981]/50 p-4 rounded-2xl text-center hover:border-[#10b981] transition shadow-[0_0_15px_rgba(16,185,129,0.1)]">
-                                            <i className="fa-solid fa-robot text-4xl text-[#10b981] mb-2 drop-shadow-[0_0_10px_#10b981]"></i>
-                                            <div className="font-bold text-white text-sm">Play vs Bot</div>
+                                        <button onClick={() => startPractice('bot')} className="flex-1 bg-white border border-[#10b981]/50 p-4 rounded-2xl text-center hover:border-[#10b981] transition shadow-sm">
+                                            <i className="fa-solid fa-robot text-4xl text-[#10b981] mb-2 drop-shadow-[0_0_5px_#10b981]"></i>
+                                            <div className="font-bold text-black text-sm">Play vs Bot</div>
                                         </button>
-                                        <button onClick={() => startPractice('player')} className="flex-1 bg-[#111] border border-[#3b82f6]/50 p-4 rounded-2xl text-center hover:border-[#3b82f6] transition shadow-[0_0_15px_rgba(59,130,246,0.1)]">
-                                            <i className="fa-solid fa-user-ninja text-4xl text-[#3b82f6] mb-2 drop-shadow-[0_0_10px_#3b82f6]"></i>
-                                            <div className="font-bold text-white text-sm">vs Real Player</div>
+                                        <button onClick={() => startPractice('player')} className="flex-1 bg-white border border-[#3b82f6]/50 p-4 rounded-2xl text-center hover:border-[#3b82f6] transition shadow-sm">
+                                            <i className="fa-solid fa-user-ninja text-4xl text-[#3b82f6] mb-2 drop-shadow-[0_0_5px_#3b82f6]"></i>
+                                            <div className="font-bold text-black text-sm">vs Real Player</div>
                                         </button>
                                     </div>
                                 </div>
 
                                 <div className="mt-8">
-                                    <h3 className="font-bold mb-4 text-white text-lg flex items-center gap-2">
-                                        <i className="fa-solid fa-users text-[#dcae45]"></i> Play for Real Cash
+                                    <h3 className="font-bold mb-4 text-black text-lg flex items-center gap-2">
+                                        <i className="fa-solid fa-users text-[#b8860b]"></i> Play for Real Cash
                                     </h3>
                                     <div className="grid grid-cols-2 gap-4">
                                         {playTiers.map((tier, index) => (
-                                            <div key={tier.id || index} className="gold-card rounded-2xl p-4 flex flex-col items-center text-center relative overflow-hidden">
-                                                <div className="bg-black border border-[#dcae45]/30 rounded-lg px-4 py-1.5 mb-3 shadow-[0_0_10px_rgba(0,0,0,0.8)]">
-                                                    <img src={tier.logo || "youth-earners-logo.png"} style={{mixBlendMode:'screen'}} className="h-6 w-auto opacity-90" alt="game-icon" />
+                                            <div key={tier.id || index} className="gold-card bg-white rounded-2xl p-4 flex flex-col items-center text-center relative overflow-hidden">
+                                                <div className="bg-gray-100 border border-[#dcae45]/30 rounded-lg px-4 py-1.5 mb-3 shadow-sm">
+                                                    <img src={tier.logo || "youth-earners-logo.png"} style={{mixBlendMode:'multiply'}} className="h-6 w-auto opacity-90" alt="game-icon" />
                                                 </div>
-                                                <div className="text-xs text-gray-400 mb-1">Entry: <span className="font-bold text-white text-base">₹{tier.entry}</span></div>
-                                                <div className="text-[22px] text-[#ffe29a] font-black mb-5 drop-shadow-[0_0_10px_rgba(220,174,69,0.5)] tracking-wide">WIN: ₹{tier.win}</div>
+                                                <div className="text-xs text-gray-500 mb-1">Entry: <span className="font-bold text-black text-base">₹{tier.entry}</span></div>
+                                                <div className="text-[22px] text-[#b8860b] font-black mb-5 drop-shadow-[0_0_5px_rgba(220,174,69,0.2)] tracking-wide">WIN: ₹{tier.win}</div>
                                                 <button onClick={() => setConfirmPopup(tier)} className="w-full btn-play-gold py-2.5 rounded-full font-black text-[13px] tracking-wide flex items-center justify-center gap-2"><i className="fa-solid fa-play"></i> Play Now</button>
                                             </div>
                                         ))}
@@ -794,10 +844,10 @@
                             </div>
                         )}
 
-                        {/* RANKING TAB (NOW USING "MATCHES WON") */}
+                        {/* RANKING TAB (LIGHT THEME) */}
                         {activeTab === 'ranking' && (
                             <div className="space-y-6 pt-2 pop-in">
-                                <h2 className="text-2xl font-black text-[#dcae45] text-center mb-6 tracking-widest uppercase"><i className="fa-solid fa-ranking-star"></i> Top Earners</h2>
+                                <h2 className="text-2xl font-black text-[#b8860b] text-center mb-6 tracking-widest uppercase"><i className="fa-solid fa-ranking-star"></i> Top Earners</h2>
                                 {isLoadingLeaderboard ? (
                                     <div className="text-center text-[#dcae45] font-bold mt-10 animate-pulse">Loading Leaderboard...</div>
                                 ) : (
@@ -805,46 +855,46 @@
                                         <div className="flex justify-center items-end gap-2 mb-8 mt-10">
                                             <div className="flex flex-col items-center w-28">
                                                 <div className="relative">
-                                                    <img src={topPlayers[1]?.img} className="w-16 h-16 rounded-full object-cover border-4 border-gray-400 p-0.5 bg-black z-10 relative" />
-                                                    <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-gray-400 text-black text-xs font-black px-2 py-0.5 rounded-full z-20">#2</div>
+                                                    <img src={topPlayers[1]?.img} className="w-16 h-16 rounded-full object-cover border-4 border-gray-400 p-0.5 bg-white z-10 relative" />
+                                                    <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-gray-400 text-white text-xs font-black px-2 py-0.5 rounded-full z-20">#2</div>
                                                 </div>
-                                                <div className="bg-[#111] w-full pt-6 pb-2 rounded-t-lg mt-[-10px] border-t-2 border-gray-400 text-center flex flex-col">
-                                                    <span className="text-xs font-bold truncate px-1 text-gray-300">{topPlayers[1]?.name || 'Empty'}</span>
-                                                    <span className="text-sm font-black text-[#ffe29a]">🏆 {topPlayers[1]?.matchesWon || 0} Wins</span>
+                                                <div className="bg-white w-full pt-6 pb-2 rounded-t-lg mt-[-10px] border-t-2 border-gray-400 text-center flex flex-col shadow-sm">
+                                                    <span className="text-xs font-bold truncate px-1 text-gray-700">{topPlayers[1]?.name || 'Empty'}</span>
+                                                    <span className="text-sm font-black text-[#b8860b]">🏆 {topPlayers[1]?.matchesWon || 0} Wins</span>
                                                 </div>
                                             </div>
 
                                             <div className="flex flex-col items-center w-32 relative z-20">
                                                 <div className="relative">
-                                                    <i className="fa-solid fa-crown absolute -top-6 left-1/2 transform -translate-x-1/2 text-3xl text-[#dcae45] drop-shadow-[0_0_10px_rgba(220,174,69,0.8)] z-30"></i>
-                                                    <img src={topPlayers[0]?.img} className="w-20 h-20 rounded-full object-cover border-4 border-[#dcae45] p-0.5 bg-black z-10 relative shadow-[0_0_15px_rgba(220,174,69,0.5)]" />
-                                                    <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-[#dcae45] text-black text-sm font-black px-3 py-0.5 rounded-full z-20">#1</div>
+                                                    <i className="fa-solid fa-crown absolute -top-6 left-1/2 transform -translate-x-1/2 text-3xl text-[#dcae45] drop-shadow-[0_0_10px_rgba(220,174,69,0.5)] z-30"></i>
+                                                    <img src={topPlayers[0]?.img} className="w-20 h-20 rounded-full object-cover border-4 border-[#dcae45] p-0.5 bg-white z-10 relative shadow-[0_0_15px_rgba(220,174,69,0.3)]" />
+                                                    <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-[#dcae45] text-white text-sm font-black px-3 py-0.5 rounded-full z-20">#1</div>
                                                 </div>
-                                                <div className="bg-gradient-to-t from-[#221a08] to-[#111] w-full pt-8 pb-3 rounded-t-xl mt-[-15px] border-t-2 border-[#dcae45] text-center flex flex-col h-[100px] justify-start shadow-[0_-5px_15px_rgba(220,174,69,0.2)]">
-                                                    <span className="text-sm font-black truncate px-1 text-white">{topPlayers[0]?.name || 'Empty'}</span>
-                                                    <span className="text-lg font-black text-[#ffe29a]">🏆 {topPlayers[0]?.matchesWon || 0} Wins</span>
+                                                <div className="bg-gradient-to-t from-gray-50 to-white w-full pt-8 pb-3 rounded-t-xl mt-[-15px] border-t-2 border-[#dcae45] text-center flex flex-col h-[100px] justify-start shadow-md">
+                                                    <span className="text-sm font-black truncate px-1 text-black">{topPlayers[0]?.name || 'Empty'}</span>
+                                                    <span className="text-lg font-black text-[#b8860b]">🏆 {topPlayers[0]?.matchesWon || 0} Wins</span>
                                                 </div>
                                             </div>
 
                                             <div className="flex flex-col items-center w-28">
                                                 <div className="relative">
-                                                    <img src={topPlayers[2]?.img} className="w-16 h-16 rounded-full object-cover border-4 border-[#cd7f32] p-0.5 bg-black z-10 relative" />
-                                                    <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-[#cd7f32] text-black text-xs font-black px-2 py-0.5 rounded-full z-20">#3</div>
+                                                    <img src={topPlayers[2]?.img} className="w-16 h-16 rounded-full object-cover border-4 border-[#cd7f32] p-0.5 bg-white z-10 relative" />
+                                                    <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-[#cd7f32] text-white text-xs font-black px-2 py-0.5 rounded-full z-20">#3</div>
                                                 </div>
-                                                <div className="bg-[#111] w-full pt-6 pb-2 rounded-t-lg mt-[-10px] border-t-2 border-[#cd7f32] text-center flex flex-col h-[70px] justify-start">
-                                                    <span className="text-xs font-bold truncate px-1 text-gray-300">{topPlayers[2]?.name || 'Empty'}</span>
-                                                    <span className="text-sm font-black text-[#ffe29a]">🏆 {topPlayers[2]?.matchesWon || 0} Wins</span>
+                                                <div className="bg-white w-full pt-6 pb-2 rounded-t-lg mt-[-10px] border-t-2 border-[#cd7f32] text-center flex flex-col h-[70px] justify-start shadow-sm">
+                                                    <span className="text-xs font-bold truncate px-1 text-gray-700">{topPlayers[2]?.name || 'Empty'}</span>
+                                                    <span className="text-sm font-black text-[#b8860b]">🏆 {topPlayers[2]?.matchesWon || 0} Wins</span>
                                                 </div>
                                             </div>
                                         </div>
 
                                         <div className="space-y-3 pb-8">
                                             {topPlayers.slice(3).map((player) => (
-                                                <div key={player.rank} className="flex items-center justify-between bg-[#111] border border-gray-800 p-3 rounded-xl">
+                                                <div key={player.rank} className="flex items-center justify-between bg-white border border-gray-200 p-3 rounded-xl shadow-sm">
                                                     <div className="flex items-center gap-4">
-                                                        <span className="font-black text-gray-500 w-6 text-center">#{player.rank}</span>
-                                                        <img src={player.img} className="w-10 h-10 rounded-full object-cover border border-gray-600" />
-                                                        <span className="font-bold text-gray-300">{player.name}</span>
+                                                        <span className="font-black text-gray-400 w-6 text-center">#{player.rank}</span>
+                                                        <img src={player.img} className="w-10 h-10 rounded-full object-cover border border-gray-300" />
+                                                        <span className="font-bold text-gray-800">{player.name}</span>
                                                     </div>
                                                     <div className="font-black text-[#10b981]">🏆 {player.matchesWon}</div>
                                                 </div>
@@ -855,82 +905,82 @@
                             </div>
                         )}
 
-                        {/* WALLET TAB */}
+                        {/* WALLET TAB (LIGHT THEME) */}
                         {activeTab === 'wallet' && !historyView && (
                             <div className="space-y-6 pt-2 pop-in">
-                                <div className="bg-gradient-to-br from-[#1a1a1a] to-[#000] p-6 rounded-3xl border border-[#dcae45]/40 shadow-[0_10px_30px_rgba(220,174,69,0.15)] relative overflow-hidden mt-4">
-                                    <div className="text-gray-400 text-sm font-semibold uppercase tracking-widest">Total Balance</div>
-                                    <div className="text-5xl font-black text-white my-2 tracking-wide">₹{wallet.toFixed(2)}</div>
+                                <div className="bg-white p-6 rounded-3xl border border-[#dcae45]/40 shadow-[0_10px_30px_rgba(220,174,69,0.15)] relative overflow-hidden mt-4">
+                                    <div className="text-gray-500 text-sm font-semibold uppercase tracking-widest">Total Balance</div>
+                                    <div className="text-5xl font-black text-black my-2 tracking-wide">₹{wallet.toFixed(2)}</div>
                                 </div>
 
-                                <div className="bg-[#111] p-5 rounded-2xl border border-gray-800 flex justify-between items-center shadow-lg">
+                                <div className="bg-white p-5 rounded-2xl border border-gray-200 flex justify-between items-center shadow-sm">
                                     <div>
-                                        <div className="text-gray-400 text-xs font-semibold mb-1">Winning Balance (Withdrawable)</div>
+                                        <div className="text-gray-500 text-xs font-semibold mb-1">Winning Balance (Withdrawable)</div>
                                         <div className="text-2xl font-black text-[#10b981]">₹{withdrawable.toFixed(2)}</div>
                                     </div>
-                                    <i className="fa-solid fa-money-bill-wave text-3xl text-gray-700"></i>
+                                    <i className="fa-solid fa-money-bill-wave text-3xl text-gray-300"></i>
                                 </div>
 
                                 <div className="flex gap-4 mt-8">
-                                    <button onClick={() => setDepositModal(true)} className="flex-1 btn-play-gold py-4 rounded-2xl font-bold text-lg shadow-[0_0_15px_rgba(220,174,69,0.4)]"><i className="fa-solid fa-plus-circle"></i> Add Money</button>
-                                    <button onClick={() => setWithdrawModal(true)} className="flex-1 bg-transparent border-2 border-[#dcae45] py-4 rounded-2xl font-bold text-lg text-[#ffe29a] hover:bg-[#111] transition-colors"><i className="fa-solid fa-building-columns"></i> Withdraw</button>
+                                    <button onClick={() => setDepositModal(true)} className="flex-1 btn-play-gold py-4 rounded-2xl font-bold text-lg shadow-[0_0_15px_rgba(220,174,69,0.2)]"><i className="fa-solid fa-plus-circle"></i> Add Money</button>
+                                    <button onClick={() => setWithdrawModal(true)} className="flex-1 bg-white border-2 border-[#dcae45] py-4 rounded-2xl font-bold text-lg text-[#b8860b] hover:bg-gray-50 transition-colors"><i className="fa-solid fa-building-columns"></i> Withdraw</button>
                                 </div>
 
                                 <div className="mt-8 space-y-3">
-                                    <button onClick={() => openHistory('deposit')} className="w-full flex items-center justify-between bg-[#111] border border-gray-800 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors">
-                                        <div className="flex items-center gap-4 text-gray-300 font-bold"><div className="w-8 h-8 rounded-full bg-[#10b981]/10 text-[#10b981] flex items-center justify-center"><i className="fa-solid fa-arrow-down"></i></div>Deposit History</div><i className="fa-solid fa-chevron-right text-gray-600"></i>
+                                    <button onClick={() => openHistory('deposit')} className="w-full flex items-center justify-between bg-white border border-gray-200 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors shadow-sm">
+                                        <div className="flex items-center gap-4 text-gray-700 font-bold"><div className="w-8 h-8 rounded-full bg-[#10b981]/10 text-[#10b981] flex items-center justify-center"><i className="fa-solid fa-arrow-down"></i></div>Deposit History</div><i className="fa-solid fa-chevron-right text-gray-400"></i>
                                     </button>
-                                    <button onClick={() => openHistory('withdraw')} className="w-full flex items-center justify-between bg-[#111] border border-gray-800 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors">
-                                        <div className="flex items-center gap-4 text-gray-300 font-bold"><div className="w-8 h-8 rounded-full bg-rose-500/10 text-rose-500 flex items-center justify-center"><i className="fa-solid fa-arrow-up"></i></div>Withdrawal History</div><i className="fa-solid fa-chevron-right text-gray-600"></i>
+                                    <button onClick={() => openHistory('withdraw')} className="w-full flex items-center justify-between bg-white border border-gray-200 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors shadow-sm">
+                                        <div className="flex items-center gap-4 text-gray-700 font-bold"><div className="w-8 h-8 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center"><i className="fa-solid fa-arrow-up"></i></div>Withdrawal History</div><i className="fa-solid fa-chevron-right text-gray-400"></i>
                                     </button>
-                                    <button onClick={() => openHistory('match')} className="w-full flex items-center justify-between bg-[#111] border border-gray-800 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors">
-                                        <div className="flex items-center gap-4 text-gray-300 font-bold"><div className="w-8 h-8 rounded-full bg-[#3b82f6]/10 text-[#3b82f6] flex items-center justify-center"><i className="fa-solid fa-gamepad"></i></div>Match History</div><i className="fa-solid fa-chevron-right text-gray-600"></i>
+                                    <button onClick={() => openHistory('match')} className="w-full flex items-center justify-between bg-white border border-gray-200 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors shadow-sm">
+                                        <div className="flex items-center gap-4 text-gray-700 font-bold"><div className="w-8 h-8 rounded-full bg-blue-50 text-[#3b82f6] flex items-center justify-center"><i className="fa-solid fa-gamepad"></i></div>Match History</div><i className="fa-solid fa-chevron-right text-gray-400"></i>
                                     </button>
                                 </div>
                             </div>
                         )}
 
-                        {/* HISTORY VIEWS */}
+                        {/* HISTORY VIEWS (LIGHT THEME) */}
                         {activeTab === 'wallet' && historyView && (
-                            <div className="fixed inset-0 bg-[#050505] z-[80] flex flex-col pop-in pb-20 pt-4">
-                                <div className="flex items-center p-4 border-b border-[#dcae45]/30 bg-[#111]">
-                                    <button onClick={() => setHistoryView(null)} className="text-[#dcae45] text-xl px-2"><i className="fa-solid fa-arrow-left"></i></button>
-                                    <h2 className="text-xl font-black text-white ml-4 tracking-widest uppercase">{historyView === 'deposit' ? 'Deposit History' : historyView === 'withdraw' ? 'Withdrawal History' : 'Match History'}</h2>
+                            <div className="fixed inset-0 bg-[#f4f6f9] z-[80] flex flex-col pop-in pb-20 pt-4">
+                                <div className="flex items-center p-4 border-b border-[#dcae45]/30 bg-white shadow-sm">
+                                    <button onClick={() => setHistoryView(null)} className="text-[#b8860b] text-xl px-2"><i className="fa-solid fa-arrow-left"></i></button>
+                                    <h2 className="text-xl font-black text-black ml-4 tracking-widest uppercase">{historyView === 'deposit' ? 'Deposit History' : historyView === 'withdraw' ? 'Withdrawal History' : 'Match History'}</h2>
                                 </div>
                                 <div className="flex-1 overflow-y-auto p-4 space-y-4">
                                     {historyView === 'deposit' && depHistory.length === 0 && <p className="text-center text-gray-500 font-bold mt-10">No deposits found.</p>}
                                     {historyView === 'deposit' && depHistory.map((tx, idx) => (
-                                        <div key={idx} className="bg-[#111] border border-gray-800 p-4 rounded-xl">
+                                        <div key={idx} className="bg-white border border-gray-200 p-4 rounded-xl shadow-sm">
                                             <div className="flex justify-between items-start mb-2">
-                                                <div><span className="text-[#10b981] font-black text-lg">+₹{tx.amount}</span><span className={`ml-3 text-[10px] font-bold uppercase px-2 py-1 rounded-full ${tx.status === 'pending' ? 'bg-yellow-500/20 text-yellow-500' : tx.status === 'approved' ? 'bg-[#10b981]/20 text-[#10b981]' : 'bg-red-500/20 text-red-500'}`}>{tx.status}</span></div>
+                                                <div><span className="text-[#10b981] font-black text-lg">+₹{tx.amount}</span><span className={`ml-3 text-[10px] font-bold uppercase px-2 py-1 rounded-full ${tx.status === 'pending' ? 'bg-yellow-100 text-yellow-600' : tx.status === 'approved' ? 'bg-[#10b981]/10 text-[#10b981]' : 'bg-red-50 text-red-500'}`}>{tx.status}</span></div>
                                                 <div className="text-[10px] text-gray-500 font-bold text-right">{formatSafeDate(tx.date)}</div>
                                             </div>
-                                            <div className="text-xs text-gray-400 font-bold">UTR: <span className="text-gray-200">{tx.utr}</span></div>
+                                            <div className="text-xs text-gray-500 font-bold">UTR: <span className="text-black">{tx.utr}</span></div>
                                         </div>
                                     ))}
                                     
                                     {historyView === 'withdraw' && withHistory.length === 0 && <p className="text-center text-gray-500 font-bold mt-10">No withdrawals found.</p>}
                                     {historyView === 'withdraw' && withHistory.map((tx, idx) => (
-                                        <div key={idx} className="bg-[#111] border border-gray-800 p-4 rounded-xl">
+                                        <div key={idx} className="bg-white border border-gray-200 p-4 rounded-xl shadow-sm">
                                             <div className="flex justify-between items-start mb-2">
-                                                <div><span className="text-rose-500 font-black text-lg">-₹{tx.amount}</span><span className={`ml-3 text-[10px] font-bold uppercase px-2 py-1 rounded-full ${tx.status === 'pending' ? 'bg-yellow-500/20 text-yellow-500' : tx.status === 'approved' ? 'bg-[#10b981]/20 text-[#10b981]' : 'bg-red-500/20 text-red-500'}`}>{tx.status}</span></div>
+                                                <div><span className="text-rose-500 font-black text-lg">-₹{tx.amount}</span><span className={`ml-3 text-[10px] font-bold uppercase px-2 py-1 rounded-full ${tx.status === 'pending' ? 'bg-yellow-100 text-yellow-600' : tx.status === 'approved' ? 'bg-[#10b981]/10 text-[#10b981]' : 'bg-red-50 text-red-500'}`}>{tx.status}</span></div>
                                                 <div className="text-[10px] text-gray-500 font-bold text-right">{formatSafeDate(tx.date)}</div>
                                             </div>
-                                            <div className="text-xs text-gray-400 font-bold uppercase">{tx.type}: <span className="text-gray-200">{tx.id}</span></div>
+                                            <div className="text-xs text-gray-500 font-bold uppercase">{tx.type}: <span className="text-black">{tx.id}</span></div>
                                         </div>
                                     ))}
                                     
                                     {historyView === 'match' && matchHistory.length === 0 && <p className="text-center text-gray-500 font-bold mt-10">No matches found.</p>}
                                     {historyView === 'match' && matchHistory.map((match, idx) => (
-                                        <div key={idx} className={`bg-[#111] border border-gray-800 p-4 rounded-xl relative overflow-hidden`}>
-                                            <div className={`absolute top-0 left-0 w-1 h-full ${match.isWinner === true ? 'bg-[#10b981]' : match.isWinner === false ? 'bg-rose-500' : 'bg-gray-500'}`}></div>
+                                        <div key={idx} className={`bg-white border border-gray-200 p-4 rounded-xl shadow-sm relative overflow-hidden`}>
+                                            <div className={`absolute top-0 left-0 w-1 h-full ${match.isWinner === true ? 'bg-[#10b981]' : match.isWinner === false ? 'bg-rose-500' : 'bg-gray-400'}`}></div>
                                             <div className="flex justify-between items-center mb-2 pl-2">
-                                                <span className={`font-black uppercase text-lg ${match.isWinner === true ? 'text-[#10b981]' : match.isWinner === false ? 'text-rose-500' : 'text-gray-400'}`}>{match.isWinner === true ? 'VICTORY' : match.isWinner === false ? 'DEFEAT' : 'DRAW'}</span>
+                                                <span className={`font-black uppercase text-lg ${match.isWinner === true ? 'text-[#10b981]' : match.isWinner === false ? 'text-rose-500' : 'text-gray-500'}`}>{match.isWinner === true ? 'VICTORY' : match.isWinner === false ? 'DEFEAT' : 'DRAW'}</span>
                                                 <div className="text-[10px] text-gray-500 font-bold text-right">{formatSafeDate(match.date)}</div>
                                             </div>
                                             <div className="flex justify-between text-xs font-bold pl-2">
-                                                <span className="text-gray-400">Entry: <span className="text-white">₹{match.tier}</span></span>
-                                                <span className="text-gray-400">Win Amount: <span className="text-[#ffe29a]">₹{match.isWinner === true ? (match.tier * 1.8).toFixed(2) : '0'}</span></span>
+                                                <span className="text-gray-500">Entry: <span className="text-black">₹{match.tier}</span></span>
+                                                <span className="text-gray-500">Win Amount: <span className="text-[#b8860b]">₹{match.isWinner === true ? (match.tier * 1.8).toFixed(2) : '0'}</span></span>
                                             </div>
                                         </div>
                                     ))}
@@ -938,78 +988,78 @@
                             </div>
                         )}
 
-                        {/* REFER TAB */}
+                        {/* REFER TAB (LIGHT THEME) */}
                         {activeTab === 'refer' && (
                             <div className="space-y-6 pt-4 pop-in">
-                                <div className="bg-[#111] border border-[#dcae45] w-full rounded-3xl p-6 shadow-[0_0_30px_rgba(220,174,69,0.2)] text-center relative overflow-hidden">
+                                <div className="bg-white border border-[#dcae45] w-full rounded-3xl p-6 shadow-[0_0_20px_rgba(220,174,69,0.15)] text-center relative overflow-hidden">
                                     <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#dcae45] opacity-10 blur-3xl rounded-full"></div>
-                                    <i className="fa-solid fa-gifts text-6xl text-[#dcae45] mb-4 drop-shadow-[0_0_15px_rgba(220,174,69,0.8)]"></i>
-                                    <h3 className="text-3xl font-black text-[#ffe29a] mb-2 uppercase tracking-wider">Refer & Earn</h3>
+                                    <i className="fa-solid fa-gifts text-6xl text-[#dcae45] mb-4 drop-shadow-[0_0_10px_rgba(220,174,69,0.4)]"></i>
+                                    <h3 className="text-3xl font-black text-[#b8860b] mb-2 uppercase tracking-wider">Refer & Earn</h3>
                                     
-                                    <p className="text-gray-300 text-sm mb-2 font-bold">Invite friends & earn ₹10 Bonus!</p>
-                                    <p className="text-red-500 font-bold text-xs mb-6 px-2 border border-red-500/30 bg-red-500/10 py-2 rounded-lg">* You will get ₹10 Bonus ONLY when your referred friend makes a minimum deposit of ₹30!</p>
+                                    <p className="text-gray-600 text-sm mb-2 font-bold">Invite friends & earn ₹10 Bonus!</p>
+                                    <p className="text-red-500 font-bold text-xs mb-6 px-2 border border-red-200 bg-red-50 py-2 rounded-lg">* You will get ₹10 Bonus ONLY when your referred friend makes a minimum deposit of ₹30!</p>
                                     
-                                    <div className="bg-black border-2 border-dashed border-[#dcae45] p-4 rounded-xl mb-6">
+                                    <div className="bg-gray-50 border-2 border-dashed border-[#dcae45] p-4 rounded-xl mb-6">
                                         <p className="text-xs text-gray-500 mb-1 uppercase tracking-widest font-bold">Your Invite Code</p>
                                         <div className="flex items-center justify-between px-2">
-                                            <span className="text-3xl font-black text-white tracking-widest">YE-{userProfile.number.slice(-4) || '9999'}</span>
-                                            <i className="fa-solid fa-copy text-[#dcae45] text-2xl cursor-pointer hover:scale-110 transition" onClick={()=>alert("Invite Code Copied!")}></i>
+                                            <span className="text-3xl font-black text-black tracking-widest">YE-{userProfile.number.slice(-4) || '9999'}</span>
+                                            <i className="fa-solid fa-copy text-[#b8860b] text-2xl cursor-pointer hover:scale-110 transition" onClick={()=>alert("Invite Code Copied!")}></i>
                                         </div>
                                     </div>
-                                    <button onClick={() => alert("Share Link Copied!")} className="w-full btn-play-gold py-4 rounded-xl font-black uppercase text-lg">Share Now</button>
+                                    <button onClick={() => alert("Share Link Copied!")} className="w-full btn-play-gold py-4 rounded-xl font-black uppercase text-lg shadow-md">Share Now</button>
                                 </div>
                             </div>
                         )}
 
-                        {/* PROFILE TAB */}
+                        {/* PROFILE TAB (LIGHT THEME) */}
                         {activeTab === 'profile' && (
                             <div className="space-y-6 pt-4 pop-in">
-                                <div className="text-center relative bg-[#111] border border-[#dcae45]/40 p-6 rounded-3xl shadow-[0_0_20px_rgba(220,174,69,0.1)]">
+                                <div className="text-center relative bg-white border border-[#dcae45]/40 p-6 rounded-3xl shadow-sm">
                                     <div className="relative inline-block mb-4">
-                                        <img src={userProfile.avatar} alt="Profile" className="w-28 h-28 rounded-full object-cover border-4 border-[#dcae45] p-1 mx-auto bg-black shadow-[0_0_15px_rgba(220,174,69,0.3)]" />
-                                        <button onClick={() => fileInputRef.current.click()} className="absolute bottom-0 right-0 bg-[#dcae45] text-black w-10 h-10 flex items-center justify-center rounded-full border-2 border-black shadow-lg"><i className="fa-solid fa-camera text-lg"></i></button>
+                                        <img src={userProfile.avatar} alt="Profile" className="w-28 h-28 rounded-full object-cover border-4 border-[#dcae45] p-1 mx-auto bg-gray-50 shadow-[0_0_15px_rgba(220,174,69,0.2)]" />
+                                        <button onClick={() => fileInputRef.current.click()} className="absolute bottom-0 right-0 bg-[#dcae45] text-black w-10 h-10 flex items-center justify-center rounded-full border-2 border-white shadow-md"><i className="fa-solid fa-camera text-lg"></i></button>
                                         <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
                                     </div>
                                     
                                     <div className="mt-2 h-10 flex justify-center items-center">
                                         {isEditingName ? (
                                             <div className="flex items-center gap-3">
-                                                <input type="text" value={editNameInput} onChange={(e) => setEditNameInput(e.target.value)} className="bg-transparent text-white text-2xl font-black text-center border-b-2 border-[#dcae45] focus:outline-none w-[180px]" autoFocus />
-                                                <button onClick={saveProfileName} className="text-[#10b981] bg-[#10b981]/20 w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition"><i className="fa-solid fa-check"></i></button>
+                                                <input type="text" value={editNameInput} onChange={(e) => setEditNameInput(e.target.value)} className="bg-transparent text-black text-2xl font-black text-center border-b-2 border-[#dcae45] focus:outline-none w-[180px]" autoFocus />
+                                                <button onClick={saveProfileName} className="text-[#10b981] bg-[#10b981]/10 w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition"><i className="fa-solid fa-check"></i></button>
                                             </div>
                                         ) : (
                                             <div className="flex items-center gap-3">
-                                                <h2 className="text-2xl font-black text-white">{userProfile.name}</h2>
-                                                <button onClick={() => setIsEditingName(true)} className="text-gray-400 hover:text-[#dcae45] transition"><i className="fa-solid fa-pen"></i></button>
+                                                <h2 className="text-2xl font-black text-black">{userProfile.name}</h2>
+                                                <button onClick={() => setIsEditingName(true)} className="text-gray-400 hover:text-[#b8860b] transition"><i className="fa-solid fa-pen"></i></button>
                                             </div>
                                         )}
                                     </div>
-                                    <p className="text-[#dcae45] mt-3 tracking-widest font-bold text-sm bg-black inline-block px-4 py-1.5 rounded-full border border-[#dcae45]/30"><i className="fa-solid fa-phone text-xs mr-1"></i> +91 {userProfile.number}</p>
+                                    <p className="text-[#b8860b] mt-3 tracking-widest font-bold text-sm bg-gray-50 inline-block px-4 py-1.5 rounded-full border border-[#dcae45]/30"><i className="fa-solid fa-phone text-xs mr-1"></i> +91 {userProfile.number}</p>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-2">
-                                    <div className="bg-[#111] p-3 rounded-xl border border-[#333] text-center">
+                                    <div className="bg-white p-3 rounded-xl border border-gray-200 text-center shadow-sm">
                                         <div className="text-[#10b981] font-black text-lg">🏆 {matchesWon}</div>
-                                        <div className="text-[9px] text-gray-400 font-bold uppercase">Matches Won</div>
+                                        <div className="text-[9px] text-gray-500 font-bold uppercase">Matches Won</div>
                                     </div>
-                                    <div className="bg-[#111] p-3 rounded-xl border border-[#333] text-center">
-                                        <div className="text-white font-black text-lg">#{myRank}</div>
-                                        <div className="text-[9px] text-gray-400 font-bold uppercase">Global Rank</div>
+                                    <div className="bg-white p-3 rounded-xl border border-gray-200 text-center shadow-sm">
+                                        <div className="text-black font-black text-lg">#{myRank}</div>
+                                        <div className="text-[9px] text-gray-500 font-bold uppercase">Global Rank</div>
                                     </div>
                                 </div>
 
                                 <div className="mt-8 space-y-3">
-                                    <h3 className="text-gray-400 font-bold uppercase tracking-widest text-xs mb-4 pl-2">Settings & Info</h3>
+                                    <h3 className="text-gray-500 font-bold uppercase tracking-widest text-xs mb-4 pl-2">Settings & Info</h3>
                                     
-                                    <button onClick={() => document.getElementById('tcModal').classList.remove('hidden')} className="w-full flex items-center justify-between bg-[#111] border border-gray-800 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors">
-                                        <div className="flex items-center gap-4 text-gray-300 font-bold"><i className="fa-solid fa-file-contract text-[#dcae45] text-xl w-6"></i> Terms & Conditions</div><i className="fa-solid fa-chevron-right text-gray-600"></i>
+                                    <button onClick={() => document.getElementById('tcModal').classList.remove('hidden')} className="w-full flex items-center justify-between bg-white border border-gray-200 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors shadow-sm">
+                                        <div className="flex items-center gap-4 text-gray-700 font-bold"><i className="fa-solid fa-file-contract text-[#dcae45] text-xl w-6"></i> Terms & Conditions</div><i className="fa-solid fa-chevron-right text-gray-400"></i>
                                     </button>
                                     
-                                    <button onClick={() => alert("Support Chat Opening...")} className="w-full flex items-center justify-between bg-[#111] border border-gray-800 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors">
-                                        <div className="flex items-center gap-4 text-gray-300 font-bold"><i className="fa-solid fa-headset text-[#dcae45] text-xl w-6"></i> Support Chat</div><i className="fa-solid fa-chevron-right text-gray-600"></i>
+                                    <button onClick={() => alert("Support Chat Opening...")} className="w-full flex items-center justify-between bg-white border border-gray-200 p-4 rounded-xl hover:border-[#dcae45]/50 transition-colors shadow-sm">
+                                        <div className="flex items-center gap-4 text-gray-700 font-bold"><i className="fa-solid fa-headset text-[#dcae45] text-xl w-6"></i> Support Chat</div><i className="fa-solid fa-chevron-right text-gray-400"></i>
                                     </button>
                                     
-                                    <button onClick={logoutUser} className="w-full flex items-center justify-between bg-black border border-red-900/50 p-4 rounded-xl mt-4 hover:bg-red-950/30 transition-colors">
+                                    <button onClick={logoutUser} className="w-full flex items-center justify-between bg-white border border-red-200 p-4 rounded-xl mt-4 hover:bg-red-50 transition-colors shadow-sm">
                                         <div className="flex items-center gap-4 text-red-500 font-bold"><i className="fa-solid fa-right-from-bracket text-xl w-6"></i> Logout</div>
                                     </button>
                                 </div>
@@ -1017,35 +1067,35 @@
                         )}
                     </div>
 
-                    {/* NOTIFICATION MODAL */}
+                    {/* NOTIFICATION MODAL (LIGHT THEME) */}
                     {showNotifications && (
-                        <div className="fixed inset-0 bg-[#050505]/95 z-[100] flex flex-col pop-in pb-20 pt-4 backdrop-blur-sm">
-                            <div className="flex items-center justify-between p-4 border-b border-[#dcae45]/30 bg-[#111]">
-                                <h2 className="text-xl font-black text-white tracking-widest uppercase">
+                        <div className="fixed inset-0 bg-black/60 z-[100] flex flex-col pop-in pb-20 pt-4 backdrop-blur-sm">
+                            <div className="flex items-center justify-between p-4 border-b border-[#dcae45]/30 bg-white rounded-t-2xl shadow-sm">
+                                <h2 className="text-xl font-black text-black tracking-widest uppercase">
                                     <i className="fa-solid fa-bell text-[#dcae45] mr-2"></i> Notifications
                                 </h2>
-                                <button onClick={() => setShowNotifications(false)} className="text-gray-400 text-2xl hover:text-white transition">
+                                <button onClick={() => setShowNotifications(false)} className="text-gray-500 text-2xl hover:text-black transition">
                                     <i className="fa-solid fa-xmark"></i>
                                 </button>
                             </div>
-                            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                            <div className="flex-1 bg-[#f4f6f9] overflow-y-auto p-4 space-y-4">
                                 {notifications.length === 0 ? (
                                     <div className="text-center text-gray-500 font-bold mt-10">No new notifications.</div>
                                 ) : (
                                     notifications.map(notif => (
-                                        <div key={notif.id} className={`bg-[#111] border ${notif.read ? 'border-gray-800' : 'border-[#dcae45] shadow-[0_0_15px_rgba(220,174,69,0.2)]'} p-4 rounded-xl relative overflow-hidden transition`}>
-                                            {!notif.read && <div className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse border border-black"></div>}
-                                            <div className="text-xs text-[#dcae45] mb-3 font-bold">
+                                        <div key={notif.id} className={`bg-white border ${notif.read ? 'border-gray-200' : 'border-[#dcae45] shadow-[0_0_15px_rgba(220,174,69,0.1)]'} p-4 rounded-xl relative overflow-hidden transition`}>
+                                            {!notif.read && <div className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse border border-white"></div>}
+                                            <div className="text-xs text-[#b8860b] mb-3 font-bold">
                                                 <i className="fa-regular fa-clock mr-1"></i> {notif.date ? new Date(notif.date.toDate()).toLocaleString() : ''}
                                             </div>
                                             {notif.imageUrl && (
-                                                <img src={notif.imageUrl} alt="banner" className="w-full h-32 md:h-40 object-cover rounded-lg mb-3 border border-gray-700" />
+                                                <img src={notif.imageUrl} alt="banner" className="w-full h-32 md:h-40 object-cover rounded-lg mb-3 border border-gray-200" />
                                             )}
-                                            <p className="text-gray-200 text-sm whitespace-pre-wrap">{notif.text}</p>
+                                            <p className="text-gray-700 text-sm whitespace-pre-wrap">{notif.text}</p>
                                             
                                             {!notif.read && (
-                                                <div className="mt-4 pt-3 border-t border-gray-800 text-right">
-                                                    <button onClick={() => markAsRead(notif.id)} className="text-xs bg-[#dcae45] text-black px-4 py-1.5 rounded-full font-bold uppercase tracking-widest hover:bg-[#ffe29a] transition">
+                                                <div className="mt-4 pt-3 border-t border-gray-100 text-right">
+                                                    <button onClick={() => markAsRead(notif.id)} className="text-xs bg-[#dcae45] text-black px-4 py-1.5 rounded-full font-bold uppercase tracking-widest hover:bg-[#ffe29a] transition shadow-sm">
                                                         Mark as Read <i className="fa-solid fa-check ml-1"></i>
                                                     </button>
                                                 </div>
@@ -1057,122 +1107,122 @@
                         </div>
                     )}
 
-                    {/* PAYMENT MODALS */}
+                    {/* PAYMENT MODALS (LIGHT THEME) */}
                     {depositModal && (
-                        <div className="fixed inset-0 bg-black/90 z-[90] flex items-center justify-center p-4 backdrop-blur-sm pop-in">
-                            <div className="bg-[#111] border border-[#dcae45] w-full max-w-sm rounded-3xl p-6 shadow-[0_0_30px_rgba(220,174,69,0.2)]">
-                                <h3 className="text-xl font-bold text-[#ffe29a] mb-4 text-center">Deposit Money</h3>
-                                <div className="bg-white p-2 rounded-xl w-40 h-40 mx-auto mb-4">
+                        <div className="fixed inset-0 bg-black/60 z-[90] flex items-center justify-center p-4 backdrop-blur-sm pop-in">
+                            <div className="bg-white border border-gray-300 w-full max-w-sm rounded-3xl p-6 shadow-2xl">
+                                <h3 className="text-xl font-bold text-[#b8860b] mb-4 text-center">Deposit Money</h3>
+                                <div className="bg-gray-50 p-2 rounded-xl w-40 h-40 mx-auto mb-4 border border-gray-200">
                                     <img src={adminSettings.qrUrl} className="w-full h-full object-contain" alt="Payment QR Code" />
                                 </div>
                                 <div className="text-center mb-6">
-                                    <p className="text-gray-400 text-xs mb-1">Scan QR or Pay to UPI ID</p>
-                                    <div className="flex items-center justify-center gap-2 text-white font-bold bg-black py-2 rounded-lg border border-gray-700">
+                                    <p className="text-gray-500 text-xs mb-1">Scan QR or Pay to UPI ID</p>
+                                    <div className="flex items-center justify-center gap-2 text-black font-bold bg-gray-100 py-2 rounded-lg border border-gray-300">
                                         {adminSettings.upiId} <i className="fa-solid fa-copy text-[#dcae45] cursor-pointer" onClick={() => alert('UPI ID Copied!')}></i>
                                     </div>
                                 </div>
                                 <div className="space-y-3 mb-6">
-                                    <input type="number" placeholder="Enter Amount Paid (Min: ₹10)" value={depositAmount} onChange={e=>setDepositAmount(e.target.value)} className="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none" min="10" />
-                                    <input type="text" placeholder="12-Digit UTR / Ref Number" value={utrInput} onChange={e=>setUtrInput(e.target.value)} className="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none" />
+                                    <input type="number" placeholder="Enter Amount Paid (Min: ₹10)" value={depositAmount} onChange={e=>setDepositAmount(e.target.value)} className="w-full bg-gray-50 border border-gray-300 p-3 rounded-xl text-black focus:border-[#dcae45] outline-none" min="10" />
+                                    <input type="text" placeholder="12-Digit UTR / Ref Number" value={utrInput} onChange={e=>setUtrInput(e.target.value)} className="w-full bg-gray-50 border border-gray-300 p-3 rounded-xl text-black focus:border-[#dcae45] outline-none" />
                                 </div>
                                 <div className="flex gap-3">
-                                    <button onClick={() => setDepositModal(false)} className="flex-1 border border-gray-600 py-3 rounded-xl font-bold text-gray-400">Cancel</button>
-                                    <button onClick={submitDepositRequest} className="flex-1 btn-play-gold py-3 rounded-xl font-bold">Submit Proof</button>
+                                    <button onClick={() => setDepositModal(false)} className="flex-1 border border-gray-300 bg-gray-50 py-3 rounded-xl font-bold text-gray-500">Cancel</button>
+                                    <button onClick={submitDepositRequest} className="flex-1 btn-play-gold py-3 rounded-xl font-bold shadow-sm">Submit Proof</button>
                                 </div>
                             </div>
                         </div>
                     )}
 
                     {withdrawModal && (
-                        <div className="fixed inset-0 bg-black/90 z-[90] flex items-center justify-center p-4 backdrop-blur-sm pop-in">
-                            <div className="bg-[#111] border border-[#dcae45] w-full max-w-sm rounded-3xl p-6 shadow-[0_0_30px_rgba(220,174,69,0.2)]">
-                                <h3 className="text-xl font-bold text-[#ffe29a] mb-2 text-center">Withdraw Money</h3>
-                                <p className="text-center text-gray-400 text-sm mb-6">Available: <span className="text-[#10b981] font-bold">₹{withdrawable.toFixed(2)}</span></p>
-                                <div className="flex gap-2 mb-4 bg-black p-1 rounded-xl border border-gray-800">
-                                    <button onClick={() => setWithdrawType('upi')} className={`flex-1 py-2 rounded-lg font-bold text-sm ${withdrawType==='upi'?'bg-[#dcae45] text-black':'text-gray-400'}`}>UPI ID</button>
-                                    <button onClick={() => setWithdrawType('number')} className={`flex-1 py-2 rounded-lg font-bold text-sm ${withdrawType==='number'?'bg-[#dcae45] text-black':'text-gray-400'}`}>Mobile No.</button>
+                        <div className="fixed inset-0 bg-black/60 z-[90] flex items-center justify-center p-4 backdrop-blur-sm pop-in">
+                            <div className="bg-white border border-gray-300 w-full max-w-sm rounded-3xl p-6 shadow-2xl">
+                                <h3 className="text-xl font-bold text-[#b8860b] mb-2 text-center">Withdraw Money</h3>
+                                <p className="text-center text-gray-500 text-sm mb-6">Available: <span className="text-[#10b981] font-bold">₹{withdrawable.toFixed(2)}</span></p>
+                                <div className="flex gap-2 mb-4 bg-gray-50 p-1 rounded-xl border border-gray-200">
+                                    <button onClick={() => setWithdrawType('upi')} className={`flex-1 py-2 rounded-lg font-bold text-sm ${withdrawType==='upi'?'bg-[#dcae45] text-black shadow-sm':'text-gray-500'}`}>UPI ID</button>
+                                    <button onClick={() => setWithdrawType('number')} className={`flex-1 py-2 rounded-lg font-bold text-sm ${withdrawType==='number'?'bg-[#dcae45] text-black shadow-sm':'text-gray-500'}`}>Mobile No.</button>
                                 </div>
                                 <div className="space-y-3 mb-6">
-                                    <input type="text" placeholder={withdrawType==='upi'?"Enter UPI ID":"Enter Mobile Number"} value={withdrawId} onChange={e=>setWithdrawId(e.target.value)} className="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none" />
-                                    <input type="number" placeholder="Enter Amount to Withdraw" value={withdrawAmount} onChange={e=>setWithdrawAmount(e.target.value)} className="w-full bg-black border border-gray-700 p-3 rounded-xl text-white focus:border-[#dcae45] outline-none" />
+                                    <input type="text" placeholder={withdrawType==='upi'?"Enter UPI ID":"Enter Mobile Number"} value={withdrawId} onChange={e=>setWithdrawId(e.target.value)} className="w-full bg-gray-50 border border-gray-300 p-3 rounded-xl text-black focus:border-[#dcae45] outline-none" />
+                                    <input type="number" placeholder="Enter Amount to Withdraw" value={withdrawAmount} onChange={e=>setWithdrawAmount(e.target.value)} className="w-full bg-gray-50 border border-gray-300 p-3 rounded-xl text-black focus:border-[#dcae45] outline-none" />
                                 </div>
                                 <div className="flex gap-3">
-                                    <button onClick={() => setWithdrawModal(false)} className="flex-1 border border-gray-600 py-3 rounded-xl font-bold text-gray-400">Cancel</button>
-                                    <button onClick={submitWithdrawRequest} className="flex-1 btn-play-gold py-3 rounded-xl font-bold">Withdraw</button>
+                                    <button onClick={() => setWithdrawModal(false)} className="flex-1 border border-gray-300 bg-gray-50 py-3 rounded-xl font-bold text-gray-500">Cancel</button>
+                                    <button onClick={submitWithdrawRequest} className="flex-1 btn-play-gold py-3 rounded-xl font-bold shadow-sm">Withdraw</button>
                                 </div>
                             </div>
                         </div>
                     )}
 
-                    {/* CONFIRM MATCH MODAL */}
+                    {/* CONFIRM MATCH MODAL (LIGHT THEME) */}
                     {confirmPopup && (
-                        <div className="fixed inset-0 bg-black z-[80] flex flex-col items-center justify-center p-6 pop-in">
+                        <div className="fixed inset-0 bg-black/60 z-[80] flex flex-col items-center justify-center p-6 pop-in backdrop-blur-sm">
                             <div className="w-full max-w-sm flex flex-col gap-8">
-                                <div className="mx-auto w-24 h-24 bg-gradient-to-tr from-[#dcae45] to-[#ffe29a] rounded-full flex items-center justify-center text-black text-5xl shadow-[0_0_30px_rgba(220,174,69,0.6)]">
+                                <div className="mx-auto w-24 h-24 bg-gradient-to-tr from-[#dcae45] to-[#ffe29a] rounded-full flex items-center justify-center text-black text-5xl shadow-[0_0_20px_rgba(220,174,69,0.4)]">
                                     <i className="fa-solid fa-coins"></i>
                                 </div>
-                                <h2 className="text-3xl font-black text-center text-white tracking-widest uppercase">Confirm Match</h2>
-                                <div className="bg-[#111] border border-[#dcae45] rounded-3xl p-8 flex flex-col gap-6 text-center shadow-[0_0_20px_rgba(220,174,69,0.2)]">
-                                    <div><div className="text-gray-400 text-sm mb-1 uppercase tracking-wider">Entry Amount</div><div className="text-white font-black text-4xl">₹{confirmPopup.entry}</div></div>
-                                    <hr className="border-gray-800" />
-                                    <div><div className="text-gray-400 text-sm mb-1 uppercase tracking-wider">Winning Amount</div><div className="text-[#ffe29a] font-black text-5xl drop-shadow-[0_0_10px_rgba(220,174,69,0.8)]">₹{confirmPopup.win}</div></div>
+                                <h2 className="text-3xl font-black text-center text-white tracking-widest uppercase drop-shadow-lg">Confirm Match</h2>
+                                <div className="bg-white border border-gray-200 rounded-3xl p-8 flex flex-col gap-6 text-center shadow-xl">
+                                    <div><div className="text-gray-500 text-sm mb-1 uppercase tracking-wider">Entry Amount</div><div className="text-black font-black text-4xl">₹{confirmPopup.entry}</div></div>
+                                    <hr className="border-gray-200" />
+                                    <div><div className="text-gray-500 text-sm mb-1 uppercase tracking-wider">Winning Amount</div><div className="text-[#b8860b] font-black text-5xl drop-shadow-sm">₹{confirmPopup.win}</div></div>
                                 </div>
                                 <div className="flex gap-4 w-full mt-4">
-                                    <button onClick={() => setConfirmPopup(null)} className="flex-1 bg-transparent border-2 border-gray-600 text-gray-300 py-4 rounded-2xl font-bold text-lg hover:bg-gray-800 transition">Cancel</button>
-                                    <button onClick={confirmPlay} className="flex-1 btn-play-gold py-4 rounded-2xl font-black text-lg text-black uppercase tracking-wide">Play Now</button>
+                                    <button onClick={() => setConfirmPopup(null)} className="flex-1 bg-white border border-gray-300 text-gray-600 py-4 rounded-2xl font-bold text-lg hover:bg-gray-50 transition shadow-sm">Cancel</button>
+                                    <button onClick={confirmPlay} className="flex-1 btn-play-gold py-4 rounded-2xl font-black text-lg text-black uppercase tracking-wide shadow-md">Play Now</button>
                                 </div>
                             </div>
                         </div>
                     )}
 
-                    {/* MATCHMAKING SCREEN */}
+                    {/* MATCHMAKING SCREEN (LIGHT THEME) */}
                     {isMatchmaking && (
-                        <div className="fixed inset-0 z-[100] bg-[#050505] text-white flex flex-col items-center pt-20 px-6">
+                        <div className="fixed inset-0 z-[100] bg-[#f4f6f9] text-black flex flex-col items-center pt-20 px-6">
                             <div className="absolute top-10 w-full text-center">
-                                <h2 className="text-[#ffe29a] text-xl font-bold tracking-widest uppercase">{matchFound ? "MATCH FOUND!" : "SEARCHING..."}</h2>
-                                {!matchFound && <p className="text-gray-400 text-sm mt-2">Timeout in: {matchTime}s</p>}
+                                <h2 className="text-[#b8860b] text-xl font-bold tracking-widest uppercase">{matchFound ? "MATCH FOUND!" : "SEARCHING..."}</h2>
+                                {!matchFound && <p className="text-gray-500 text-sm mt-2">Timeout in: {matchTime}s</p>}
                             </div>
                             <div className="flex w-full justify-between items-center mt-24">
                                 <div className="flex flex-col items-center">
-                                    <div className="w-24 h-24 rounded-full border-4 border-[#3b82f6] p-1 shadow-[0_0_20px_rgba(59,130,246,0.5)] bg-black">
+                                    <div className="w-24 h-24 rounded-full border-4 border-[#3b82f6] p-1 shadow-md bg-white">
                                         <img src={userProfile.avatar} className="w-full h-full rounded-full object-cover" />
                                     </div>
                                     <span className="font-bold mt-4 text-lg">{userProfile.name}</span>
                                 </div>
-                                <div className="text-4xl font-black text-[#dcae45] italic tracking-tighter drop-shadow-[0_0_10px_rgba(220,174,69,0.8)]">VS</div>
+                                <div className="text-4xl font-black text-[#dcae45] italic tracking-tighter drop-shadow-sm">VS</div>
                                 <div className="flex flex-col items-center">
-                                    <div className={`w-24 h-24 rounded-full border-4 p-1 bg-black ${matchFound ? 'border-[#ef4444] shadow-[0_0_20px_rgba(239,68,68,0.5)]' : 'border-[#dcae45] border-dashed spin-slow'}`}>
+                                    <div className={`w-24 h-24 rounded-full border-4 p-1 bg-white shadow-md ${matchFound ? 'border-[#ef4444]' : 'border-[#dcae45] border-dashed spin-slow'}`}>
                                         <img src={opponent.img} className={`w-full h-full rounded-full object-cover ${matchFound ? '' : 'animate-pulse opacity-50'}`} />
                                     </div>
                                     <span className="font-bold mt-4 text-lg">{opponent.name}</span>
                                 </div>
                             </div>
-                            {!matchFound && ( <button onClick={cancelMatchmaking} className="absolute bottom-20 px-8 py-3 rounded-full border-2 border-red-500 text-red-500 font-bold hover:bg-red-500 hover:text-white transition-colors"> Cancel Search </button> )}
+                            {!matchFound && ( <button onClick={cancelMatchmaking} className="absolute bottom-20 px-8 py-3 rounded-full border-2 border-red-500 text-red-500 font-bold hover:bg-red-50 hover:text-red-600 transition-colors shadow-sm"> Cancel Search </button> )}
                         </div>
                     )}
 
-                    {/* IN-GAME BLIND BID UI */}
+                    {/* IN-GAME BLIND BID UI (LIGHT THEME) */}
                     {isPlaying && roomData && (
-                        <div className="fixed inset-0 bg-[#050505] text-white flex flex-col p-4 z-[200] pb-20">
+                        <div className="fixed inset-0 bg-[#f4f6f9] text-black flex flex-col p-4 z-[200] pb-20">
                             <div className="flex justify-between items-center mb-6 mt-2">
-                                <h2 className="text-lg font-black text-[#ffcc00] tracking-widest uppercase"><i className="fa-solid fa-bolt"></i> BLIND BID</h2>
-                                <div className="bg-[#111] px-4 py-1 rounded-full border border-[#333] text-xs font-bold text-gray-400">ROUND {roomData.round}/3</div>
+                                <h2 className="text-lg font-black text-[#b8860b] tracking-widest uppercase"><i className="fa-solid fa-bolt"></i> BLIND BID</h2>
+                                <div className="bg-white px-4 py-1 rounded-full border border-gray-300 text-xs font-bold text-gray-600 shadow-sm">ROUND {roomData.round}/3</div>
                             </div>
 
-                            <div className="gold-card p-4 flex justify-between items-center mb-8">
+                            <div className="bg-white border border-gray-200 shadow-sm p-4 rounded-xl flex justify-between items-center mb-8">
                                 <div className="text-center w-1/3">
-                                    <img src={playerRole === 1 ? roomData.p1.img : roomData.p2.img} className="w-12 h-12 rounded-full mx-auto mb-2 border-2 border-[#3b82f6] bg-black"/>
-                                    <div className="text-2xl font-black text-[#ffe29a]">{playerRole === 1 ? roomData.p1Tokens : roomData.p2Tokens}</div>
-                                    <div className="text-[10px] text-gray-400 uppercase font-bold mt-1">My Tokens</div>
+                                    <img src={playerRole === 1 ? roomData.p1.img : roomData.p2.img} className="w-12 h-12 rounded-full mx-auto mb-2 border-2 border-[#3b82f6] bg-gray-50"/>
+                                    <div className="text-2xl font-black text-[#b8860b]">{playerRole === 1 ? roomData.p1Tokens : roomData.p2Tokens}</div>
+                                    <div className="text-[10px] text-gray-500 uppercase font-bold mt-1">My Tokens</div>
                                     <div className="flex gap-1 justify-center mt-2">
                                         {[...Array(playerRole === 1 ? roomData.p1Wins : roomData.p2Wins)].map((_,i) => <i key={i} className="fa-solid fa-star text-[#3b82f6] text-[10px]"></i>)}
                                     </div>
                                 </div>
-                                <div className="text-3xl font-black text-[#333] italic">VS</div>
+                                <div className="text-3xl font-black text-gray-300 italic">VS</div>
                                 <div className="text-center w-1/3">
-                                    <img src={playerRole === 1 ? roomData.p2.img : roomData.p1.img} className="w-12 h-12 rounded-full mx-auto mb-2 border-2 border-[#ef4444] bg-black"/>
-                                    <div className="text-2xl font-black text-rose-400">{playerRole === 1 ? roomData.p2Tokens : roomData.p1Tokens}</div>
-                                    <div className="text-[10px] text-gray-400 uppercase font-bold mt-1">Opponent</div>
+                                    <img src={playerRole === 1 ? roomData.p2.img : roomData.p1.img} className="w-12 h-12 rounded-full mx-auto mb-2 border-2 border-[#ef4444] bg-gray-50"/>
+                                    <div className="text-2xl font-black text-rose-500">{playerRole === 1 ? roomData.p2Tokens : roomData.p1Tokens}</div>
+                                    <div className="text-[10px] text-gray-500 uppercase font-bold mt-1">Opponent</div>
                                     <div className="flex gap-1 justify-center mt-2">
                                         {[...Array(playerRole === 1 ? roomData.p2Wins : roomData.p1Wins)].map((_,i) => <i key={i} className="fa-solid fa-star text-[#ef4444] text-[10px]"></i>)}
                                     </div>
@@ -1183,31 +1233,31 @@
                                 <div className="mt-4 flex-1">
                                     {(playerRole === 1 ? roomData.p1Bid : roomData.p2Bid) === null ? (
                                         <div className="pop-in">
-                                            <div className="text-center text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Enter Your Bid</div>
-                                            <input type="number" value={bidInput} onChange={(e) => setBidInput(e.target.value)} className="w-full bg-[#111] border-2 border-[#ffcc00] rounded-2xl text-center text-5xl py-6 focus:outline-none font-black shadow-[0_0_20px_rgba(255,204,0,0.2)] text-white" placeholder="0" />
+                                            <div className="text-center text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Enter Your Bid</div>
+                                            <input type="number" value={bidInput} onChange={(e) => setBidInput(e.target.value)} className="w-full bg-white border-2 border-[#dcae45] rounded-2xl text-center text-5xl py-6 focus:outline-none font-black shadow-sm text-black" placeholder="0" />
                                             <div className="flex gap-3 mt-6">
-                                                <button onClick={() => { playClickSound(); setBidInput(Math.floor((playerRole === 1 ? roomData.p1Tokens : roomData.p2Tokens)/2)); }} className="flex-1 bg-black border border-[#ffcc00] py-3 rounded-xl font-black text-[#ffcc00] uppercase">Half</button>
-                                                <button onClick={() => { playClickSound(); setBidInput(playerRole === 1 ? roomData.p1Tokens : roomData.p2Tokens); }} className="flex-1 bg-black border border-[#ffcc00] py-3 rounded-xl font-black text-[#ffcc00] uppercase">Max</button>
+                                                <button onClick={() => { playClickSound(); setBidInput(Math.floor((playerRole === 1 ? roomData.p1Tokens : roomData.p2Tokens)/2)); }} className="flex-1 bg-white border border-[#dcae45] py-3 rounded-xl font-black text-[#b8860b] uppercase shadow-sm">Half</button>
+                                                <button onClick={() => { playClickSound(); setBidInput(playerRole === 1 ? roomData.p1Tokens : roomData.p2Tokens); }} className="flex-1 bg-white border border-[#dcae45] py-3 rounded-xl font-black text-[#b8860b] uppercase shadow-sm">Max</button>
                                             </div>
-                                            <button onClick={submitBid} className="w-full mt-6 btn-play-gold py-5 rounded-2xl text-xl tracking-widest font-black shadow-[0_0_20px_rgba(255,204,0,0.5)]">LOCK BID</button>
+                                            <button onClick={submitBid} className="w-full mt-6 btn-play-gold py-5 rounded-2xl text-xl tracking-widest font-black shadow-md">LOCK BID</button>
                                         </div>
                                     ) : (
                                         <div className="text-center mt-20 animate-pulse">
-                                            <i className="fa-solid fa-hourglass-half text-5xl text-[#ffcc00] mb-6 drop-shadow-[0_0_15px_#ffcc00] animate-bounce"></i>
-                                            <div className="text-[#ffcc00] font-black text-xl uppercase tracking-widest">Waiting for opponent...</div>
+                                            <i className="fa-solid fa-hourglass-half text-5xl text-[#dcae45] mb-6 drop-shadow-sm animate-bounce"></i>
+                                            <div className="text-[#b8860b] font-black text-xl uppercase tracking-widest">Waiting for opponent...</div>
                                         </div>
                                     )}
                                 </div>
                             ) : (
                                 <div className="mt-10 text-center pop-in flex-1">
-                                    <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6">Round {roomData.round} Result</h3>
+                                    <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-6">Round {roomData.round} Result</h3>
                                     <div className="flex justify-between items-center px-4 mb-8">
                                         <div className="text-4xl font-black text-[#3b82f6]">{playerRole === 1 ? roomData.lastResult.p1Bid : roomData.lastResult.p2Bid}</div>
-                                        <div className="text-xl font-bold text-gray-600">VS</div>
+                                        <div className="text-xl font-bold text-gray-400">VS</div>
                                         <div className="text-4xl font-black text-[#ef4444]">{playerRole === 1 ? roomData.lastResult.p2Bid : roomData.lastResult.p1Bid}</div>
                                     </div>
-                                    <div className="p-6 border-2 rounded-2xl border-[#ffcc00] bg-[#111]">
-                                        <div className="text-3xl font-black uppercase tracking-widest text-[#ffcc00]">
+                                    <div className="p-6 border-2 rounded-2xl border-[#dcae45] bg-white shadow-sm">
+                                        <div className="text-3xl font-black uppercase tracking-widest text-[#b8860b]">
                                             {roomData.lastResult.winner === 'DRAW' ? 'Round Tied!' : `${roomData.lastResult.winner} WON`}
                                         </div>
                                     </div>
@@ -1216,18 +1266,18 @@
                         </div>
                     )}
 
-                    {/* BOTTOM NAVIGATION */}
+                    {/* BOTTOM NAVIGATION (LIGHT THEME) */}
                     {!isPlaying && !historyView && (
-                        <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-[#0a0a0a] border-t border-[#333] flex justify-between items-center h-[70px] px-6 z-50 rounded-t-3xl shadow-[0_-10px_25px_rgba(0,0,0,0.9)] backdrop-blur-md">
-                            <button onClick={()=>setActiveTab('home')} className={`flex flex-col items-center gap-1 w-10 ${activeTab==='home'?'text-[#ffe29a] drop-shadow-[0_0_8px_rgba(220,174,69,0.8)]':'text-gray-500'}`}><i className="fa-solid fa-house text-xl"></i><span className="text-[10px] font-bold">Home</span></button>
-                            <button onClick={()=>setActiveTab('ranking')} className={`flex flex-col items-center gap-1 w-12 ${activeTab==='ranking'?'text-[#ffe29a] drop-shadow-[0_0_8px_rgba(220,174,69,0.8)]':'text-gray-500'}`}><i className="fa-solid fa-ranking-star text-xl"></i><span className="text-[10px] font-bold">Ranking</span></button>
+                        <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-gray-200 flex justify-between items-center h-[70px] px-6 z-50 rounded-t-3xl shadow-[0_-5px_20px_rgba(0,0,0,0.05)]">
+                            <button onClick={()=>setActiveTab('home')} className={`flex flex-col items-center gap-1 w-10 ${activeTab==='home'?'text-[#b8860b]':'text-gray-400'}`}><i className="fa-solid fa-house text-xl"></i><span className="text-[10px] font-bold">Home</span></button>
+                            <button onClick={()=>setActiveTab('ranking')} className={`flex flex-col items-center gap-1 w-12 ${activeTab==='ranking'?'text-[#b8860b]':'text-gray-400'}`}><i className="fa-solid fa-ranking-star text-xl"></i><span className="text-[10px] font-bold">Ranking</span></button>
                             <div className="relative -top-6">
-                                <button onClick={()=>setActiveTab('wallet')} className={`w-16 h-16 rounded-full flex items-center justify-center border-4 border-[#050505] shadow-[0_0_20px_rgba(220,174,69,0.6)] transition-transform ${activeTab==='wallet'?'bg-gradient-to-b from-[#ffe29a] to-[#dcae45] text-black scale-105':'bg-[#111] text-[#dcae45]'}`}>
+                                <button onClick={()=>setActiveTab('wallet')} className={`w-16 h-16 rounded-full flex items-center justify-center border-4 border-[#f4f6f9] shadow-md transition-transform ${activeTab==='wallet'?'bg-gradient-to-b from-[#ffe29a] to-[#dcae45] text-black scale-105':'bg-white border border-gray-200 text-[#b8860b]'}`}>
                                     <i className="fa-solid fa-wallet text-2xl"></i>
                                 </button>
                             </div>
-                            <button onClick={()=>setActiveTab('refer')} className={`flex flex-col items-center gap-1 w-10 ${activeTab==='refer'?'text-[#ffe29a] drop-shadow-[0_0_8px_rgba(220,174,69,0.8)]':'text-gray-500'}`}><i className="fa-solid fa-gift text-xl"></i><span className="text-[10px] font-bold">Refer</span></button>
-                            <button onClick={()=>setActiveTab('profile')} className={`flex flex-col items-center gap-1 w-10 ${activeTab==='profile'?'text-[#ffe29a] drop-shadow-[0_0_8px_rgba(220,174,69,0.8)]':'text-gray-500'}`}><i className="fa-solid fa-user text-xl"></i><span className="text-[10px] font-bold">Profile</span></button>
+                            <button onClick={()=>setActiveTab('refer')} className={`flex flex-col items-center gap-1 w-10 ${activeTab==='refer'?'text-[#b8860b]':'text-gray-400'}`}><i className="fa-solid fa-gift text-xl"></i><span className="text-[10px] font-bold">Refer</span></button>
+                            <button onClick={()=>setActiveTab('profile')} className={`flex flex-col items-center gap-1 w-10 ${activeTab==='profile'?'text-[#b8860b]':'text-gray-400'}`}><i className="fa-solid fa-user text-xl"></i><span className="text-[10px] font-bold">Profile</span></button>
                         </div>
                     )}
                 </div>
